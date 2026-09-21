@@ -4,6 +4,7 @@
  * one through its provider, and records the outcome with retry backoff.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { SendResult } from "@/lib/messaging.server";
 import {
   emailConfigured,
   renderEmail,
@@ -49,7 +50,7 @@ export async function processQueue(limit = 100): Promise<{ sent: number; failed:
   let failed = 0;
 
   for (const row of rows) {
-    let result: { ok: boolean; providerId?: string; error?: string };
+    let result: SendResult;
 
     if (row.channel === "email") {
       if (!emailConfigured()) {
