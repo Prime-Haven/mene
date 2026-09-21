@@ -159,49 +159,40 @@ function Members() {
 
       const payload = rows
         .map((row) => ({
-          tenant_id: tenant!.id,
-          branch_id: membership?.branch_id ?? null,
           full_name: pick(row, ["name", "full name", "fullname", "member name"]),
-          phone: pick(row, ["phone", "phone number", "contact", "mobile"]) || null,
-          email: pick(row, ["email", "e-mail"]) || null,
-          residential_area: pick(row, ["area", "residential area", "location", "address"]) || null,
-          marital_status: pick(row, ["marital status", "marital", "status of marriage"]) || null,
-          occupation: pick(row, ["occupation", "job", "profession"]) || null,
+          phone: pick(row, ["phone", "phone number", "contact", "mobile"]),
+          email: pick(row, ["email", "e-mail"]),
+          date_of_birth: pick(row, ["date of birth", "dob", "birthday"]),
+          gender: pick(row, ["gender", "sex"]),
+          residential_area: pick(row, ["area", "residential area", "location", "address"]),
+          marital_status: pick(row, ["marital status", "marital", "status of marriage"]),
+          occupation: pick(row, ["occupation", "job", "profession"]),
         }))
         .filter((r) => r.full_name.length > 1);
 
       if (payload.length === 0) throw new Error("No rows with a name column were found");
 
-      const { data: batch, error: batchError } = await supabase
-        .from("import_batches")
-        .insert({
-          tenant_id: tenant!.id,
-          filename: file.name,
-          row_count: rows.length,
-          inserted_count: payload.length,
-          skipped_count: rows.length - payload.length,
-        })
-        .select("id")
-        .single();
-      if (batchError) throw batchError;
-
-      const { error } = await supabase
-        .from("members")
-        .upsert(
-          payload.map((p) => ({ ...p, import_batch_id: batch.id })),
-          { onConflict: "tenant_id,phone", ignoreDuplicates: true },
-        );
+      // Imports go through a protected database function that validates every
+      // row, matches duplicates by phone and respects the package member limit.
+      const { data, error } = await supabase.rpc("import_members_batch", {
+        p_tenant: tenant!.id,
+        p_branch: membership?.branch_id as string,
+        p_filename: file.name,
+        p_rows: payload,
+      });
       if (error) throw error;
-      return payload.length;
+      return data as unknown as { inserted: number; skipped: number };
     },
-    onSuccess: (count) => {
-      toast.success(`${count} rows imported`);
+    onSuccess: (result) => {
+      toast.success(
+        `${result.inserted} members added${result.skipped ? `, ${result.skipped} skipped` : ""}`,
+      );
       qc.invalidateQueries({ queryKey: ["members"] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Import failed"),
   });
 
-  function exportCsv() {
+  async function exportCsv() {
     const rows = filtered.map((m) => [
       m.full_name,
       m.is_minor && !isAdmin ? "" : (m.phone ?? ""),
@@ -225,6 +216,7 @@ function Members() {
     a.download = `${tenant?.subdomain ?? "members"}-registry.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    await supabase.rpc("log_member_export", { p_tenant: tenant!.id, p_count: rows.length });
   }
 
   return (
@@ -236,7 +228,7 @@ function Members() {
           <p className="text-sm text-muted-foreground">{members?.length ?? 0} records</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={exportCsv}>
+          <Button variant="outline" onClick={() => void exportCsv()}>
             <Download className="size-4" /> Export CSV
           </Button>
           {canManageMembers && (
