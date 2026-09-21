@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_app/scan")({
   component: Scan,
 });
 
-type Result = { ok: boolean; name?: string; message: string };
+type Result = { ok: boolean; name?: string | undefined; message: string };
 
 function Scan() {
   const { tenant } = useTenant();

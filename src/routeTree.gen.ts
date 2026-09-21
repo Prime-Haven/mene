@@ -13,8 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as AppAuditRouteImport } from './routes/_app/audit'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppMembersRouteImport } from './routes/_app/members'
+import { Route as AppReportsRouteImport } from './routes/_app/reports'
+import { Route as AppScanRouteImport } from './routes/_app/scan'
 import { Route as AppServicesRouteImport } from './routes/_app/services'
+import { Route as AppStructureRouteImport } from './routes/_app/structure'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,9 +40,29 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAuditRoute = AppAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppMembersRoute = AppMembersRouteImport.update({
+  id: '/members',
+  path: '/members',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppScanRoute = AppScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppServicesRoute = AppServicesRouteImport.update({
@@ -45,20 +70,35 @@ const AppServicesRoute = AppServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppStructureRoute = AppStructureRouteImport.update({
+  id: '/structure',
+  path: '/structure',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/audit': typeof AppAuditRoute
   '/dashboard': typeof AppDashboardRoute
+  '/members': typeof AppMembersRoute
+  '/reports': typeof AppReportsRoute
+  '/scan': typeof AppScanRoute
   '/services': typeof AppServicesRoute
+  '/structure': typeof AppStructureRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/audit': typeof AppAuditRoute
   '/dashboard': typeof AppDashboardRoute
+  '/members': typeof AppMembersRoute
+  '/reports': typeof AppReportsRoute
+  '/scan': typeof AppScanRoute
   '/services': typeof AppServicesRoute
+  '/structure': typeof AppStructureRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -66,22 +106,52 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/_app/audit': typeof AppAuditRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/members': typeof AppMembersRoute
+  '/_app/reports': typeof AppReportsRoute
+  '/_app/scan': typeof AppScanRoute
   '/_app/services': typeof AppServicesRoute
+  '/_app/structure': typeof AppStructureRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/onboarding' | '/dashboard' | '/services'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/onboarding'
+    | '/audit'
+    | '/dashboard'
+    | '/members'
+    | '/reports'
+    | '/scan'
+    | '/services'
+    | '/structure'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/onboarding' | '/dashboard' | '/services'
+  to:
+    | '/'
+    | '/auth'
+    | '/onboarding'
+    | '/audit'
+    | '/dashboard'
+    | '/members'
+    | '/reports'
+    | '/scan'
+    | '/services'
+    | '/structure'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/auth'
     | '/onboarding'
+    | '/_app/audit'
     | '/_app/dashboard'
+    | '/_app/members'
+    | '/_app/reports'
+    | '/_app/scan'
     | '/_app/services'
+    | '/_app/structure'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -121,11 +191,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/audit': {
+      id: '/_app/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AppAuditRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/members': {
+      id: '/_app/members'
+      path: '/members'
+      fullPath: '/members'
+      preLoaderRoute: typeof AppMembersRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/scan': {
+      id: '/_app/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof AppScanRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/services': {
@@ -135,17 +233,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppServicesRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/structure': {
+      id: '/_app/structure'
+      path: '/structure'
+      fullPath: '/structure'
+      preLoaderRoute: typeof AppStructureRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
   }
 }
 
 interface AppRouteRouteChildren {
+  AppAuditRoute: typeof AppAuditRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppMembersRoute: typeof AppMembersRoute
+  AppReportsRoute: typeof AppReportsRoute
+  AppScanRoute: typeof AppScanRoute
   AppServicesRoute: typeof AppServicesRoute
+  AppStructureRoute: typeof AppStructureRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppAuditRoute: AppAuditRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppMembersRoute: AppMembersRoute,
+  AppReportsRoute: AppReportsRoute,
+  AppScanRoute: AppScanRoute,
   AppServicesRoute: AppServicesRoute,
+  AppStructureRoute: AppStructureRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
