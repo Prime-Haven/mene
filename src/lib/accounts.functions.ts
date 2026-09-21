@@ -85,14 +85,14 @@ export const inviteAccount = createServerFn({ method: "POST" })
 
     // Branded invitation from the church, when email sending is switched on.
     const { sendBrandedEmailNow } = await import("@/lib/queue.server");
-    const invited = await sendBrandedEmailNow({
+    const branded = await sendBrandedEmailNow({
       tenantId: data.tenant_id,
       to: data.email,
       subject: `You have been invited to help run ${tenant.name}`,
       body: `You have been added to ${tenant.name} on Patmos as ${data.role.replace("_", " ")}.\n\nCheck your inbox for the sign-in link from Patmos, then set your password and you are in. If you already have a Patmos login, just sign in as usual.`,
     });
-    if (!invited.ok) {
-      console.warn(`[accounts] branded invite not sent: ${invited.error ?? "unknown"}`);
+    if (!branded.ok) {
+      console.warn(`[accounts] branded invite not sent: ${branded.error ?? "unknown"}`);
     }
 
     await supabaseAdmin.rpc("log_audit", {
