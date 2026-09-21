@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as AppAccountsRouteImport } from './routes/_app/accounts'
 import { Route as AppAuditRouteImport } from './routes/_app/audit'
 import { Route as AppBillingRouteImport } from './routes/_app/billing'
@@ -24,6 +25,7 @@ import { Route as AppServicesRouteImport } from './routes/_app/services'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStructureRouteImport } from './routes/_app/structure'
 import { Route as CSubdomainRouteImport } from './routes/c.$subdomain'
+import { Route as ApiPublicWebhooksPaystackRouteImport } from './routes/api/public/webhooks/paystack'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -42,6 +44,11 @@ const AuthRoute = AuthRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppAccountsRoute = AppAccountsRouteImport.update({
@@ -99,11 +106,18 @@ const CSubdomainRoute = CSubdomainRouteImport.update({
   path: '/c/$subdomain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhooksPaystackRoute =
+  ApiPublicWebhooksPaystackRouteImport.update({
+    id: '/api/public/webhooks/paystack',
+    path: '/api/public/webhooks/paystack',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/platform': typeof PlatformRoute
   '/accounts': typeof AppAccountsRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
@@ -115,11 +129,13 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/platform': typeof PlatformRoute
   '/accounts': typeof AppAccountsRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
@@ -131,6 +147,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -138,6 +155,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/platform': typeof PlatformRoute
   '/_app/accounts': typeof AppAccountsRoute
   '/_app/audit': typeof AppAuditRoute
   '/_app/billing': typeof AppBillingRoute
@@ -149,6 +167,7 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -156,6 +175,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/platform'
     | '/accounts'
     | '/audit'
     | '/billing'
@@ -167,11 +187,13 @@ export interface FileRouteTypes {
     | '/settings'
     | '/structure'
     | '/c/$subdomain'
+    | '/api/public/webhooks/paystack'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/platform'
     | '/accounts'
     | '/audit'
     | '/billing'
@@ -183,12 +205,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/structure'
     | '/c/$subdomain'
+    | '/api/public/webhooks/paystack'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/auth'
     | '/onboarding'
+    | '/platform'
     | '/_app/accounts'
     | '/_app/audit'
     | '/_app/billing'
@@ -200,6 +224,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/structure'
     | '/c/$subdomain'
+    | '/api/public/webhooks/paystack'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -207,7 +232,9 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   OnboardingRoute: typeof OnboardingRoute
+  PlatformRoute: typeof PlatformRoute
   CSubdomainRoute: typeof CSubdomainRoute
+  ApiPublicWebhooksPaystackRoute: typeof ApiPublicWebhooksPaystackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -238,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platform': {
+      id: '/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof PlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/accounts': {
@@ -317,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CSubdomainRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhooks/paystack': {
+      id: '/api/public/webhooks/paystack'
+      path: '/api/public/webhooks/paystack'
+      fullPath: '/api/public/webhooks/paystack'
+      preLoaderRoute: typeof ApiPublicWebhooksPaystackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -355,7 +396,9 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   OnboardingRoute: OnboardingRoute,
+  PlatformRoute: PlatformRoute,
   CSubdomainRoute: CSubdomainRoute,
+  ApiPublicWebhooksPaystackRoute: ApiPublicWebhooksPaystackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

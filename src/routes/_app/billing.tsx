@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/hooks/useTenant";
+import { startPayment } from "@/lib/billing.functions";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_app/billing")({
   head: () => ({
@@ -21,6 +25,17 @@ export const Route = createFileRoute("/_app/billing")({
 
 function Billing() {
   const { tenant } = useTenant();
+  const pay = useServerFn(startPayment);
+
+  const renew = useMutation({
+    mutationFn: async (tier: "basic" | "standard" | "premium") => {
+      const result = await pay({ data: { tenant_id: tenant!.id, tier } });
+      if (!result.ok) throw new Error(result.message);
+      window.location.href = result.authorization_url;
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not start payment"),
+  });
+
 
   const { data: sub } = useQuery({
     queryKey: ["subscription", tenant?.id],
@@ -84,11 +99,24 @@ function Billing() {
       </div>
 
       <div className="surface p-5">
-        <h2 className="text-base font-semibold">Card and mobile money payments</h2>
+        <h2 className="text-base font-semibold">Pay or renew</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The payment gateway is wired and waiting for the Paystack key. Once it is added, this screen
-          collects the first payment and renewals, and payments recorded by the gateway appear below.
+          Pay by card or mobile money. Mobile money is never debited automatically — you confirm each
+          renewal yourself. Payments appear below as soon as they clear.
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {(["basic", "standard", "premium"] as const).map((t) => (
+            <Button
+              key={t}
+              variant={t === (sub?.tier ?? tenant?.tier) ? "default" : "outline"}
+              disabled={renew.isPending}
+              onClick={() => renew.mutate(t)}
+              className="capitalize"
+            >
+              {t === (sub?.tier ?? tenant?.tier) ? `Renew ${t}` : `Switch to ${t}`}
+            </Button>
+          ))}
+        </div>
       </div>
 
       <div className="surface divide-y divide-border">

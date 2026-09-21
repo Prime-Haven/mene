@@ -15,6 +15,13 @@
       "when": 1789957630700,
       "tag": "0001_grace_city_hub_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789958427305,
+      "tag": "0002_payment_application_and_platform_stats",
+      "breakpoints": true
     }
   ]
 }
