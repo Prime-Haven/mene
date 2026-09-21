@@ -25,6 +25,17 @@ export const Route = createFileRoute("/_app/billing")({
 
 function Billing() {
   const { tenant } = useTenant();
+  const pay = useServerFn(startPayment);
+
+  const renew = useMutation({
+    mutationFn: async (tier: "basic" | "standard" | "premium") => {
+      const result = await pay({ data: { tenant_id: tenant!.id, tier } });
+      if (!result.ok) throw new Error(result.message);
+      window.location.href = result.authorization_url;
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not start payment"),
+  });
+
 
   const { data: sub } = useQuery({
     queryKey: ["subscription", tenant?.id],
