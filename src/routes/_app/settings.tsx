@@ -27,7 +27,8 @@ export const Route = createFileRoute("/_app/settings")({
 });
 
 function Settings() {
-  const { tenant } = useTenant();
+  const ctx = useTenant();
+  const { tenant } = ctx;
   const qc = useQueryClient();
   const [name, setName] = useState(tenant?.name ?? "");
   const [vocab, setVocab] = useState(tenant?.group_vocabulary ?? "Group");
@@ -65,6 +66,31 @@ function Settings() {
     },
     onSuccess: () => {
       toast.success("Saved");
+      qc.invalidateQueries({ queryKey: ["membership"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save"),
+  });
+
+  const [replyTo, setReplyTo] = useState(tenant?.reply_to_email ?? "");
+  const [smsSender, setSmsSender] = useState(tenant?.sms_sender_id ?? "");
+  const [quietStart, setQuietStart] = useState(String(tenant?.quiet_hour_start ?? 21));
+  const [quietEnd, setQuietEnd] = useState(String(tenant?.quiet_hour_end ?? 7));
+  const [absence, setAbsence] = useState(String(tenant?.absence_threshold ?? 3));
+
+  const saveMessaging = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc("update_messaging_settings", {
+        p_tenant: tenant!.id,
+        p_reply_to: replyTo.trim(),
+        p_sms_sender: smsSender.trim(),
+        p_quiet_start: Number(quietStart),
+        p_quiet_end: Number(quietEnd),
+        p_absence: Number(absence),
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Messaging settings saved");
       qc.invalidateQueries({ queryKey: ["membership"] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save"),
@@ -122,6 +148,83 @@ function Settings() {
           <h3 className="mt-2 text-2xl">Welcome — let's check you in</h3><p className="mt-2 text-sm text-muted-foreground">{welcome || "Your welcome message will appear here."}</p>
           <div className="mt-6 space-y-3"><div className="h-11 rounded-lg border bg-white" /><div className="h-11 rounded-lg border bg-white" /><button type="button" className="h-11 w-full rounded-lg font-semibold text-white" style={{ background: primary }}>{buttonText || "Check in"}</button></div>
         </div></div>
+      </form>
+
+      <form
+        className="surface space-y-4 p-5"
+        onSubmit={(e) => {
+          e.preventDefault();
+          saveMessaging.mutate();
+        }}
+      >
+        <div>
+          <p className="text-eyebrow">Messages</p>
+          <h2 className="mt-1 text-lg font-semibold">How your church reaches members</h2>
+          <p className="text-sm text-muted-foreground">
+            These settings apply to welcome messages, birthday wishes, follow-ups and broadcasts.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="replyto">Reply-to email</Label>
+            <Input
+              id="replyto"
+              type="email"
+              value={replyTo}
+              onChange={(e) => setReplyTo(e.target.value)}
+              maxLength={160}
+              placeholder="office@yourchurch.org"
+            />
+          </div>
+          {ctx.can("sms") && (
+            <div className="space-y-2">
+              <Label htmlFor="smssender">Text-message sender name</Label>
+              <Input
+                id="smssender"
+                value={smsSender}
+                onChange={(e) => setSmsSender(e.target.value)}
+                maxLength={11}
+                placeholder="MyChurch"
+              />
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="qstart">Stop sending after (hour)</Label>
+            <Input
+              id="qstart"
+              type="number"
+              min={0}
+              max={23}
+              value={quietStart}
+              onChange={(e) => setQuietStart(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="qend">Start sending again at (hour)</Label>
+            <Input
+              id="qend"
+              type="number"
+              min={0}
+              max={23}
+              value={quietEnd}
+              onChange={(e) => setQuietEnd(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="absence">Follow up after this many weeks away</Label>
+            <Input
+              id="absence"
+              type="number"
+              min={1}
+              max={12}
+              value={absence}
+              onChange={(e) => setAbsence(e.target.value)}
+            />
+          </div>
+        </div>
+        <Button type="submit" variant="outline" disabled={saveMessaging.isPending}>
+          {saveMessaging.isPending ? "Saving…" : "Save message settings"}
+        </Button>
       </form>
 
       <div className="surface space-y-2 p-5">
