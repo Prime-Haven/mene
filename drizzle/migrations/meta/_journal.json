@@ -43,6 +43,13 @@
       "when": 1789966540204,
       "tag": "0005_harden_tenant_branding_access",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789966618987,
+      "tag": "0006_secure_member_admin_and_branding_nulls",
+      "breakpoints": true
     }
   ]
 }

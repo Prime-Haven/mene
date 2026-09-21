@@ -756,6 +756,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      create_member: {
+        Args: {
+          p_area: string
+          p_branch: string
+          p_dob: string
+          p_email: string
+          p_full_name: string
+          p_gender: Database["public"]["Enums"]["gender_type"]
+          p_marital_status: string
+          p_occupation: string
+          p_phone: string
+          p_tenant: string
+        }
+        Returns: string
+      }
       has_tenant_role: {
         Args: {
           _roles: Database["public"]["Enums"]["app_role"][]
