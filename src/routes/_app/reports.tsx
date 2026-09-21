@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/hooks/useTenant";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UpgradePanel } from "@/components/FeatureGate";
 
 export const Route = createFileRoute("/_app/reports")({
   head: () => ({
@@ -35,7 +36,8 @@ function download(filename: string, rows: Array<Array<string | number>>) {
 }
 
 function Reports() {
-  const { tenant } = useTenant();
+  const ctx = useTenant();
+  const { tenant } = ctx;
   const [serviceId, setServiceId] = useState("");
 
   const { data: services } = useQuery({
@@ -92,6 +94,24 @@ function Reports() {
     },
   });
 
+  const { data: insights } = useQuery({
+    queryKey: ["insights", tenant?.id],
+    enabled: !!tenant && ctx.can("reports_advanced"),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("attendance_insights", {
+        p_tenant: tenant!.id,
+        p_weeks: 12,
+      });
+      if (error) throw error;
+      return data as unknown as {
+        services: Array<{ service_date: string; name: string; total: number; first_timers: number }>;
+        groups: Array<{ group_name: string; members: number; attendances: number }>;
+        branches: Array<{ branch: string; members: number; attendances: number }>;
+        demographics: Record<string, number>;
+      };
+    },
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -104,6 +124,7 @@ function Reports() {
           <TabsTrigger value="service">Service attendance</TabsTrigger>
           <TabsTrigger value="first">First-timers</TabsTrigger>
           <TabsTrigger value="birthdays">Birthdays</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
         </TabsList>
 
         <TabsContent value="service" className="space-y-4">
@@ -182,6 +203,72 @@ function Reports() {
               b.phone ?? "Hidden",
             ])}
           />
+        </TabsContent>
+        <TabsContent value="insights" className="space-y-5">
+          {!ctx.can("reports_advanced") ? (
+            <UpgradePanel feature="reports_advanced" canUpgrade={ctx.isOwner} />
+          ) : (
+            <>
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {[
+                  ["Members", insights?.demographics?.["total"]],
+                  ["Men", insights?.demographics?.["male"]],
+                  ["Women", insights?.demographics?.["female"]],
+                  ["Married", insights?.demographics?.["married"]],
+                  ["Single", insights?.demographics?.["single"]],
+                  ["Under 18", insights?.demographics?.["minors"]],
+                ].map(([label, value]) => (
+                  <div key={String(label)} className="surface p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {label}
+                    </p>
+                    <p className="mt-1 text-2xl font-bold">{value ?? 0}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <h2 className="mb-2 text-base font-semibold">Last 12 weeks of services</h2>
+                <ReportTable
+                  head={["Date", "Service", "Present", "First-timers"]}
+                  rows={(insights?.services ?? []).map((s) => [
+                    s.service_date,
+                    s.name,
+                    s.total,
+                    s.first_timers,
+                  ])}
+                />
+              </div>
+
+              {ctx.can("groups") && (
+                <div>
+                  <h2 className="mb-2 text-base font-semibold">By group</h2>
+                  <ReportTable
+                    head={["Group", "Members", "Attendances"]}
+                    rows={(insights?.groups ?? []).map((g) => [
+                      g.group_name,
+                      g.members,
+                      g.attendances,
+                    ])}
+                  />
+                </div>
+              )}
+
+              {ctx.can("branches") && (
+                <div>
+                  <h2 className="mb-2 text-base font-semibold">By branch</h2>
+                  <ReportTable
+                    head={["Branch", "Members", "Attendances"]}
+                    rows={(insights?.branches ?? []).map((b) => [
+                      b.branch,
+                      b.members,
+                      b.attendances,
+                    ])}
+                  />
+                </div>
+              )}
+            </>
+          )}
         </TabsContent>
       </Tabs>
     </div>
