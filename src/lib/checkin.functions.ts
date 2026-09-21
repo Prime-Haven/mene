@@ -93,7 +93,7 @@ export const submitSelfCheckin = createServerFn({ method: "POST" })
       p_service: data.service_id,
       p_full_name: data.full_name,
       p_phone: data.phone,
-      p_email: data.email,
+      p_email: data.email ?? "",
       p_dob: data.date_of_birth,
       p_gender: data.gender,
       p_marital_status: data.marital_status,
