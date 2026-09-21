@@ -22,6 +22,13 @@
       "when": 1789958427305,
       "tag": "0002_payment_application_and_platform_stats",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789960210894,
+      "tag": "0003_monthly_billing_period",
+      "breakpoints": true
     }
   ]
 }
