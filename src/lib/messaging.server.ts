@@ -1,0 +1,147 @@
+/**
+ * Provider adapters. Server-only: keys never reach the browser.
+ * Email goes through Resend, text messages through Arkesel. Until the keys are
+ * saved the whole messaging engine reports itself as not configured and sends
+ * nothing, so nothing is silently lost.
+ */
+
+export type Channel = "email" | "sms";
+
+export type SendResult = {
+  ok: boolean;
+  providerId?: string | undefined;
+  error?: string | undefined;
+};
+
+export function emailConfigured(): boolean {
+  return !!process.env["RESEND_API_KEY"];
+}
+
+export function smsConfigured(): boolean {
+  return !!process.env["ARKESEL_API_KEY"];
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/** Branded HTML wrapper carrying the church's own name and colour. */
+export function renderEmail(options: {
+  churchName: string;
+  brandPrimary: string;
+  logoUrl: string | null;
+  subject: string;
+  body: string;
+}): string {
+  const colour = /^#[0-9a-f]{6}$/i.test(options.brandPrimary) ? options.brandPrimary : "#3b82f6";
+  const paragraphs = options.body
+    .split(/\n{2,}/)
+    .map((p) => `<p style="margin:0 0 14px;line-height:1.6">${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+  const logo = options.logoUrl
+    ? `<img src="${escapeHtml(options.logoUrl)}" alt="" width="52" height="52" style="border-radius:12px;display:block;margin:0 auto 12px">`
+    : "";
+  return `<!doctype html><html><body style="margin:0;background:#f4f6f9;padding:28px 12px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#0f172a">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+<table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:18px;overflow:hidden;border:1px solid #e8ecf1">
+<tr><td style="background:${colour};height:5px"></td></tr>
+<tr><td style="padding:28px 28px 8px;text-align:center">${logo}
+<div style="font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#94a3b8">${escapeHtml(options.churchName)}</div>
+<h1 style="margin:10px 0 18px;font-size:20px">${escapeHtml(options.subject)}</h1></td></tr>
+<tr><td style="padding:0 28px 26px;font-size:15px;color:#334155">${paragraphs}</td></tr>
+<tr><td style="padding:16px 28px 24px;border-top:1px solid #e8ecf1;font-size:12px;color:#94a3b8;text-align:center">
+Sent by ${escapeHtml(options.churchName)} · powered by Patmos</td></tr>
+</table></td></tr></table></body></html>`;
+}
+
+export async function sendEmail(options: {
+  to: string;
+  subject: string;
+  html: string;
+  fromName: string;
+  replyTo: string | null;
+}): Promise<SendResult> {
+  const key = process.env["RESEND_API_KEY"];
+  if (!key) return { ok: false, error: "Email is not configured yet" };
+  const from = process.env["PATMOS_EMAIL_FROM"] ?? "notifications@resend.dev";
+  const safeName = options.fromName.replace(/[<>"\n\r]/g, "").slice(0, 60) || "Patmos";
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        from: `${safeName} <${from}>`,
+        to: [options.to],
+        subject: options.subject,
+        html: options.html,
+        ...(options.replyTo ? { reply_to: options.replyTo } : {}),
+      }),
+    });
+    const text = await response.text();
+    if (!response.ok) {
+      console.error(`[messaging] Resend failed [${response.status}]: ${text}`);
+      return { ok: false, error: `Email provider error ${response.status}` };
+    }
+    let providerId: string | undefined;
+    try {
+      providerId = (JSON.parse(text) as { id?: string }).id;
+    } catch {
+      providerId = undefined;
+    }
+    return { ok: true, providerId };
+  } catch (error) {
+    console.error("[messaging] Resend request threw", error);
+    return { ok: false, error: "Could not reach the email provider" };
+  }
+}
+
+export async function sendSms(options: {
+  to: string;
+  body: string;
+  sender: string | null;
+}): Promise<SendResult> {
+  const key = process.env["ARKESEL_API_KEY"];
+  if (!key) return { ok: false, error: "Text messaging is not configured yet" };
+  const sender = (options.sender ?? process.env["ARKESEL_SENDER_ID"] ?? "Patmos")
+    .replace(/[^A-Za-z0-9 ]/g, "")
+    .slice(0, 11);
+
+  try {
+    const response = await fetch("https://sms.arkesel.com/api/v2/sms/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "api-key": key },
+      body: JSON.stringify({
+        sender,
+        message: options.body.slice(0, 480),
+        recipients: [options.to.replace(/[^\d+]/g, "")],
+      }),
+    });
+    const text = await response.text();
+    if (!response.ok) {
+      console.error(`[messaging] Arkesel failed [${response.status}]: ${text}`);
+      return { ok: false, error: `Text provider error ${response.status}` };
+    }
+    let providerId: string | undefined;
+    let status: string | undefined;
+    try {
+      const parsed = JSON.parse(text) as { status?: string; data?: Array<{ id?: string }> };
+      status = parsed.status;
+      providerId = parsed.data?.[0]?.id;
+    } catch {
+      providerId = undefined;
+    }
+    if (status && status !== "success") {
+      console.error(`[messaging] Arkesel rejected the send: ${text}`);
+      return { ok: false, error: "The text provider rejected this message" };
+    }
+    return { ok: true, providerId };
+  } catch (error) {
+    console.error("[messaging] Arkesel request threw", error);
+    return { ok: false, error: "Could not reach the text provider" };
+  }
+}

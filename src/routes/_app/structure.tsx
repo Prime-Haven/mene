@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/hooks/useTenant";
+import { UpgradePanel } from "@/components/FeatureGate";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +26,8 @@ export const Route = createFileRoute("/_app/structure")({
 });
 
 function Structure() {
-  const { tenant, tier } = useTenant();
+  const ctx = useTenant();
+  const { tenant, tier } = ctx;
   const qc = useQueryClient();
   const [levelName, setLevelName] = useState("");
   const [groupName, setGroupName] = useState("");
@@ -94,6 +96,10 @@ function Structure() {
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not create group"),
   });
+
+  if (!ctx.isLoading && !ctx.can("structure")) {
+    return <UpgradePanel feature="structure" canUpgrade={ctx.isOwner} />;
+  }
 
   return (
     <div className="space-y-6">

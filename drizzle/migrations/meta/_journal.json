@@ -50,6 +50,13 @@
       "when": 1789966618987,
       "tag": "0006_secure_member_admin_and_branding_nulls",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789993728741,
+      "tag": "0007_entitlements_messaging_and_scale",
+      "breakpoints": true
     }
   ]
 }

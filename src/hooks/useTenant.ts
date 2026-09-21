@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { ENTITLEMENTS, hasFeature, limitOf, type Feature, type Limit } from "@/lib/entitlements";
 
 export type AppRole = Database["public"]["Enums"]["app_role"];
 export type Tier = Database["public"]["Enums"]["tenant_tier"];
@@ -23,10 +24,15 @@ export type Membership = {
     welcome_message: string | null;
     submit_button_text: string;
     group_vocabulary: string;
+    reply_to_email: string | null;
+    sms_sender_id: string | null;
+    quiet_hour_start: number;
+    quiet_hour_end: number;
+    absence_threshold: number;
   };
 };
 
-/** The signed-in user's church membership, role and tier. */
+/** The signed-in user's church membership, role, package and entitlements. */
 export function useTenant() {
   const query = useQuery({
     queryKey: ["membership"],
@@ -34,7 +40,7 @@ export function useTenant() {
       const { data, error } = await supabase
         .from("tenant_users")
         .select(
-          "id, role, branch_id, position_id, tenant:tenants(id, name, subdomain, tier, status, logo_path, background_path, brand_primary, brand_accent, welcome_message, submit_button_text, group_vocabulary)",
+          "id, role, branch_id, position_id, tenant:tenants(id, name, subdomain, tier, status, logo_path, background_path, brand_primary, brand_accent, welcome_message, submit_button_text, group_vocabulary, reply_to_email, sms_sender_id, quiet_hour_start, quiet_hour_end, absence_threshold)",
         )
         .eq("status", "active")
         .order("created_at", { ascending: true })
@@ -48,6 +54,7 @@ export function useTenant() {
 
   const role = query.data?.role;
   const tier = query.data?.tenant.tier;
+  const isAdmin = role === "owner" || role === "church_admin";
 
   return {
     ...query,
@@ -55,11 +62,15 @@ export function useTenant() {
     tenant: query.data?.tenant ?? null,
     role,
     tier,
-    isAdmin: role === "owner" || role === "church_admin",
+    isAdmin,
     isOwner: role === "owner",
-    canManageMembers: role === "owner" || role === "church_admin" || role === "branch_admin",
+    canManageMembers: isAdmin || role === "branch_admin",
     canSeeReports: role !== "usher",
-    hasStructure: tier === "standard" || tier === "premium",
-    hasBranches: tier === "premium",
+    /** Does this church's package include a capability? */
+    can: (feature: Feature) => hasFeature(tier, feature),
+    limit: (key: Limit) => limitOf(tier, key),
+    features: tier ? ENTITLEMENTS[tier] : null,
+    hasStructure: hasFeature(tier, "structure"),
+    hasBranches: hasFeature(tier, "branches"),
   };
 }

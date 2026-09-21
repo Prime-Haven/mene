@@ -19,12 +19,14 @@ import { Route as AppAuditRouteImport } from './routes/_app/audit'
 import { Route as AppBillingRouteImport } from './routes/_app/billing'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppMembersRouteImport } from './routes/_app/members'
+import { Route as AppMessagingRouteImport } from './routes/_app/messaging'
 import { Route as AppReportsRouteImport } from './routes/_app/reports'
 import { Route as AppScanRouteImport } from './routes/_app/scan'
 import { Route as AppServicesRouteImport } from './routes/_app/services'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStructureRouteImport } from './routes/_app/structure'
 import { Route as CSubdomainRouteImport } from './routes/c.$subdomain'
+import { Route as ApiPublicCronMessagingRouteImport } from './routes/api/public/cron/messaging'
 import { Route as ApiPublicWebhooksPaystackRouteImport } from './routes/api/public/webhooks/paystack'
 
 const IndexRoute = IndexRouteImport.update({
@@ -76,6 +78,11 @@ const AppMembersRoute = AppMembersRouteImport.update({
   path: '/members',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppMessagingRoute = AppMessagingRouteImport.update({
+  id: '/messaging',
+  path: '/messaging',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppReportsRoute = AppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -106,6 +113,11 @@ const CSubdomainRoute = CSubdomainRouteImport.update({
   path: '/c/$subdomain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronMessagingRoute = ApiPublicCronMessagingRouteImport.update({
+  id: '/api/public/cron/messaging',
+  path: '/api/public/cron/messaging',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksPaystackRoute =
   ApiPublicWebhooksPaystackRouteImport.update({
     id: '/api/public/webhooks/paystack',
@@ -123,12 +135,14 @@ export interface FileRoutesByFullPath {
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/members': typeof AppMembersRoute
+  '/messaging': typeof AppMessagingRoute
   '/reports': typeof AppReportsRoute
   '/scan': typeof AppScanRoute
   '/services': typeof AppServicesRoute
   '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
 export interface FileRoutesByTo {
@@ -141,12 +155,14 @@ export interface FileRoutesByTo {
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/members': typeof AppMembersRoute
+  '/messaging': typeof AppMessagingRoute
   '/reports': typeof AppReportsRoute
   '/scan': typeof AppScanRoute
   '/services': typeof AppServicesRoute
   '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
 export interface FileRoutesById {
@@ -161,12 +177,14 @@ export interface FileRoutesById {
   '/_app/billing': typeof AppBillingRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/members': typeof AppMembersRoute
+  '/_app/messaging': typeof AppMessagingRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/scan': typeof AppScanRoute
   '/_app/services': typeof AppServicesRoute
   '/_app/settings': typeof AppSettingsRoute
   '/_app/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
 export interface FileRouteTypes {
@@ -181,12 +199,14 @@ export interface FileRouteTypes {
     | '/billing'
     | '/dashboard'
     | '/members'
+    | '/messaging'
     | '/reports'
     | '/scan'
     | '/services'
     | '/settings'
     | '/structure'
     | '/c/$subdomain'
+    | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -199,12 +219,14 @@ export interface FileRouteTypes {
     | '/billing'
     | '/dashboard'
     | '/members'
+    | '/messaging'
     | '/reports'
     | '/scan'
     | '/services'
     | '/settings'
     | '/structure'
     | '/c/$subdomain'
+    | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   id:
     | '__root__'
@@ -218,12 +240,14 @@ export interface FileRouteTypes {
     | '/_app/billing'
     | '/_app/dashboard'
     | '/_app/members'
+    | '/_app/messaging'
     | '/_app/reports'
     | '/_app/scan'
     | '/_app/services'
     | '/_app/settings'
     | '/_app/structure'
     | '/c/$subdomain'
+    | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   fileRoutesById: FileRoutesById
 }
@@ -234,6 +258,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PlatformRoute: typeof PlatformRoute
   CSubdomainRoute: typeof CSubdomainRoute
+  ApiPublicCronMessagingRoute: typeof ApiPublicCronMessagingRoute
   ApiPublicWebhooksPaystackRoute: typeof ApiPublicWebhooksPaystackRoute
 }
 
@@ -309,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMembersRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/messaging': {
+      id: '/_app/messaging'
+      path: '/messaging'
+      fullPath: '/messaging'
+      preLoaderRoute: typeof AppMessagingRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/reports': {
       id: '/_app/reports'
       path: '/reports'
@@ -351,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CSubdomainRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/messaging': {
+      id: '/api/public/cron/messaging'
+      path: '/api/public/cron/messaging'
+      fullPath: '/api/public/cron/messaging'
+      preLoaderRoute: typeof ApiPublicCronMessagingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/paystack': {
       id: '/api/public/webhooks/paystack'
       path: '/api/public/webhooks/paystack'
@@ -367,6 +406,7 @@ interface AppRouteRouteChildren {
   AppBillingRoute: typeof AppBillingRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppMembersRoute: typeof AppMembersRoute
+  AppMessagingRoute: typeof AppMessagingRoute
   AppReportsRoute: typeof AppReportsRoute
   AppScanRoute: typeof AppScanRoute
   AppServicesRoute: typeof AppServicesRoute
@@ -380,6 +420,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppBillingRoute: AppBillingRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppMembersRoute: AppMembersRoute,
+  AppMessagingRoute: AppMessagingRoute,
   AppReportsRoute: AppReportsRoute,
   AppScanRoute: AppScanRoute,
   AppServicesRoute: AppServicesRoute,
@@ -398,6 +439,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PlatformRoute: PlatformRoute,
   CSubdomainRoute: CSubdomainRoute,
+  ApiPublicCronMessagingRoute: ApiPublicCronMessagingRoute,
   ApiPublicWebhooksPaystackRoute: ApiPublicWebhooksPaystackRoute,
 }
 export const routeTree = rootRouteImport

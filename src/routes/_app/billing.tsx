@@ -7,6 +7,24 @@ import { useTenant } from "@/hooks/useTenant";
 import { startPayment } from "@/lib/billing.functions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FEATURE_LABELS, type Feature } from "@/lib/entitlements";
+
+const FEATURE_ORDER: Feature[] = [
+  "members",
+  "services",
+  "checkin",
+  "branding",
+  "reports_basic",
+  "email",
+  "structure",
+  "groups",
+  "broadcasts",
+  "reports_advanced",
+  "branches",
+  "sms",
+  "automations",
+  "audit",
+];
 
 export const Route = createFileRoute("/_app/billing")({
   head: () => ({
@@ -24,7 +42,8 @@ export const Route = createFileRoute("/_app/billing")({
 });
 
 function Billing() {
-  const { tenant } = useTenant();
+  const ctx = useTenant();
+  const { tenant } = ctx;
   const pay = useServerFn(startPayment);
 
   const renew = useMutation({
@@ -36,6 +55,16 @@ function Billing() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not start payment"),
   });
 
+
+  const { data: usage } = useQuery({
+    queryKey: ["tenant-usage", tenant?.id],
+    enabled: !!tenant,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("tenant_usage", { p_tenant: tenant!.id });
+      if (error) throw error;
+      return data as unknown as { members: number; staff: number; messages_month: number };
+    },
+  });
 
   const { data: sub } = useQuery({
     queryKey: ["subscription", tenant?.id],
@@ -96,6 +125,46 @@ function Billing() {
             Mobile money cannot be auto-debited, so renewal is prompted each cycle.
           </p>
         </div>
+      </div>
+
+      <div className="surface p-5">
+        <h2 className="text-base font-semibold">What your package includes</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {[
+            { label: "Members", used: usage?.members, cap: ctx.limit("member_limit") },
+            { label: "Staff logins", used: usage?.staff, cap: ctx.limit("staff_seats") },
+            { label: "Messages today", used: usage?.messages_month, cap: ctx.limit("daily_messages") },
+          ].map((row) => {
+            const pct = row.cap ? Math.min(100, Math.round(((row.used ?? 0) / row.cap) * 100)) : 0;
+            return (
+              <div key={row.label}>
+                <div className="flex items-baseline justify-between">
+                  <p className="text-sm font-medium">{row.label}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {row.used ?? 0} / {row.cap}
+                  </p>
+                </div>
+                <div className="mt-2 h-2 rounded-full bg-muted">
+                  <div
+                    className="h-2 rounded-full bg-primary transition-all"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {FEATURE_ORDER.map((f) => (
+            <Badge key={f} variant={ctx.can(f) ? "default" : "outline"} className="font-normal">
+              {FEATURE_LABELS[f]}
+            </Badge>
+          ))}
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Moving up a package switches the greyed-out items on straight away, and nothing you have
+          already recorded is lost when you move down.
+        </p>
       </div>
 
       <div className="surface p-5">

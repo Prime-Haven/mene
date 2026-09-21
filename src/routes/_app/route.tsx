@@ -14,6 +14,7 @@ import {
   UserCog,
   Menu,
   PanelLeftClose,
+  Send,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -43,10 +44,21 @@ const nav: NavItem[] = [
   { to: "/services", label: "Services", icon: CalendarDays, show: (c) => c.canManageMembers },
   { to: "/members", label: "Members", icon: Users, show: (c) => c.role !== "usher" },
   { to: "/reports", label: "Reports", icon: BarChart3, show: (c) => c.canSeeReports },
-  { to: "/structure", label: "Structure", icon: Network, show: (c) => c.hasStructure && c.isAdmin },
+  {
+    to: "/messaging",
+    label: "Messaging",
+    icon: Send,
+    show: (c) => c.isAdmin && c.can("broadcasts"),
+  },
+  {
+    to: "/structure",
+    label: "Structure",
+    icon: Network,
+    show: (c) => c.can("structure") && c.isAdmin,
+  },
   { to: "/accounts", label: "Accounts", icon: UserCog, show: (c) => c.isAdmin },
   { to: "/billing", label: "Billing", icon: CreditCard, show: (c) => c.isOwner },
-  { to: "/audit", label: "Audit log", icon: ScrollText, show: (c) => c.isOwner },
+  { to: "/audit", label: "Audit log", icon: ScrollText, show: (c) => c.isOwner && c.can("audit") },
   { to: "/settings", label: "Settings", icon: Settings, show: (c) => c.isAdmin },
 ];
 

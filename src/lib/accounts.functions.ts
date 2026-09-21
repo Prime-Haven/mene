@@ -42,7 +42,16 @@ export const inviteAccount = createServerFn({ method: "POST" })
     if (!tierAllows[tenant.tier]?.includes(data.role)) {
       return {
         ok: false as const,
-        message: `The ${data.role.replace("_", " ")} role is not included in your ${tenant.tier} tier.`,
+        message: `The ${data.role.replace("_", " ")} role is not included in your ${tenant.tier} package.`,
+      };
+    }
+
+    // Staff seats are part of the package, checked in the database.
+    const { data: seatsFree } = await supabase.rpc("can_add_staff", { p_tenant: data.tenant_id });
+    if (seatsFree !== true) {
+      return {
+        ok: false as const,
+        message: "You have used every staff login in your package. Move up a package to add more.",
       };
     }
 
@@ -72,6 +81,18 @@ export const inviteAccount = createServerFn({ method: "POST" })
     });
     if (insertError && !insertError.message.includes("duplicate")) {
       return { ok: false as const, message: "That person already has this role." };
+    }
+
+    // Branded invitation from the church, when email sending is switched on.
+    const { sendBrandedEmailNow } = await import("@/lib/queue.server");
+    const branded = await sendBrandedEmailNow({
+      tenantId: data.tenant_id,
+      to: data.email,
+      subject: `You have been invited to help run ${tenant.name}`,
+      body: `You have been added to ${tenant.name} on Patmos as ${data.role.replace("_", " ")}.\n\nCheck your inbox for the sign-in link from Patmos, then set your password and you are in. If you already have a Patmos login, just sign in as usual.`,
+    });
+    if (!branded.ok) {
+      console.warn(`[accounts] branded invite not sent: ${branded.error ?? "unknown"}`);
     }
 
     await supabaseAdmin.rpc("log_audit", {
