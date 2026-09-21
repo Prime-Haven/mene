@@ -46,9 +46,9 @@ export const Route = createFileRoute("/api/public/webhooks/paystack")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { error } = await supabaseAdmin.rpc("apply_successful_payment", {
           p_reference: event.data.reference,
-          p_channel: event.data.channel ?? null,
           p_paid_at: event.data.paid_at ?? new Date().toISOString(),
-          p_amount: event.data.amount ?? null,
+          ...(event.data.channel ? { p_channel: event.data.channel } : {}),
+          ...(typeof event.data.amount === "number" ? { p_amount: event.data.amount } : {}),
         });
 
         if (error) {
