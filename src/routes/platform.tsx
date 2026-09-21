@@ -92,7 +92,7 @@ function Platform() {
     { label: "Active", value: data!.active_tenants },
     { label: "Members", value: data!.members },
     { label: "Check-ins (30 days)", value: data!.attendance_30d },
-    { label: "Revenue 90 days (GHS)", value: Number(data!.revenue_ghs_90d).toFixed(2) },
+    { label: "Revenue 90 days (USD)", value: `$${Number(data!.revenue_ghs_90d).toFixed(2)}` },
   ];
 
   return (
