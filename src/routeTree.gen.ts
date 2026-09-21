@@ -15,12 +15,15 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as AppAccountsRouteImport } from './routes/_app/accounts'
 import { Route as AppAuditRouteImport } from './routes/_app/audit'
+import { Route as AppBillingRouteImport } from './routes/_app/billing'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppMembersRouteImport } from './routes/_app/members'
 import { Route as AppReportsRouteImport } from './routes/_app/reports'
 import { Route as AppScanRouteImport } from './routes/_app/scan'
 import { Route as AppServicesRouteImport } from './routes/_app/services'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStructureRouteImport } from './routes/_app/structure'
+import { Route as CSubdomainRouteImport } from './routes/c.$subdomain'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -51,6 +54,11 @@ const AppAuditRoute = AppAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppBillingRoute = AppBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -76,10 +84,20 @@ const AppServicesRoute = AppServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppStructureRoute = AppStructureRouteImport.update({
   id: '/structure',
   path: '/structure',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const CSubdomainRoute = CSubdomainRouteImport.update({
+  id: '/c/$subdomain',
+  path: '/c/$subdomain',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -88,12 +106,15 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/accounts': typeof AppAccountsRoute
   '/audit': typeof AppAuditRoute
+  '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/members': typeof AppMembersRoute
   '/reports': typeof AppReportsRoute
   '/scan': typeof AppScanRoute
   '/services': typeof AppServicesRoute
+  '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
+  '/c/$subdomain': typeof CSubdomainRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -101,12 +122,15 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/accounts': typeof AppAccountsRoute
   '/audit': typeof AppAuditRoute
+  '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/members': typeof AppMembersRoute
   '/reports': typeof AppReportsRoute
   '/scan': typeof AppScanRoute
   '/services': typeof AppServicesRoute
+  '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
+  '/c/$subdomain': typeof CSubdomainRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,12 +140,15 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/_app/accounts': typeof AppAccountsRoute
   '/_app/audit': typeof AppAuditRoute
+  '/_app/billing': typeof AppBillingRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/members': typeof AppMembersRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/scan': typeof AppScanRoute
   '/_app/services': typeof AppServicesRoute
+  '/_app/settings': typeof AppSettingsRoute
   '/_app/structure': typeof AppStructureRoute
+  '/c/$subdomain': typeof CSubdomainRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,12 +158,15 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/accounts'
     | '/audit'
+    | '/billing'
     | '/dashboard'
     | '/members'
     | '/reports'
     | '/scan'
     | '/services'
+    | '/settings'
     | '/structure'
+    | '/c/$subdomain'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,12 +174,15 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/accounts'
     | '/audit'
+    | '/billing'
     | '/dashboard'
     | '/members'
     | '/reports'
     | '/scan'
     | '/services'
+    | '/settings'
     | '/structure'
+    | '/c/$subdomain'
   id:
     | '__root__'
     | '/'
@@ -158,12 +191,15 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/_app/accounts'
     | '/_app/audit'
+    | '/_app/billing'
     | '/_app/dashboard'
     | '/_app/members'
     | '/_app/reports'
     | '/_app/scan'
     | '/_app/services'
+    | '/_app/settings'
     | '/_app/structure'
+    | '/c/$subdomain'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +207,7 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   OnboardingRoute: typeof OnboardingRoute
+  CSubdomainRoute: typeof CSubdomainRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -217,6 +254,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAuditRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/billing': {
+      id: '/_app/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AppBillingRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -252,6 +296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppServicesRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/structure': {
       id: '/_app/structure'
       path: '/structure'
@@ -259,28 +310,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStructureRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/c/$subdomain': {
+      id: '/c/$subdomain'
+      path: '/c/$subdomain'
+      fullPath: '/c/$subdomain'
+      preLoaderRoute: typeof CSubdomainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AppRouteRouteChildren {
   AppAccountsRoute: typeof AppAccountsRoute
   AppAuditRoute: typeof AppAuditRoute
+  AppBillingRoute: typeof AppBillingRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppMembersRoute: typeof AppMembersRoute
   AppReportsRoute: typeof AppReportsRoute
   AppScanRoute: typeof AppScanRoute
   AppServicesRoute: typeof AppServicesRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppStructureRoute: typeof AppStructureRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAccountsRoute: AppAccountsRoute,
   AppAuditRoute: AppAuditRoute,
+  AppBillingRoute: AppBillingRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppMembersRoute: AppMembersRoute,
   AppReportsRoute: AppReportsRoute,
   AppScanRoute: AppScanRoute,
   AppServicesRoute: AppServicesRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppStructureRoute: AppStructureRoute,
 }
 
@@ -293,6 +355,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   OnboardingRoute: OnboardingRoute,
+  CSubdomainRoute: CSubdomainRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
