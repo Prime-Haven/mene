@@ -703,6 +703,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      anonymise_member: { Args: { p_member: string }; Returns: undefined }
+      birthdays_this_month: {
+        Args: { p_tenant: string }
+        Returns: {
+          date_of_birth: string
+          full_name: string
+          id: string
+          phone: string
+        }[]
+      }
       can_read_member: {
         Args: { _branch: string; _position: string; _tenant: string }
         Returns: boolean
@@ -726,6 +736,7 @@ export type Database = {
       is_platform_admin: { Args: never; Returns: boolean }
       is_tenant_admin: { Args: { _tenant: string }; Returns: boolean }
       is_tenant_member: { Args: { _tenant: string }; Returns: boolean }
+      issue_qr_token: { Args: { p_member: string }; Returns: string }
       log_audit: {
         Args: {
           _action: string
@@ -737,7 +748,42 @@ export type Database = {
         }
         Returns: undefined
       }
+      manual_attendance: {
+        Args: { p_member: string; p_service: string }
+        Returns: Json
+      }
+      normalize_phone_gh: { Args: { _phone: string }; Returns: string }
+      provision_tenant: {
+        Args: {
+          p_contact_email?: string
+          p_contact_phone?: string
+          p_name: string
+          p_subdomain: string
+          p_tier: Database["public"]["Enums"]["tenant_tier"]
+        }
+        Returns: string
+      }
+      resolve_scan: {
+        Args: { p_service: string; p_token: string }
+        Returns: Json
+      }
+      self_checkin: {
+        Args: {
+          p_area?: string
+          p_dob?: string
+          p_email?: string
+          p_full_name: string
+          p_gender?: Database["public"]["Enums"]["gender_type"]
+          p_ip?: string
+          p_phone: string
+          p_subdomain: string
+        }
+        Returns: Json
+      }
+      subdomain_available: { Args: { p_subdomain: string }; Returns: boolean }
+      tenant_branding: { Args: { p_subdomain: string }; Returns: Json }
       tenant_can_write: { Args: { _tenant: string }; Returns: boolean }
+      tenant_dashboard: { Args: { p_tenant: string }; Returns: Json }
       text2ltree: { Args: { "": string }; Returns: unknown }
       user_branch: { Args: { _tenant: string }; Returns: string }
       user_position_path: { Args: { _tenant: string }; Returns: unknown }
