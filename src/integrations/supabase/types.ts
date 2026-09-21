@@ -704,6 +704,15 @@ export type Database = {
     }
     Functions: {
       anonymise_member: { Args: { p_member: string }; Returns: undefined }
+      apply_successful_payment: {
+        Args: {
+          p_amount?: number
+          p_channel?: string
+          p_paid_at?: string
+          p_reference: string
+        }
+        Returns: undefined
+      }
       birthdays_this_month: {
         Args: { p_tenant: string }
         Returns: {
@@ -753,6 +762,14 @@ export type Database = {
         Returns: Json
       }
       normalize_phone_gh: { Args: { _phone: string }; Returns: string }
+      platform_overview: { Args: never; Returns: Json }
+      platform_set_tenant_status: {
+        Args: {
+          p_status: Database["public"]["Enums"]["tenant_status"]
+          p_tenant: string
+        }
+        Returns: undefined
+      }
       provision_tenant: {
         Args: {
           p_contact_email?: string
