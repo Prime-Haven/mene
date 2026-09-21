@@ -355,7 +355,7 @@ function Messaging() {
           {(history ?? []).map((m) => (
             <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 p-4 text-sm">
               <div className="min-w-0">
-                <p className="truncate font-medium">{m.subject ?? m.body_preview ?? m.recipient}</p>
+                <p className="truncate font-medium">{m.subject ?? m.recipient}</p>
                 <p className="text-xs text-muted-foreground">
                   {m.channel === "email" ? "Email" : "Text"} · {m.recipient} ·{" "}
                   {new Date(m.created_at).toLocaleString()}
