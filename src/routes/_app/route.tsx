@@ -58,6 +58,13 @@ function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const reduceMotion = useReducedMotion();
+  const loadAsset = useServerFn(getBrandAssetUrl);
+  const pendingTenant = ctx.membership?.tenant;
+  const { data: logoUrl } = useQuery({
+    queryKey: ["sidebar-logo", pendingTenant?.logo_path],
+    enabled: !!pendingTenant?.logo_path,
+    queryFn: () => loadAsset({ data: { path: pendingTenant!.logo_path! } }),
+  });
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/auth" });
@@ -79,9 +86,6 @@ function AppLayout() {
   const suspended = tenant.status === "suspended" || tenant.status === "closed";
 
   const current = nav.find((item) => pathname.startsWith(item.to));
-  const loadAsset = useServerFn(getBrandAssetUrl);
-  const { data: logoUrl } = useQuery({ queryKey: ["sidebar-logo", tenant.logo_path], enabled: !!tenant.logo_path, queryFn: () => loadAsset({ data: { path: tenant.logo_path! } }) });
-
   const Navigation = ({ mobile = false }: { mobile?: boolean }) => (
     <>
       <div className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-4">

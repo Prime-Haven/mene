@@ -77,6 +77,17 @@ function CheckIn() {
     if (services.length === 1) setForm((current) => ({ ...current, service_id: services[0]!.id }));
   }, [services]);
 
+  useEffect(() => {
+    if (!done || isiPhone) return;
+    const timer = window.setTimeout(() => {
+      const a = document.createElement("a");
+      a.href = done.qr;
+      a.download = "my-patmos-member-code.png";
+      a.click();
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [done, isiPhone]);
+
   async function saveQr() {
     if (!done) return;
     if (isiPhone && navigator.share) {
@@ -159,7 +170,7 @@ function CheckIn() {
       <motion.div initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-md">
       {logoUrl && <img src={logoUrl} alt={`${church?.name} logo`} className="mb-5 h-16 max-w-48 object-contain" />}
       <p className="text-eyebrow">{church?.name ?? "Check in"}</p>
-      <h1 className="mt-3 text-3xl font-bold">Welcome — let's check you in</h1>
+      <h1 className="mt-3 text-3xl font-bold" style={{ color: church?.brand_accent }}>Welcome — let's check you in</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         {church?.welcome_message || `${church?.name ?? "This church"} is collecting your name and contact details to record your
         attendance and follow up with you pastorally. Only the church's admins and your group leader
