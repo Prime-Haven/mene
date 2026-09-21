@@ -133,7 +133,7 @@ function AppLayout() {
           {current && (
             <p className="text-eyebrow mb-1 hidden lg:block">{current.label}</p>
           )}
-          <AnimatePresence mode="wait"><motion.div key={pathname} initial={reduceMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={reduceMotion ? undefined : { opacity: 0 }} transition={{ duration: 0.18 }}><Outlet /></motion.div></AnimatePresence>
+          <AnimatePresence mode="wait"><motion.div key={pathname} initial={reduceMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: reduceMotion ? 1 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.18 }}><Outlet /></motion.div></AnimatePresence>
         </main>
       </div>
     </div>
