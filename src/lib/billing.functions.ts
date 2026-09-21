@@ -9,9 +9,9 @@ import { z } from "zod";
  */
 
 export const TIER_PRICES_PESEWAS: Record<string, number> = {
-  basic: 15000, // GHS 150.00
-  standard: 35000, // GHS 350.00
-  premium: 75000, // GHS 750.00
+  basic: 1500, // USD 15.00 / month
+  standard: 3000, // USD 30.00 / month
+  premium: 5500, // USD 55.00 / month
 };
 
 const schema = z.object({
@@ -75,7 +75,7 @@ export const startPayment = createServerFn({ method: "POST" })
       body: JSON.stringify({
         email,
         amount,
-        currency: "GHS",
+        currency: "USD",
         reference,
         channels: ["card", "mobile_money"],
         metadata: { tenant_id: data.tenant_id, tier: data.tier },
@@ -108,7 +108,7 @@ export const startPayment = createServerFn({ method: "POST" })
       tenant_id: data.tenant_id,
       reference: body.data.reference,
       amount_kobo: amount,
-      currency: "GHS",
+      currency: "USD",
       tier: data.tier,
       status: "pending",
     });

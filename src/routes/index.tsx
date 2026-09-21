@@ -73,7 +73,7 @@ const features = [
 const tiers = [
   {
     name: "Basic",
-    price: "150",
+    price: "15",
     blurb: "Single-site churches wanting proper digital records without hierarchy.",
     features: [
       "Branded check-in page",
@@ -87,7 +87,7 @@ const tiers = [
   },
   {
     name: "Standard",
-    price: "350",
+    price: "30",
     featured: true,
     blurb: "Churches with ministry, unit or department leaders who need their own logins.",
     features: [
@@ -102,7 +102,7 @@ const tiers = [
   },
   {
     name: "Premium",
-    price: "750",
+    price: "55",
     blurb: "Large, cell-structured and multi-branch ministries.",
     features: [
       "Everything in Standard",
@@ -123,7 +123,7 @@ const faqs = [
   },
   {
     q: "How do we pay?",
-    a: "By card or mobile money through Paystack, in Ghana cedis. Subscriptions are yearly and we invoice you before renewal — we never silently debit your wallet.",
+    a: "By card or mobile money through Paystack, in US dollars. Subscriptions are billed monthly and we invoice you before each renewal — we never silently debit your wallet.",
   },
   {
     q: "What happens if we stop paying?",
@@ -265,7 +265,7 @@ function LandingPage() {
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
               Every plan runs the same check-in, attendance and reporting engine. What changes is how
-              much organisational structure Patmos models for you. Prices in Ghana cedis, per year.
+              much organisational structure Patmos models for you. Prices in US dollars, per month.
             </p>
           </div>
 
@@ -293,9 +293,9 @@ function LandingPage() {
                     {tier.name}
                   </h3>
                   <div className="flex items-baseline">
-                    <span className="mr-1 text-sm font-semibold">GH₵</span>
+                    <span className="mr-1 text-sm font-semibold">$</span>
                     <span className="font-display text-4xl font-bold">{tier.price}</span>
-                    <span className="ml-1 text-sm text-muted-foreground">/year</span>
+                    <span className="ml-1 text-sm text-muted-foreground">/month</span>
                   </div>
                   <p className="text-sm text-muted-foreground">{tier.blurb}</p>
                 </div>
