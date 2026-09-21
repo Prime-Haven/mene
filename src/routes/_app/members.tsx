@@ -42,6 +42,8 @@ type MemberRow = {
   date_of_birth: string | null;
   gender: "male" | "female" | "other" | null;
   residential_area: string | null;
+  marital_status: string | null;
+  occupation: string | null;
   status: "first_timer" | "active" | "archived" | "anonymised";
   is_minor: boolean;
   position_id: string | null;
@@ -62,6 +64,8 @@ function Members() {
     date_of_birth: "",
     gender: "",
     residential_area: "",
+    marital_status: "",
+    occupation: "",
   });
 
   const { data: members, isLoading } = useQuery({
@@ -71,7 +75,7 @@ function Members() {
       const { data, error } = await supabase
         .from("members")
         .select(
-          "id, full_name, phone, email, date_of_birth, gender, residential_area, status, is_minor, position_id",
+          "id, full_name, phone, email, date_of_birth, gender, residential_area, marital_status, occupation, status, is_minor, position_id",
         )
         .neq("status", "anonymised")
         .order("full_name")
@@ -88,28 +92,25 @@ function Members() {
       (m) =>
         m.full_name.toLowerCase().includes(q) ||
         (m.phone ?? "").includes(q) ||
-        (m.residential_area ?? "").toLowerCase().includes(q),
+        (m.residential_area ?? "").toLowerCase().includes(q) ||
+        (m.occupation ?? "").toLowerCase().includes(q),
     );
   }, [members, search]);
 
   const addMember = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("members").insert({
-        tenant_id: tenant!.id,
-        branch_id: membership?.branch_id ?? null,
-        full_name: form.full_name.trim(),
-        phone: form.phone.trim() || null,
-        email: form.email.trim() || null,
-        date_of_birth: form.date_of_birth || null,
-        gender: (form.gender || null) as MemberRow["gender"],
-        residential_area: form.residential_area.trim() || null,
+      const { error } = await supabase.rpc("create_member", {
+        p_tenant: tenant!.id, p_branch: membership?.branch_id as string,
+        p_full_name: form.full_name.trim(), p_phone: form.phone.trim(), p_email: form.email.trim(),
+        p_dob: form.date_of_birth as string, p_gender: form.gender as "male" | "female" | "other",
+        p_marital_status: form.marital_status, p_area: form.residential_area.trim(), p_occupation: form.occupation.trim(),
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Member added");
       setAddOpen(false);
-      setForm({ full_name: "", phone: "", email: "", date_of_birth: "", gender: "", residential_area: "" });
+      setForm({ full_name: "", phone: "", email: "", date_of_birth: "", gender: "", residential_area: "", marital_status: "", occupation: "" });
       qc.invalidateQueries({ queryKey: ["members"] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not add member"),
@@ -164,6 +165,8 @@ function Members() {
           phone: pick(row, ["phone", "phone number", "contact", "mobile"]) || null,
           email: pick(row, ["email", "e-mail"]) || null,
           residential_area: pick(row, ["area", "residential area", "location", "address"]) || null,
+          marital_status: pick(row, ["marital status", "marital", "status of marriage"]) || null,
+          occupation: pick(row, ["occupation", "job", "profession"]) || null,
         }))
         .filter((r) => r.full_name.length > 1);
 
@@ -206,10 +209,12 @@ function Members() {
       m.date_of_birth ?? "",
       m.gender ?? "",
       m.residential_area ?? "",
+      m.occupation ?? "",
+      m.marital_status ?? "",
       m.status,
     ]);
     const csv = [
-      ["Name", "Phone", "Email", "Date of birth", "Gender", "Area", "Status"],
+      ["Name", "Phone", "Email", "Date of birth", "Gender", "Area", "Occupation", "Marital status", "Status"],
       ...rows,
     ]
       .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))
@@ -262,7 +267,7 @@ function Members() {
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           className="pl-9"
-          placeholder="Search by name, phone or area"
+          placeholder="Search by name, phone, area or occupation"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -275,6 +280,7 @@ function Members() {
               <th className="px-4 py-3 font-semibold">Name</th>
               <th className="px-4 py-3 font-semibold">Phone</th>
               <th className="px-4 py-3 font-semibold">Area</th>
+              <th className="px-4 py-3 font-semibold">Occupation</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3" />
             </tr>
@@ -294,6 +300,7 @@ function Members() {
                   {m.is_minor && !isAdmin ? "Hidden" : (m.phone ?? "—")}
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{m.residential_area ?? "—"}</td>
+                <td className="px-4 py-3 text-muted-foreground">{m.occupation ?? "—"}</td>
                 <td className="px-4 py-3">
                   <Badge variant={m.status === "first_timer" ? "default" : "secondary"}>
                     {m.status.replace("_", " ")}
@@ -324,7 +331,7 @@ function Members() {
             ))}
             {!isLoading && filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">
+                <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
                   No members yet. Import your spreadsheet or add someone.
                 </td>
               </tr>
@@ -356,6 +363,7 @@ function Members() {
                 onChange={(e) => setForm({ ...form, full_name: e.target.value })}
               />
             </div>
+            <div className="space-y-2"><Label htmlFor="me">Email</Label><Input id="me" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="mp">Phone</Label>
@@ -374,6 +382,10 @@ function Members() {
                   onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })}
                 />
               </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2"><Label htmlFor="mm">Marital status</Label><select id="mm" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.marital_status} onChange={(e) => setForm({ ...form, marital_status: e.target.value })}><option value="">Not stated</option><option value="single">Single</option><option value="married">Married</option><option value="divorced">Divorced</option><option value="widowed">Widowed</option><option value="separated">Separated</option><option value="prefer_not_to_say">Prefer not to say</option></select></div>
+              <div className="space-y-2"><Label htmlFor="mo">Occupation</Label><Input id="mo" maxLength={120} value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} /></div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
