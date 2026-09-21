@@ -84,8 +84,8 @@ export async function processQueue(limit = 100): Promise<{ sent: number; failed:
     await supabaseAdmin.rpc("mark_message_result", {
       p_id: row.id,
       p_ok: result.ok,
-      p_provider_id: result.providerId ?? null,
-      p_error: result.error ?? null,
+      p_provider_id: (result.providerId ?? null) as string,
+      p_error: (result.error ?? null) as string,
     });
   }
 

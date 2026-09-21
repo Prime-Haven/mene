@@ -40,7 +40,7 @@ export const sendBroadcast = createServerFn({ method: "POST" })
       p_subject: data.subject,
       p_body: data.body,
       p_kind: data.audience_kind,
-      p_ref: data.audience_ref,
+      p_ref: data.audience_ref as string,
       p_dry_run: data.dry_run,
     });
     if (error) {

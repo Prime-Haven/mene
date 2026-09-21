@@ -7,7 +7,11 @@
 
 export type Channel = "email" | "sms";
 
-export type SendResult = { ok: boolean; providerId?: string; error?: string };
+export type SendResult = {
+  ok: boolean;
+  providerId?: string | undefined;
+  error?: string | undefined;
+};
 
 export function emailConfigured(): boolean {
   return !!process.env["RESEND_API_KEY"];
