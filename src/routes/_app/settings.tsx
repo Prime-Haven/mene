@@ -57,7 +57,7 @@ function Settings() {
     mutationFn: async () => {
       const { error: brandError } = await supabase.rpc("update_tenant_branding", {
         p_tenant: tenant!.id, p_name: name.trim(), p_primary: primary, p_accent: accent,
-        p_welcome: welcome, p_button: buttonText, p_logo_path: logoPath, p_background_path: backgroundPath,
+        p_welcome: welcome, p_button: buttonText, p_logo_path: logoPath as string, p_background_path: backgroundPath as string,
       });
       if (brandError) throw brandError;
       const { error: vocabError } = await supabase.rpc("update_tenant_vocabulary", { p_tenant: tenant!.id, p_vocabulary: vocab.trim() || "Group" });
