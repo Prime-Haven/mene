@@ -29,6 +29,27 @@
       "when": 1789960210894,
       "tag": "0003_monthly_billing_period",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789966443909,
+      "tag": "0004_member_service_branding_upgrade",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789966540204,
+      "tag": "0005_harden_tenant_branding_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789966618987,
+      "tag": "0006_secure_member_admin_and_branding_nulls",
+      "breakpoints": true
     }
   ]
 }
