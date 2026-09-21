@@ -165,6 +165,50 @@ export type Database = {
           },
         ]
       }
+      broadcasts: {
+        Row: {
+          audience: Json
+          body: string
+          channel: string
+          created_at: string
+          created_by: string | null
+          id: string
+          recipient_count: number
+          subject: string | null
+          tenant_id: string
+        }
+        Insert: {
+          audience?: Json
+          body: string
+          channel: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          recipient_count?: number
+          subject?: string | null
+          tenant_id: string
+        }
+        Update: {
+          audience?: Json
+          body?: string
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          recipient_count?: number
+          subject?: string | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broadcasts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       import_batches: {
         Row: {
           created_at: string
@@ -219,6 +263,7 @@ export type Database = {
           is_minor: boolean
           joined_on: string
           marital_status: string | null
+          messaging_opt_out: boolean
           occupation: string | null
           phone: string | null
           position_id: string | null
@@ -238,6 +283,7 @@ export type Database = {
           is_minor?: boolean
           joined_on?: string
           marital_status?: string | null
+          messaging_opt_out?: boolean
           occupation?: string | null
           phone?: string | null
           position_id?: string | null
@@ -257,6 +303,7 @@ export type Database = {
           is_minor?: boolean
           joined_on?: string
           marital_status?: string | null
+          messaging_opt_out?: boolean
           occupation?: string | null
           phone?: string | null
           position_id?: string | null
@@ -281,6 +328,88 @@ export type Database = {
           },
           {
             foreignKeyName: "members_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          attempts: number
+          body: string
+          broadcast_id: string | null
+          channel: string
+          created_at: string
+          dedupe_key: string | null
+          error: string | null
+          id: string
+          member_id: string | null
+          provider_id: string | null
+          recipient: string
+          scheduled_at: string
+          sent_at: string | null
+          status: string
+          subject: string | null
+          tenant_id: string
+          trigger: string
+        }
+        Insert: {
+          attempts?: number
+          body: string
+          broadcast_id?: string | null
+          channel: string
+          created_at?: string
+          dedupe_key?: string | null
+          error?: string | null
+          id?: string
+          member_id?: string | null
+          provider_id?: string | null
+          recipient: string
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          tenant_id: string
+          trigger?: string
+        }
+        Update: {
+          attempts?: number
+          body?: string
+          broadcast_id?: string | null
+          channel?: string
+          created_at?: string
+          dedupe_key?: string | null
+          error?: string | null
+          id?: string
+          member_id?: string | null
+          provider_id?: string | null
+          recipient?: string
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          tenant_id?: string
+          trigger?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "broadcasts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -667,6 +796,7 @@ export type Database = {
       }
       tenants: {
         Row: {
+          absence_threshold: number
           background_path: string | null
           brand_accent: string
           brand_primary: string
@@ -677,6 +807,10 @@ export type Database = {
           id: string
           logo_path: string | null
           name: string
+          quiet_hour_end: number
+          quiet_hour_start: number
+          reply_to_email: string | null
+          sms_sender_id: string | null
           status: Database["public"]["Enums"]["tenant_status"]
           subdomain: string
           submit_button_text: string
@@ -684,6 +818,7 @@ export type Database = {
           welcome_message: string | null
         }
         Insert: {
+          absence_threshold?: number
           background_path?: string | null
           brand_accent?: string
           brand_primary?: string
@@ -694,6 +829,10 @@ export type Database = {
           id?: string
           logo_path?: string | null
           name: string
+          quiet_hour_end?: number
+          quiet_hour_start?: number
+          reply_to_email?: string | null
+          sms_sender_id?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           subdomain: string
           submit_button_text?: string
@@ -701,6 +840,7 @@ export type Database = {
           welcome_message?: string | null
         }
         Update: {
+          absence_threshold?: number
           background_path?: string | null
           brand_accent?: string
           brand_primary?: string
@@ -711,6 +851,10 @@ export type Database = {
           id?: string
           logo_path?: string | null
           name?: string
+          quiet_hour_end?: number
+          quiet_hour_start?: number
+          reply_to_email?: string | null
+          sms_sender_id?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           subdomain?: string
           submit_button_text?: string
@@ -734,6 +878,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      attendance_insights: {
+        Args: { p_tenant: string; p_weeks: number }
+        Returns: Json
+      }
       birthdays_this_month: {
         Args: { p_tenant: string }
         Returns: {
@@ -743,6 +891,7 @@ export type Database = {
           phone: string
         }[]
       }
+      can_add_staff: { Args: { p_tenant: string }; Returns: boolean }
       can_read_member: {
         Args: { _branch: string; _position: string; _tenant: string }
         Returns: boolean
@@ -755,6 +904,22 @@ export type Database = {
           _window_seconds: number
         }
         Returns: boolean
+      }
+      claim_pending_messages: {
+        Args: { p_limit: number }
+        Returns: {
+          body: string
+          brand_primary: string
+          channel: string
+          church_name: string
+          id: string
+          logo_path: string
+          recipient: string
+          reply_to: string
+          sms_sender: string
+          subject: string
+          tenant_id: string
+        }[]
       }
       create_member: {
         Args: {
@@ -771,12 +936,35 @@ export type Database = {
         }
         Returns: string
       }
+      enqueue_message: {
+        Args: {
+          p_body: string
+          p_broadcast?: string
+          p_channel: string
+          p_dedupe: string
+          p_member: string
+          p_recipient: string
+          p_subject: string
+          p_tenant: string
+          p_trigger: string
+        }
+        Returns: string
+      }
       has_tenant_role: {
         Args: {
           _roles: Database["public"]["Enums"]["app_role"][]
           _tenant: string
         }
         Returns: boolean
+      }
+      import_members_batch: {
+        Args: {
+          p_branch: string
+          p_filename: string
+          p_rows: Json
+          p_tenant: string
+        }
+        Returns: Json
       }
       is_platform_admin: { Args: never; Returns: boolean }
       is_tenant_admin: { Args: { _tenant: string }; Returns: boolean }
@@ -793,9 +981,22 @@ export type Database = {
         }
         Returns: undefined
       }
+      log_member_export: {
+        Args: { p_count: number; p_tenant: string }
+        Returns: undefined
+      }
       manual_attendance: {
         Args: { p_member: string; p_service: string }
         Returns: Json
+      }
+      mark_message_result: {
+        Args: {
+          p_error: string
+          p_id: string
+          p_ok: boolean
+          p_provider_id: string
+        }
+        Returns: undefined
       }
       normalize_phone_gh: { Args: { _phone: string }; Returns: string }
       platform_overview: { Args: never; Returns: Json }
@@ -824,10 +1025,40 @@ export type Database = {
           service_date: string
         }[]
       }
+      queue_broadcast: {
+        Args: {
+          p_body: string
+          p_channel: string
+          p_dry_run: boolean
+          p_kind: string
+          p_ref: string
+          p_subject: string
+          p_tenant: string
+        }
+        Returns: Json
+      }
+      record_delivery_event: {
+        Args: { p_event: string; p_provider_id: string }
+        Returns: undefined
+      }
+      resolve_audience: {
+        Args: {
+          p_channel: string
+          p_kind: string
+          p_ref: string
+          p_tenant: string
+        }
+        Returns: {
+          full_name: string
+          member_id: string
+          recipient: string
+        }[]
+      }
       resolve_scan: {
         Args: { p_service: string; p_token: string }
         Returns: Json
       }
+      run_daily_automations: { Args: never; Returns: Json }
       self_checkin: {
         Args: {
           p_area?: string
@@ -857,11 +1088,37 @@ export type Database = {
         }
         Returns: Json
       }
+      set_member_messaging: {
+        Args: { p_member: string; p_opt_out: boolean }
+        Returns: undefined
+      }
       subdomain_available: { Args: { p_subdomain: string }; Returns: boolean }
       tenant_branding: { Args: { p_subdomain: string }; Returns: Json }
       tenant_can_write: { Args: { _tenant: string }; Returns: boolean }
       tenant_dashboard: { Args: { p_tenant: string }; Returns: Json }
+      tenant_features: { Args: { _tenant: string }; Returns: Json }
+      tenant_has_feature: {
+        Args: { _feature: string; _tenant: string }
+        Returns: boolean
+      }
+      tenant_limit: { Args: { _key: string; _tenant: string }; Returns: number }
+      tenant_usage: { Args: { p_tenant: string }; Returns: Json }
       text2ltree: { Args: { "": string }; Returns: unknown }
+      tier_entitlements: {
+        Args: { p_tier: Database["public"]["Enums"]["tenant_tier"] }
+        Returns: Json
+      }
+      update_messaging_settings: {
+        Args: {
+          p_absence: number
+          p_quiet_end: number
+          p_quiet_start: number
+          p_reply_to: string
+          p_sms_sender: string
+          p_tenant: string
+        }
+        Returns: undefined
+      }
       update_tenant_branding: {
         Args: {
           p_accent: string
