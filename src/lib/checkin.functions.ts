@@ -63,10 +63,10 @@ export const submitSelfCheckin = createServerFn({ method: "POST" })
       p_subdomain: data.subdomain,
       p_full_name: data.full_name,
       p_phone: data.phone,
-      p_email: data.email || null,
-      p_dob: data.date_of_birth || null,
-      p_gender: (data.gender || null) as "male" | "female" | "other" | null,
-      p_area: data.residential_area || null,
+      ...(data.email ? { p_email: data.email } : {}),
+      ...(data.date_of_birth ? { p_dob: data.date_of_birth } : {}),
+      ...(data.gender ? { p_gender: data.gender } : {}),
+      ...(data.residential_area ? { p_area: data.residential_area } : {}),
       p_ip: clientIp(),
     });
 
@@ -75,12 +75,17 @@ export const submitSelfCheckin = createServerFn({ method: "POST" })
       return { ok: false as const, message: error.message.replace(/^.*?:\s*/, "") };
     }
 
-    const payload = result as {
-      ok: boolean;
+    const payload = result as unknown as {
       token: string;
       returning: boolean;
       checked_in: boolean;
       church: string;
     };
-    return { ok: true as const, ...payload };
+    return {
+      ok: true as const,
+      token: payload.token,
+      returning: payload.returning,
+      checked_in: payload.checked_in,
+      church: payload.church,
+    };
   });
