@@ -24,7 +24,8 @@ export const Route = createFileRoute("/_app/billing")({
 });
 
 function Billing() {
-  const { tenant } = useTenant();
+  const ctx = useTenant();
+  const { tenant } = ctx;
   const pay = useServerFn(startPayment);
 
   const renew = useMutation({
@@ -36,6 +37,16 @@ function Billing() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not start payment"),
   });
 
+
+  const { data: usage } = useQuery({
+    queryKey: ["tenant-usage", tenant?.id],
+    enabled: !!tenant,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("tenant_usage", { p_tenant: tenant!.id });
+      if (error) throw error;
+      return data as unknown as { members: number; staff: number; messages_month: number };
+    },
+  });
 
   const { data: sub } = useQuery({
     queryKey: ["subscription", tenant?.id],

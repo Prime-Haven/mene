@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Download, QrCode, Search, Trash2, Upload, UserPlus } from "lucide-react";
+import { BellOff, BellRing, Download, QrCode, Search, Trash2, Upload, UserPlus } from "lucide-react";
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/hooks/useTenant";
@@ -47,6 +47,7 @@ type MemberRow = {
   status: "first_timer" | "active" | "archived" | "anonymised";
   is_minor: boolean;
   position_id: string | null;
+  messaging_opt_out: boolean;
 };
 
 function Members() {
@@ -75,7 +76,7 @@ function Members() {
       const { data, error } = await supabase
         .from("members")
         .select(
-          "id, full_name, phone, email, date_of_birth, gender, residential_area, marital_status, occupation, status, is_minor, position_id",
+          "id, full_name, phone, email, date_of_birth, gender, residential_area, marital_status, occupation, status, is_minor, position_id, messaging_opt_out",
         )
         .neq("status", "anonymised")
         .order("full_name")
@@ -125,6 +126,22 @@ function Members() {
     },
     onSuccess: (res) => setQr(res),
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not issue a code"),
+  });
+
+  const toggleMessaging = useMutation({
+    mutationFn: async (member: MemberRow) => {
+      const { error } = await supabase.rpc("set_member_messaging", {
+        p_member: member.id,
+        p_opt_out: !member.messaging_opt_out,
+      });
+      if (error) throw error;
+      return !member.messaging_opt_out;
+    },
+    onSuccess: (optedOut) => {
+      toast.success(optedOut ? "This member will not be messaged" : "Messaging turned back on");
+      qc.invalidateQueries({ queryKey: ["members"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update"),
   });
 
   const anonymise = useMutation({
@@ -303,6 +320,24 @@ function Members() {
                     {canManageMembers && (
                       <Button size="sm" variant="ghost" onClick={() => issueQr.mutate(m)}>
                         <QrCode className="size-4" />
+                      </Button>
+                    )}
+                    {isAdmin && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        title={
+                          m.messaging_opt_out
+                            ? "Allow messages to this member"
+                            : "Stop messaging this member"
+                        }
+                        onClick={() => toggleMessaging.mutate(m)}
+                      >
+                        {m.messaging_opt_out ? (
+                          <BellOff className="size-4 text-muted-foreground" />
+                        ) : (
+                          <BellRing className="size-4" />
+                        )}
                       </Button>
                     )}
                     {isAdmin && (
