@@ -17,13 +17,12 @@ const checkinSchema = z.object({
   full_name: z.string().trim().min(2).max(120),
   phone: z.string().trim().min(9).max(20),
   email: z.string().trim().email().max(160).optional().or(z.literal("")),
-  date_of_birth: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .optional()
-    .or(z.literal("")),
-  gender: z.enum(["male", "female", "other"]).optional().or(z.literal("")),
-  residential_area: z.string().trim().max(120).optional().or(z.literal("")),
+  date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  gender: z.enum(["male", "female", "other"]),
+  marital_status: z.enum(["single", "married", "divorced", "widowed", "separated", "prefer_not_to_say"]),
+  residential_area: z.string().trim().min(2).max(120),
+  occupation: z.string().trim().min(2).max(120),
+  service_id: z.string().uuid(),
   consent: z.literal(true),
 });
 
@@ -48,8 +47,38 @@ export const getChurchBranding = createServerFn({ method: "GET" })
       name: string;
       subdomain: string;
       logo_path: string | null;
+      background_path: string | null;
+      brand_primary: string;
+      brand_accent: string;
+      welcome_message: string | null;
+      submit_button_text: string;
       active: boolean;
     } | null;
+  });
+
+export const getPublicOpenServices = createServerFn({ method: "GET" })
+  .inputValidator((data: { subdomain: string }) =>
+    z.object({ subdomain: z.string().trim().toLowerCase().max(40) }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: services, error } = await supabaseAdmin.rpc("public_open_services", {
+      p_subdomain: data.subdomain,
+    });
+    if (error) return [];
+    return services ?? [];
+  });
+
+export const getBrandAssetUrl = createServerFn({ method: "GET" })
+  .inputValidator((data: { path: string }) =>
+    z.object({ path: z.string().regex(/^[0-9a-f-]{36}\/[0-9a-f-]+\.(png|jpe?g|webp)$/i) }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: signed, error } = await supabaseAdmin.storage
+      .from("tenant-branding")
+      .createSignedUrl(data.path, 3600);
+    return error ? null : signed.signedUrl;
   });
 
 export const submitSelfCheckin = createServerFn({ method: "POST" })
@@ -59,14 +88,17 @@ export const submitSelfCheckin = createServerFn({ method: "POST" })
     getRequest();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: result, error } = await supabaseAdmin.rpc("self_checkin", {
+    const { data: result, error } = await supabaseAdmin.rpc("self_checkin_v2", {
       p_subdomain: data.subdomain,
+      p_service: data.service_id,
       p_full_name: data.full_name,
       p_phone: data.phone,
       ...(data.email ? { p_email: data.email } : {}),
-      ...(data.date_of_birth ? { p_dob: data.date_of_birth } : {}),
-      ...(data.gender ? { p_gender: data.gender } : {}),
-      ...(data.residential_area ? { p_area: data.residential_area } : {}),
+      p_dob: data.date_of_birth,
+      p_gender: data.gender,
+      p_marital_status: data.marital_status,
+      p_area: data.residential_area,
+      p_occupation: data.occupation,
       p_ip: clientIp(),
     });
 
@@ -80,6 +112,7 @@ export const submitSelfCheckin = createServerFn({ method: "POST" })
       returning: boolean;
       checked_in: boolean;
       church: string;
+      service: string;
     };
     return {
       ok: true as const,
@@ -87,5 +120,6 @@ export const submitSelfCheckin = createServerFn({ method: "POST" })
       returning: payload.returning,
       checked_in: payload.checked_in,
       church: payload.church,
+      service: payload.service,
     };
   });
