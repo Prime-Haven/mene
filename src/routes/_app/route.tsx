@@ -67,14 +67,21 @@ function AppLayout() {
   const tenant = ctx.membership.tenant;
   const suspended = tenant.status === "suspended" || tenant.status === "closed";
 
+  const current = nav.find((item) => pathname.startsWith(item.to));
+
   return (
-    <div className="flex min-h-screen bg-secondary/40">
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
-        <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-5">
-          <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
-            <QrCode className="size-4" />
+    <div className="flex min-h-screen bg-background">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-sidebar lg:flex">
+        <div className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-5">
+          <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[var(--shadow-accent)]">
+            <QrCode className="size-4.5" />
           </span>
-          <span className="truncate text-sm font-bold">{tenant.name}</span>
+          <span className="min-w-0">
+            <span className="block truncate font-display text-sm font-bold">{tenant.name}</span>
+            <span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+              {tenant.tier}
+            </span>
+          </span>
         </div>
         <nav className="flex-1 space-y-1 p-3">
           {nav
@@ -85,10 +92,10 @@ function AppLayout() {
                 <Link
                   key={to}
                   to={to}
-                  className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${
                     active
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50"
+                      ? "bg-primary text-primary-foreground shadow-[var(--shadow-accent)]"
+                      : "text-sidebar-foreground hover:bg-secondary"
                   }`}
                 >
                   <Icon className="size-4" />
@@ -99,12 +106,12 @@ function AppLayout() {
         </nav>
         <div className="border-t border-sidebar-border p-3">
           <p className="px-3 pb-2 text-xs capitalize text-muted-foreground">
-            {ctx.role?.replace("_", " ")} · {tenant.tier}
+            {ctx.role?.replace("_", " ")}
           </p>
           <Button
             variant="ghost"
             size="sm"
-            className="w-full justify-start gap-2.5"
+            className="w-full justify-start gap-3 rounded-xl"
             onClick={async () => {
               await supabase.auth.signOut();
               navigate({ to: "/auth" });
@@ -116,21 +123,43 @@ function AppLayout() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-3 overflow-x-auto border-b border-border bg-background px-4 py-2 lg:hidden">
-          {nav
-            .filter((item) => item.show(ctx))
-            .map(({ to, label, icon: Icon }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium ${
-                  pathname.startsWith(to) ? "bg-accent text-accent-foreground" : "text-muted-foreground"
-                }`}
-              >
-                <Icon className="size-3.5" />
-                {label}
-              </Link>
-            ))}
+        <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur lg:hidden">
+          <div className="flex h-14 items-center justify-between px-4">
+            <span className="flex items-center gap-2 font-display text-sm font-bold">
+              <span className="grid size-7 place-items-center rounded-lg bg-primary text-primary-foreground">
+                <QrCode className="size-3.5" />
+              </span>
+              <span className="truncate">{tenant.name}</span>
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate({ to: "/auth" });
+              }}
+            >
+              <LogOut className="size-4" />
+            </Button>
+          </div>
+          <div className="flex items-center gap-2 overflow-x-auto px-3 pb-2">
+            {nav
+              .filter((item) => item.show(ctx))
+              .map(({ to, label, icon: Icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
+                    pathname.startsWith(to)
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary text-muted-foreground"
+                  }`}
+                >
+                  <Icon className="size-3.5" />
+                  {label}
+                </Link>
+              ))}
+          </div>
         </header>
 
         {suspended && (
@@ -140,10 +169,14 @@ function AppLayout() {
           </div>
         )}
 
-        <main className="min-w-0 flex-1 p-5 sm:p-7">
+        <main className="mx-auto min-w-0 w-full max-w-6xl flex-1 px-5 py-7 sm:px-8">
+          {current && (
+            <p className="text-eyebrow mb-1 hidden lg:block">{current.label}</p>
+          )}
           <Outlet />
         </main>
       </div>
     </div>
   );
 }
+
