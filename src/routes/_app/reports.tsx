@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_app/reports")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: Reports;
+  component: Reports,
 });
 
 function download(filename: string, rows: Array<Array<string | number>>) {
