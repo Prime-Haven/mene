@@ -25,6 +25,7 @@ import { Route as AppServicesRouteImport } from './routes/_app/services'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStructureRouteImport } from './routes/_app/structure'
 import { Route as CSubdomainRouteImport } from './routes/c.$subdomain'
+import { Route as ApiPublicCronMessagingRouteImport } from './routes/api/public/cron/messaging'
 import { Route as ApiPublicWebhooksPaystackRouteImport } from './routes/api/public/webhooks/paystack'
 
 const IndexRoute = IndexRouteImport.update({
@@ -106,6 +107,11 @@ const CSubdomainRoute = CSubdomainRouteImport.update({
   path: '/c/$subdomain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronMessagingRoute = ApiPublicCronMessagingRouteImport.update({
+  id: '/api/public/cron/messaging',
+  path: '/api/public/cron/messaging',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksPaystackRoute =
   ApiPublicWebhooksPaystackRouteImport.update({
     id: '/api/public/webhooks/paystack',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
 export interface FileRoutesByTo {
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
 export interface FileRoutesById {
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
 export interface FileRouteTypes {
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/structure'
     | '/c/$subdomain'
+    | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/structure'
     | '/c/$subdomain'
+    | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   id:
     | '__root__'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/structure'
     | '/c/$subdomain'
+    | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   fileRoutesById: FileRoutesById
 }
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PlatformRoute: typeof PlatformRoute
   CSubdomainRoute: typeof CSubdomainRoute
+  ApiPublicCronMessagingRoute: typeof ApiPublicCronMessagingRoute
   ApiPublicWebhooksPaystackRoute: typeof ApiPublicWebhooksPaystackRoute
 }
 
@@ -351,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CSubdomainRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/messaging': {
+      id: '/api/public/cron/messaging'
+      path: '/api/public/cron/messaging'
+      fullPath: '/api/public/cron/messaging'
+      preLoaderRoute: typeof ApiPublicCronMessagingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/paystack': {
       id: '/api/public/webhooks/paystack'
       path: '/api/public/webhooks/paystack'
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PlatformRoute: PlatformRoute,
   CSubdomainRoute: CSubdomainRoute,
+  ApiPublicCronMessagingRoute: ApiPublicCronMessagingRoute,
   ApiPublicWebhooksPaystackRoute: ApiPublicWebhooksPaystackRoute,
 }
 export const routeTree = rootRouteImport
