@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789957561567,
+      "tag": "0000_grace_city_hub_core",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789957630700,
+      "tag": "0001_grace_city_hub_functions",
+      "breakpoints": true
+    }
+  ]
+}
