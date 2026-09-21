@@ -11,9 +11,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — Grace City Hub" },
+      { title: "Settings — Patmos" },
       { name: "description", content: "Church name, group vocabulary and your public check-in link." },
-      { property: "og:title", content: "Settings — Grace City Hub" },
+      { property: "og:title", content: "Settings — Patmos" },
       { property: "og:description", content: "Church name, wording and check-in link." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

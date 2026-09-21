@@ -13,9 +13,9 @@ export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ mode: z.enum(["signin", "signup"]).optional() }),
   head: () => ({
     meta: [
-      { title: "Sign in — Grace City Hub" },
-      { name: "description", content: "Sign in or create your church account on Grace City Hub." },
-      { property: "og:title", content: "Sign in — Grace City Hub" },
+      { title: "Sign in — Patmos" },
+      { name: "description", content: "Sign in or create your church account on Patmos." },
+      { property: "og:title", content: "Sign in — Patmos" },
       { property: "og:description", content: "Sign in or create your church account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -69,34 +69,47 @@ function AuthPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="hidden flex-col justify-between bg-ink p-12 text-primary-foreground lg:flex">
-        <Link to="/" className="flex items-center gap-2 font-bold">
-          <span className="grid size-8 place-items-center rounded-md bg-primary">
-            <QrCode className="size-4" />
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-ink p-12 text-deep-foreground lg:flex">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-24 -top-24 size-[30rem] rounded-full bg-primary/25 blur-3xl"
+        />
+        <Link to="/" className="relative flex items-center gap-2.5 font-display font-bold">
+          <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
+            <QrCode className="size-4.5" />
           </span>
-          Grace City Hub
+          Patmos
         </Link>
-        <div>
-          <h2 className="max-w-sm text-3xl font-extrabold leading-tight">
+        <div className="relative">
+          <h2 className="max-w-sm font-display text-4xl font-extrabold leading-[1.1] text-deep-foreground">
             Attendance that still exists on Tuesday morning.
           </h2>
-          <p className="mt-4 max-w-sm text-primary-foreground/70">
+          <p className="mt-5 max-w-sm text-deep-foreground/70">
             Sign in to your church, or create a new one in under two minutes.
           </p>
         </div>
-        <p className="text-xs text-primary-foreground/50">
-          Prime Haven IT Solutions & Consultancy
+        <p className="relative text-xs text-deep-foreground/50">
+          Prime Haven IT Solutions &amp; Consultancy
         </p>
       </div>
 
       <div className="flex items-center justify-center px-5 py-16">
         <div className="w-full max-w-sm">
-          <h1 className="text-2xl font-bold">{isSignUp ? "Create your account" : "Welcome back"}</h1>
+          <Link to="/" className="mb-8 inline-flex items-center gap-2 font-display font-bold lg:hidden">
+            <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
+              <QrCode className="size-4" />
+            </span>
+            Patmos
+          </Link>
+          <h1 className="font-display text-2xl font-bold">
+            {isSignUp ? "Create your account" : "Welcome back"}
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {isSignUp
               ? "You'll set up your church on the next screen."
               : "Sign in to your church workspace."}
           </p>
+
 
           <form onSubmit={onSubmit} className="mt-8 space-y-4">
             {isSignUp && (
@@ -144,7 +157,7 @@ function AuthPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {isSignUp ? "Already have an account?" : "New to Grace City Hub?"}{" "}
+            {isSignUp ? "Already have an account?" : "New to Patmos?"}{" "}
             <button
               type="button"
               className="font-semibold text-primary hover:underline"

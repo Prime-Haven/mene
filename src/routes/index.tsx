@@ -1,223 +1,416 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Minus, QrCode, ShieldCheck, Users, BarChart3, Building2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  BarChart3,
+  Check,
+  FileSpreadsheet,
+  Gift,
+  Lock,
+  Network,
+  QrCode,
+  ShieldCheck,
+  Smartphone,
+  Users,
+  X,
+} from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Grace City Hub — Church attendance, digitised" },
+      { title: "Patmos — church attendance and membership, digitised" },
       {
         name: "description",
         content:
-          "QR check-in, digital membership records and structured reporting for churches in Ghana. Three tiers, your own branded subdomain, monthly subscription.",
+          "Patmos gives your church QR check-in at the door, a real membership registry, leadership structure and reports your pastor can read on Tuesday morning.",
       },
-      { property: "og:title", content: "Grace City Hub — Church attendance, digitised" },
+      { property: "og:title", content: "Patmos — church attendance and membership, digitised" },
       {
         property: "og:description",
         content:
-          "QR check-in, digital membership records and structured reporting for churches in Ghana.",
+          "QR check-in, membership registry, leadership structure and attendance reporting for churches in Ghana.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "index, follow" },
     ],
   }),
-  component: Landing,
+  component: LandingPage,
 });
+
+const features = [
+  {
+    icon: QrCode,
+    title: "Check in under four seconds",
+    body: "One scan at the door. First-timers check themselves in from their own phone and walk away with a code.",
+  },
+  {
+    icon: Users,
+    title: "A registry, not a cupboard",
+    body: "Every member, every first-timer, searchable in a second. Nothing is ever lost to a missing attendance book.",
+  },
+  {
+    icon: BarChart3,
+    title: "Answers, not totals",
+    body: "Trends, absentees, first-timer follow-up, demographics and group performance — ready before Tuesday.",
+  },
+  {
+    icon: Network,
+    title: "Your structure, your words",
+    body: "Cells, units, ministries, zones or branches — named and nested the way your church actually works.",
+  },
+  {
+    icon: FileSpreadsheet,
+    title: "Bring the spreadsheet you have",
+    body: "Import your existing membership list from Excel. We match the columns for you and keep every record.",
+  },
+  {
+    icon: Gift,
+    title: "Never miss a birthday",
+    body: "This month's birthdays on the dashboard, with minors' contact details protected automatically.",
+  },
+];
 
 const tiers = [
   {
     name: "Basic",
-    who: "Single-site churches wanting digital records without hierarchy",
-    structure: "A flat list of members",
-    accounts: "One church account",
+    price: "150",
+    blurb: "Single-site churches wanting proper digital records without hierarchy.",
+    features: [
+      "Branded check-in page",
+      "QR check-in & scanning",
+      "Full membership registry",
+      "Excel import & CSV export",
+      "Attendance reports",
+    ],
+    missing: ["Leader logins", "Leadership structure", "Multiple branches"],
+    cta: "Start with Basic",
   },
   {
     name: "Standard",
-    who: "Churches with ministry, unit or department leaders",
-    structure: "One flat leader layer",
-    accounts: "Church account + a login per leader",
+    price: "350",
     featured: true,
+    blurb: "Churches with ministry, unit or department leaders who need their own logins.",
+    features: [
+      "Everything in Basic",
+      "One leader layer with logins",
+      "Group attendance reporting",
+      "Per-leader member visibility",
+      "Staff accounts & roles",
+    ],
+    missing: ["Nested levels, any depth", "Multiple branches"],
+    cta: "Choose Standard",
   },
   {
     name: "Premium",
-    who: "Large, cell-structured and multi-branch ministries",
-    structure: "Custom named levels, any depth",
-    accounts: "Super-admin + branch admins + leaders",
+    price: "750",
+    blurb: "Large, cell-structured and multi-branch ministries.",
+    features: [
+      "Everything in Standard",
+      "Custom named levels, any depth",
+      "Multiple branches",
+      "Branch admins & super-admin",
+      "Full audit log",
+    ],
+    missing: [],
+    cta: "Choose Premium",
   },
 ];
 
-const matrix: Array<[string, boolean, boolean, boolean]> = [
-  ["Branded subdomain & logo", true, true, true],
-  ["QR check-in & scanning", true, true, true],
-  ["Attendance tracking & export", true, true, true],
-  ["Excel import of existing members", true, true, true],
-  ["Birthday reminders", true, true, true],
-  ["Demographic & attendance analytics", true, true, true],
-  ["Church admin account", false, true, true],
-  ["Leader accounts & leader-scoped reporting", false, true, true],
-  ["Custom leadership structure builder", false, false, true],
-  ["Multi-branch support & branch admins", false, false, true],
-  ["Cross-branch head office dashboard", false, false, true],
+const faqs = [
+  {
+    q: "Do members need to download an app?",
+    a: "No. Members never log in. They are scanned at the door, or they check themselves in from a browser on their own phone using your church's check-in link.",
+  },
+  {
+    q: "How do we pay?",
+    a: "By card or mobile money through Paystack, in Ghana cedis. Subscriptions are yearly and we invoice you before renewal — we never silently debit your wallet.",
+  },
+  {
+    q: "What happens if we stop paying?",
+    a: "Your records are never deleted. Check-in and edits pause, and you keep read access and exports until you renew.",
+  },
+  {
+    q: "Will it work on our phones?",
+    a: "Yes. Patmos is built for entry-level Android phones on a 3G connection, which is what your ushers are actually holding at the door.",
+  },
 ];
 
-function Landing() {
+function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <div className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
-              <QrCode className="size-4" />
+          <Link to="/" className="flex items-center gap-2.5">
+            <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[var(--shadow-accent)]">
+              <QrCode className="size-4.5" />
             </span>
-            <span className="text-base font-bold tracking-tight">Grace City Hub</span>
-          </div>
-          <nav className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/auth">Sign in</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/auth" search={{ mode: "signup" }}>
-                Start a church
-              </Link>
-            </Button>
+            <span className="font-display text-lg font-bold tracking-tight">Patmos</span>
+          </Link>
+          <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
+            <a href="#features" className="transition-colors hover:text-foreground">
+              Features
+            </a>
+            <a href="#pricing" className="transition-colors hover:text-foreground">
+              Pricing
+            </a>
+            <a href="#security" className="transition-colors hover:text-foreground">
+              Security
+            </a>
+            <a href="#faq" className="transition-colors hover:text-foreground">
+              FAQ
+            </a>
           </nav>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/auth"
+              search={{ mode: "signin" }}
+              className="rounded-xl px-3.5 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+            >
+              Sign in
+            </Link>
+            <Link
+              to="/auth"
+              search={{ mode: "signup" }}
+              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-accent)] transition-all hover:-translate-y-0.5"
+            >
+              Start free
+            </Link>
+          </div>
         </div>
       </header>
 
-      <section className="border-b border-border bg-ink text-primary-foreground">
-        <div className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
-          <p className="text-eyebrow text-primary">Prime Haven IT Solutions & Consultancy</p>
-          <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-[0.98] sm:text-6xl">
-            Put down the paper attendance sheet.
+      {/* Hero */}
+      <section className="relative overflow-hidden px-5 pt-20 pb-16 sm:pt-28">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-[-18rem] size-[46rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div className="relative mx-auto max-w-4xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold tracking-wide text-primary">
+            NEW
+            <span className="size-1 rounded-full bg-primary" />
+            BUILT FOR CHURCHES IN GHANA
+          </span>
+
+          <h1 className="mt-7 font-display text-4xl font-extrabold leading-[1.08] sm:text-5xl md:text-6xl">
+            Patmos.
+            <br />
+            <span className="text-primary">Digital stewardship</span> for the modern church.
           </h1>
-          <p className="mt-6 max-w-xl text-lg font-light text-primary-foreground/75">
-            QR check-in, a proper membership registry and reports your pastor can read on Tuesday
-            morning — on your own church subdomain, for a monthly subscription.
+
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            QR attendance at the door, a membership registry that never loses a name, leadership
+            structure in your own words, and reports your pastor can read on Tuesday morning.
           </p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <Link to="/auth" search={{ mode: "signup" }}>
-                Create your church
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-primary-foreground/25 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              to="/auth"
+              search={{ mode: "signup" }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 font-semibold text-primary-foreground shadow-[var(--shadow-accent)] transition-all hover:-translate-y-0.5 sm:w-auto"
             >
-              <a href="#tiers">Compare tiers</a>
-            </Button>
+              Create your church <ArrowRight className="size-4" />
+            </Link>
+            <a
+              href="#pricing"
+              className="inline-flex w-full items-center justify-center rounded-xl border border-border bg-card px-8 py-4 font-semibold text-primary transition-colors hover:bg-secondary sm:w-auto"
+            >
+              Compare plans
+            </a>
+          </div>
+
+          <div className="stat-grid mx-auto mt-16 max-w-3xl text-left">
+            {[
+              { value: "< 4s", label: "per person at the door" },
+              { value: "3", label: "plans, no feature hostage-taking" },
+              { value: "100%", label: "records kept, even when paused" },
+            ].map((s) => (
+              <div key={s.label} className="surface p-5">
+                <p className="font-display text-3xl font-bold text-primary">{s.value}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{s.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-5 px-5 py-16 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { icon: QrCode, t: "Check in in seconds", d: "One tap to open the scanner. Under four seconds per person at the door." },
-          { icon: Users, t: "A registry, not a cupboard", d: "Import the spreadsheet you already have. Every first-timer is kept and findable." },
-          { icon: BarChart3, t: "Answers, not totals", d: "Trends, first-timers, absentees, demographics and group performance." },
-          { icon: Building2, t: "Your structure, your words", d: "Cells, units, ministries or zones — named and shaped the way your church works." },
-        ].map(({ icon: Icon, t, d }) => (
-          <div key={t} className="surface p-5">
-            <Icon className="size-5 text-primary" />
-            <h3 className="mt-4 text-base font-semibold">{t}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">{d}</p>
+      {/* Features */}
+      <section id="features" className="border-t border-border bg-card/40 px-5 py-20">
+        <div className="mx-auto max-w-6xl">
+          <p className="text-eyebrow">What you get</p>
+          <h2 className="mt-3 max-w-2xl font-display text-3xl font-bold sm:text-4xl">
+            Everything the church office keeps asking for
+          </h2>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map(({ icon: Icon, title, body }) => (
+              <div key={title} className="surface p-6 transition-shadow hover:shadow-lg">
+                <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <Icon className="size-5" />
+                </span>
+                <h3 className="mt-4 font-display text-base font-bold">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </section>
 
-      <section id="tiers" className="border-y border-border bg-secondary/50">
-        <div className="mx-auto max-w-6xl px-5 py-16">
-          <p className="text-eyebrow">Tiers</p>
-          <h2 className="mt-3 text-3xl font-bold">Priced by complexity, never by gating the basics</h2>
-          <p className="mt-3 max-w-2xl text-muted-foreground">
-            Every tier runs the same check-in, attendance and reporting engine. What changes is how
-            much organisational structure the system models.
-          </p>
+      {/* Pricing */}
+      <section id="pricing" className="px-5 py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center">
+            <p className="text-eyebrow">Pricing</p>
+            <h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">
+              Priced by complexity, never by gating the basics
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+              Every plan runs the same check-in, attendance and reporting engine. What changes is how
+              much organisational structure Patmos models for you. Prices in Ghana cedis, per year.
+            </p>
+          </div>
 
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          <div className="mt-14 grid gap-8 md:grid-cols-3">
             {tiers.map((tier) => (
               <div
                 key={tier.name}
-                className={`surface p-6 ${tier.featured ? "ring-2 ring-primary" : ""}`}
+                className={`relative flex flex-col gap-6 rounded-3xl p-8 ${
+                  tier.featured
+                    ? "border-2 border-primary bg-card shadow-2xl shadow-primary/10 md:scale-105"
+                    : "border border-border bg-card"
+                }`}
               >
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold">{tier.name}</h3>
-                  {tier.featured && (
-                    <span className="rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-accent-foreground">
-                      Most churches
-                    </span>
-                  )}
+                {tier.featured && (
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
+                    Most churches
+                  </span>
+                )}
+                <div className="space-y-2">
+                  <h3
+                    className={`text-xs font-bold uppercase tracking-[0.16em] ${
+                      tier.featured ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  >
+                    {tier.name}
+                  </h3>
+                  <div className="flex items-baseline">
+                    <span className="mr-1 text-sm font-semibold">GH₵</span>
+                    <span className="font-display text-4xl font-bold">{tier.price}</span>
+                    <span className="ml-1 text-sm text-muted-foreground">/year</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{tier.blurb}</p>
                 </div>
-                <p className="mt-3 text-sm text-muted-foreground">{tier.who}</p>
-                <dl className="mt-5 space-y-3 text-sm">
-                  <div>
-                    <dt className="text-eyebrow">Structure</dt>
-                    <dd className="mt-1">{tier.structure}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-eyebrow">Accounts</dt>
-                    <dd className="mt-1">{tier.accounts}</dd>
-                  </div>
-                </dl>
-                <Button asChild className="mt-6 w-full" variant={tier.featured ? "default" : "outline"}>
-                  <Link to="/auth" search={{ mode: "signup" }}>
-                    Choose {tier.name}
-                  </Link>
-                </Button>
+
+                <ul className="flex-1 space-y-3.5">
+                  {tier.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm">
+                      <Check className="mt-0.5 size-4.5 shrink-0 text-primary" strokeWidth={2.5} />
+                      {f}
+                    </li>
+                  ))}
+                  {tier.missing.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <X className="mt-0.5 size-4.5 shrink-0 text-border" strokeWidth={2.5} />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  to="/auth"
+                  search={{ mode: "signup" }}
+                  className={`rounded-xl py-3 text-center font-semibold transition-colors ${
+                    tier.featured
+                      ? "bg-primary text-primary-foreground shadow-[var(--shadow-accent)] hover:opacity-90"
+                      : "border border-border hover:bg-secondary"
+                  }`}
+                >
+                  {tier.cta}
+                </Link>
               </div>
             ))}
           </div>
 
-          <div className="surface mt-10 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border bg-card">
-                  <th className="px-5 py-3 text-left font-semibold">Capability</th>
-                  <th className="px-3 py-3 font-semibold">Basic</th>
-                  <th className="px-3 py-3 font-semibold">Standard</th>
-                  <th className="px-3 py-3 font-semibold">Premium</th>
-                </tr>
-              </thead>
-              <tbody>
-                {matrix.map(([label, ...cols]) => (
-                  <tr key={label} className="border-b border-border/60 last:border-0">
-                    <td className="px-5 py-3">{label}</td>
-                    {cols.map((on, i) => (
-                      <td key={i} className="px-3 py-3 text-center">
-                        {on ? (
-                          <Check className="mx-auto size-4 text-success" />
-                        ) : (
-                          <Minus className="mx-auto size-4 text-muted-foreground/50" />
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <p className="mt-12 text-center text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Secured by Paystack · Card & mobile money · Invoiced before renewal
+          </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-5 py-16">
-        <div className="surface flex flex-col gap-6 p-7 sm:flex-row sm:items-center">
-          <ShieldCheck className="size-10 shrink-0 text-deep" />
+      {/* Security */}
+      <section id="security" className="border-t border-border bg-card/40 px-5 py-20">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-center">
           <div>
-            <h2 className="text-2xl font-bold">Every church's data is provably separate</h2>
-            <p className="mt-2 text-muted-foreground">
-              Isolation is enforced in the database itself, not in application code. QR codes are
-              random values stored only as hashes, check-in is rate limited, and every sensitive
-              action is written to an append-only audit log your church owner can read. Built to meet
-              Ghana's Data Protection Act, 2012 (Act 843).
+            <p className="text-eyebrow">Security</p>
+            <h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">
+              Your congregation's data is not the product
+            </h2>
+            <p className="mt-4 text-muted-foreground">
+              Every church is isolated at the database level, not just in the interface. One church
+              can never read another church's records, and neither can a leader who was not given
+              that group.
             </p>
           </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              { icon: Lock, t: "Isolated per church", b: "Row-level rules enforced by the database on every single read." },
+              { icon: ShieldCheck, t: "Rate limited", b: "Public check-in and sign-up are throttled to stop abuse and scraping." },
+              { icon: Users, t: "Least privilege", b: "Ushers, leaders, admins and owners each see only what they need." },
+              { icon: Smartphone, t: "Minors protected", b: "Children's contact details are hidden from non-admin accounts." },
+            ].map(({ icon: Icon, t, b }) => (
+              <div key={t} className="surface p-5">
+                <Icon className="size-5 text-primary" />
+                <h3 className="mt-3 font-display text-sm font-bold">{t}</h3>
+                <p className="mt-1.5 text-sm text-muted-foreground">{b}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <footer className="border-t border-border py-10 text-center text-sm text-muted-foreground">
-        Grace City Hub — a product of Prime Haven IT Solutions & Consultancy
+      {/* FAQ */}
+      <section id="faq" className="px-5 py-20">
+        <div className="mx-auto max-w-3xl">
+          <p className="text-eyebrow text-center">Questions</p>
+          <h2 className="mt-3 text-center font-display text-3xl font-bold sm:text-4xl">
+            Before you commit
+          </h2>
+          <div className="mt-10 space-y-4">
+            {faqs.map(({ q, a }) => (
+              <details key={q} className="group panel p-5 open:shadow-[var(--shadow-panel)]">
+                <summary className="cursor-pointer list-none font-display text-base font-bold marker:hidden">
+                  {q}
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="px-5 pb-24">
+        <div className="mx-auto max-w-5xl rounded-3xl bg-ink px-8 py-14 text-center text-deep-foreground">
+          <h2 className="font-display text-3xl font-extrabold text-deep-foreground sm:text-4xl">
+            Sunday is coming.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-deep-foreground/70">
+            Set up your church in under two minutes and scan your first member this weekend.
+          </p>
+          <Link
+            to="/auth"
+            search={{ mode: "signup" }}
+            className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
+          >
+            Create your church <ArrowRight className="size-4" />
+          </Link>
+        </div>
+      </section>
+
+      <footer className="border-t border-border px-5 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 text-sm text-muted-foreground sm:flex-row">
+          <span className="font-display font-bold text-foreground">Patmos</span>
+          <span>A product of Prime Haven IT Solutions &amp; Consultancy</span>
+        </div>
       </footer>
     </div>
   );

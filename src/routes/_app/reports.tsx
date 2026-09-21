@@ -10,9 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export const Route = createFileRoute("/_app/reports")({
   head: () => ({
     meta: [
-      { title: "Reports — Grace City Hub" },
+      { title: "Reports — Patmos" },
       { name: "description", content: "Service attendance, first-timers, absentees and birthday lists." },
-      { property: "og:title", content: "Reports — Grace City Hub" },
+      { property: "og:title", content: "Reports — Patmos" },
       { property: "og:description", content: "Attendance and follow-up reports for your church." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

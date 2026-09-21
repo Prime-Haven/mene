@@ -22,9 +22,9 @@ import { Badge } from "@/components/ui/badge";
 export const Route = createFileRoute("/_app/members")({
   head: () => ({
     meta: [
-      { title: "Members — Grace City Hub" },
+      { title: "Members — Patmos" },
       { name: "description", content: "Your church member registry: add, import, issue QR codes and export." },
-      { property: "og:title", content: "Members — Grace City Hub" },
+      { property: "og:title", content: "Members — Patmos" },
       { property: "og:description", content: "Manage your church member registry." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

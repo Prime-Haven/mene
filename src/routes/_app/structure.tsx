@@ -12,9 +12,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/_app/structure")({
   head: () => ({
     meta: [
-      { title: "Leadership structure — Grace City Hub" },
+      { title: "Leadership structure — Patmos" },
       { name: "description", content: "Name your leadership levels and create the groups beneath them." },
-      { property: "og:title", content: "Leadership structure — Grace City Hub" },
+      { property: "og:title", content: "Leadership structure — Patmos" },
       { property: "og:description", content: "Define your church's own leadership levels and groups." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

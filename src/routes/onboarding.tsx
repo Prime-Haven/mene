@@ -13,12 +13,12 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
     meta: [
-      { title: "Set up your church — Grace City Hub" },
+      { title: "Set up your church — Patmos" },
       {
         name: "description",
         content: "Name your church, claim your subdomain and choose a subscription tier.",
       },
-      { property: "og:title", content: "Set up your church — Grace City Hub" },
+      { property: "og:title", content: "Set up your church — Patmos" },
       { property: "og:description", content: "Claim your subdomain and choose a tier." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -109,7 +109,7 @@ function Onboarding() {
             id="church"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Grace City Chapel"
+            placeholder="Grace Chapel"
             required
             minLength={2}
             maxLength={120}
@@ -123,12 +123,12 @@ function Onboarding() {
               id="sub"
               value={subdomain}
               onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-              placeholder="gracecity"
+              placeholder="patmos"
               required
               minLength={3}
               maxLength={40}
             />
-            <span className="whitespace-nowrap text-sm text-muted-foreground">.gracecityhub.com</span>
+            <span className="whitespace-nowrap text-sm text-muted-foreground">.patmos.app</span>
           </div>
           {available === true && (
             <p className="flex items-center gap-1 text-xs text-success">
