@@ -860,6 +860,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_tenant_vocabulary: {
+        Args: { p_tenant: string; p_vocabulary: string }
+        Returns: undefined
+      }
       user_branch: { Args: { _tenant: string }; Returns: string }
       user_position_path: { Args: { _tenant: string }; Returns: unknown }
     }
