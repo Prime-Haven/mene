@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Grace City Hub — Church attendance, digitised" },
+      { title: "Patmos — Church attendance, digitised" },
       {
         name: "description",
         content:
           "QR check-in, digital membership records and structured reporting for churches in Ghana. Three tiers, your own branded subdomain, monthly subscription.",
       },
-      { property: "og:title", content: "Grace City Hub — Church attendance, digitised" },
+      { property: "og:title", content: "Patmos — Church attendance, digitised" },
       {
         property: "og:description",
         content:
@@ -69,7 +69,7 @@ function Landing() {
             <span className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground">
               <QrCode className="size-4" />
             </span>
-            <span className="text-base font-bold tracking-tight">Grace City Hub</span>
+            <span className="text-base font-bold tracking-tight">Patmos</span>
           </div>
           <nav className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm">
@@ -217,7 +217,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border py-10 text-center text-sm text-muted-foreground">
-        Grace City Hub — a product of Prime Haven IT Solutions & Consultancy
+        Patmos — a product of Prime Haven IT Solutions & Consultancy
       </footer>
     </div>
   );

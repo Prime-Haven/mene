@@ -9,9 +9,9 @@ export const Route = createFileRoute("/platform")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Platform console — Grace City Hub" },
-      { name: "description", content: "Prime Haven staff overview of every church account on Grace City Hub." },
-      { property: "og:title", content: "Platform console — Grace City Hub" },
+      { title: "Platform console — Patmos" },
+      { name: "description", content: "Prime Haven staff overview of every church account on Patmos." },
+      { property: "og:title", content: "Platform console — Patmos" },
       { property: "og:description", content: "Staff overview of churches, tiers and revenue." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -80,7 +80,7 @@ function Platform() {
             This console is for Prime Haven staff accounts.
           </p>
           <Button asChild variant="outline" className="mt-5">
-            <Link to="/">Back to Grace City Hub</Link>
+            <Link to="/">Back to Patmos</Link>
           </Button>
         </div>
       </div>

@@ -12,9 +12,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/_app/services")({
   head: () => ({
     meta: [
-      { title: "Services — Grace City Hub" },
+      { title: "Services — Patmos" },
       { name: "description", content: "Create services and open or close them for attendance capture." },
-      { property: "og:title", content: "Services — Grace City Hub" },
+      { property: "og:title", content: "Services — Patmos" },
       { property: "og:description", content: "Create and manage your church services." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

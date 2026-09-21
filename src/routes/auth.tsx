@@ -13,9 +13,9 @@ export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ mode: z.enum(["signin", "signup"]).optional() }),
   head: () => ({
     meta: [
-      { title: "Sign in — Grace City Hub" },
-      { name: "description", content: "Sign in or create your church account on Grace City Hub." },
-      { property: "og:title", content: "Sign in — Grace City Hub" },
+      { title: "Sign in — Patmos" },
+      { name: "description", content: "Sign in or create your church account on Patmos." },
+      { property: "og:title", content: "Sign in — Patmos" },
       { property: "og:description", content: "Sign in or create your church account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -74,7 +74,7 @@ function AuthPage() {
           <span className="grid size-8 place-items-center rounded-md bg-primary">
             <QrCode className="size-4" />
           </span>
-          Grace City Hub
+          Patmos
         </Link>
         <div>
           <h2 className="max-w-sm text-3xl font-extrabold leading-tight">
@@ -144,7 +144,7 @@ function AuthPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {isSignUp ? "Already have an account?" : "New to Grace City Hub?"}{" "}
+            {isSignUp ? "Already have an account?" : "New to Patmos?"}{" "}
             <button
               type="button"
               className="font-semibold text-primary hover:underline"

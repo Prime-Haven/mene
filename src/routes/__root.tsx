@@ -78,13 +78,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Grace City Hub" },
+      { title: "Patmos" },
       {
         name: "description",
         content: "Church attendance, membership records and reporting for Ghanaian churches.",
       },
       { name: "author", content: "Prime Haven IT Solutions & Consultancy" },
-      { property: "og:title", content: "Grace City Hub" },
+      { property: "og:title", content: "Patmos" },
       {
         property: "og:description",
         content: "Church attendance, membership records and reporting for Ghanaian churches.",

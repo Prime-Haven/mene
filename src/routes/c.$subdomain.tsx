@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/c/$subdomain")({
   head: () => ({
     meta: [
-      { title: "Check in — Grace City Hub" },
+      { title: "Check in — Patmos" },
       { name: "description", content: "Check in to today's service and get your personal QR code." },
       { property: "og:title", content: "Check in" },
       { property: "og:description", content: "Check in to today's service and get your QR code." },

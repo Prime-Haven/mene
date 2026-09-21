@@ -6,9 +6,9 @@ import { useTenant } from "@/hooks/useTenant";
 export const Route = createFileRoute("/_app/audit")({
   head: () => ({
     meta: [
-      { title: "Audit log — Grace City Hub" },
+      { title: "Audit log — Patmos" },
       { name: "description", content: "Append-only record of every sensitive action taken in your church account." },
-      { property: "og:title", content: "Audit log — Grace City Hub" },
+      { property: "og:title", content: "Audit log — Patmos" },
       { property: "og:description", content: "Every sensitive action, recorded and retained." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

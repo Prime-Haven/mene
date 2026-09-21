@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_app/billing")({
   head: () => ({
     meta: [
-      { title: "Billing — Grace City Hub" },
+      { title: "Billing — Patmos" },
       { name: "description", content: "Your subscription tier, renewal date and payment history." },
-      { property: "og:title", content: "Billing — Grace City Hub" },
+      { property: "og:title", content: "Billing — Patmos" },
       { property: "og:description", content: "Subscription tier, renewal date and invoices." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
