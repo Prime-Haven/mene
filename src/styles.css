@@ -147,6 +147,8 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     font-variant-numeric: tabular-nums lining-nums;
+    min-width: 320px;
+    -webkit-tap-highlight-color: transparent;
   }
 
   h1,
@@ -157,6 +159,15 @@
     letter-spacing: -0.025em;
     font-weight: 700;
     color: var(--color-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
