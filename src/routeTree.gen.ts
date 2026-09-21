@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as AppAccountsRouteImport } from './routes/_app/accounts'
 import { Route as AppAuditRouteImport } from './routes/_app/audit'
 import { Route as AppBillingRouteImport } from './routes/_app/billing'
@@ -43,6 +44,11 @@ const AuthRoute = AuthRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatformRoute = PlatformRouteImport.update({
+  id: '/platform',
+  path: '/platform',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppAccountsRoute = AppAccountsRouteImport.update({
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/platform': typeof PlatformRoute
   '/accounts': typeof AppAccountsRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/platform': typeof PlatformRoute
   '/accounts': typeof AppAccountsRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/platform': typeof PlatformRoute
   '/_app/accounts': typeof AppAccountsRoute
   '/_app/audit': typeof AppAuditRoute
   '/_app/billing': typeof AppBillingRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/platform'
     | '/accounts'
     | '/audit'
     | '/billing'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/platform'
     | '/accounts'
     | '/audit'
     | '/billing'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/auth'
     | '/onboarding'
+    | '/platform'
     | '/_app/accounts'
     | '/_app/audit'
     | '/_app/billing'
@@ -220,6 +232,7 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   OnboardingRoute: typeof OnboardingRoute
+  PlatformRoute: typeof PlatformRoute
   CSubdomainRoute: typeof CSubdomainRoute
   ApiPublicWebhooksPaystackRoute: typeof ApiPublicWebhooksPaystackRoute
 }
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platform': {
+      id: '/platform'
+      path: '/platform'
+      fullPath: '/platform'
+      preLoaderRoute: typeof PlatformRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/accounts': {
@@ -376,6 +396,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   OnboardingRoute: OnboardingRoute,
+  PlatformRoute: PlatformRoute,
   CSubdomainRoute: CSubdomainRoute,
   ApiPublicWebhooksPaystackRoute: ApiPublicWebhooksPaystackRoute,
 }
