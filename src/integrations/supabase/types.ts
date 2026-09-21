@@ -218,6 +218,8 @@ export type Database = {
           import_batch_id: string | null
           is_minor: boolean
           joined_on: string
+          marital_status: string | null
+          occupation: string | null
           phone: string | null
           position_id: string | null
           residential_area: string | null
@@ -235,6 +237,8 @@ export type Database = {
           import_batch_id?: string | null
           is_minor?: boolean
           joined_on?: string
+          marital_status?: string | null
+          occupation?: string | null
           phone?: string | null
           position_id?: string | null
           residential_area?: string | null
@@ -252,6 +256,8 @@ export type Database = {
           import_batch_id?: string | null
           is_minor?: boolean
           joined_on?: string
+          marital_status?: string | null
+          occupation?: string | null
           phone?: string | null
           position_id?: string | null
           residential_area?: string | null
@@ -661,6 +667,9 @@ export type Database = {
       }
       tenants: {
         Row: {
+          background_path: string | null
+          brand_accent: string
+          brand_primary: string
           contact_email: string | null
           contact_phone: string | null
           created_at: string
@@ -670,9 +679,14 @@ export type Database = {
           name: string
           status: Database["public"]["Enums"]["tenant_status"]
           subdomain: string
+          submit_button_text: string
           tier: Database["public"]["Enums"]["tenant_tier"]
+          welcome_message: string | null
         }
         Insert: {
+          background_path?: string | null
+          brand_accent?: string
+          brand_primary?: string
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -682,9 +696,14 @@ export type Database = {
           name: string
           status?: Database["public"]["Enums"]["tenant_status"]
           subdomain: string
+          submit_button_text?: string
           tier?: Database["public"]["Enums"]["tenant_tier"]
+          welcome_message?: string | null
         }
         Update: {
+          background_path?: string | null
+          brand_accent?: string
+          brand_primary?: string
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
@@ -694,7 +713,9 @@ export type Database = {
           name?: string
           status?: Database["public"]["Enums"]["tenant_status"]
           subdomain?: string
+          submit_button_text?: string
           tier?: Database["public"]["Enums"]["tenant_tier"]
+          welcome_message?: string | null
         }
         Relationships: []
       }
@@ -780,6 +801,14 @@ export type Database = {
         }
         Returns: string
       }
+      public_open_services: {
+        Args: { p_subdomain: string }
+        Returns: {
+          id: string
+          name: string
+          service_date: string
+        }[]
+      }
       resolve_scan: {
         Args: { p_service: string; p_token: string }
         Returns: Json
@@ -797,11 +826,40 @@ export type Database = {
         }
         Returns: Json
       }
+      self_checkin_v2: {
+        Args: {
+          p_area: string
+          p_dob: string
+          p_email: string
+          p_full_name: string
+          p_gender: Database["public"]["Enums"]["gender_type"]
+          p_ip: string
+          p_marital_status: string
+          p_occupation: string
+          p_phone: string
+          p_service: string
+          p_subdomain: string
+        }
+        Returns: Json
+      }
       subdomain_available: { Args: { p_subdomain: string }; Returns: boolean }
       tenant_branding: { Args: { p_subdomain: string }; Returns: Json }
       tenant_can_write: { Args: { _tenant: string }; Returns: boolean }
       tenant_dashboard: { Args: { p_tenant: string }; Returns: Json }
       text2ltree: { Args: { "": string }; Returns: unknown }
+      update_tenant_branding: {
+        Args: {
+          p_accent: string
+          p_background_path: string
+          p_button: string
+          p_logo_path: string
+          p_name: string
+          p_primary: string
+          p_tenant: string
+          p_welcome: string
+        }
+        Returns: undefined
+      }
       user_branch: { Args: { _tenant: string }; Returns: string }
       user_position_path: { Args: { _tenant: string }; Returns: unknown }
     }

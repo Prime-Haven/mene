@@ -29,6 +29,13 @@
       "when": 1789960210894,
       "tag": "0003_monthly_billing_period",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789966443909,
+      "tag": "0004_member_service_branding_upgrade",
+      "breakpoints": true
     }
   ]
 }
