@@ -80,8 +80,8 @@ function Onboarding() {
         p_name: name,
         p_subdomain: subdomain.trim().toLowerCase(),
         p_tier: tier,
-        p_contact_email: session?.user.email ?? null,
-        p_contact_phone: phone || null,
+        ...(session?.user.email ? { p_contact_email: session.user.email } : {}),
+        ...(phone ? { p_contact_phone: phone } : {}),
       });
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ["membership"] });
