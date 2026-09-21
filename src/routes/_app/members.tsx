@@ -369,6 +369,8 @@ function Members() {
                 <Label htmlFor="mp">Phone</Label>
                 <Input
                   id="mp"
+                  required
+                  inputMode="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 />
@@ -378,25 +380,28 @@ function Members() {
                 <Input
                   id="md"
                   type="date"
+                  required
+                  max={new Date().toISOString().slice(0, 10)}
                   value={form.date_of_birth}
                   onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })}
                 />
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-2"><Label htmlFor="mm">Marital status</Label><select id="mm" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.marital_status} onChange={(e) => setForm({ ...form, marital_status: e.target.value })}><option value="">Not stated</option><option value="single">Single</option><option value="married">Married</option><option value="divorced">Divorced</option><option value="widowed">Widowed</option><option value="separated">Separated</option><option value="prefer_not_to_say">Prefer not to say</option></select></div>
-              <div className="space-y-2"><Label htmlFor="mo">Occupation</Label><Input id="mo" maxLength={120} value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} /></div>
+                <select id="mm" required className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={form.marital_status} onChange={(e) => setForm({ ...form, marital_status: e.target.value })}><option value="">Select status</option><option value="single">Single</option><option value="married">Married</option><option value="divorced">Divorced</option><option value="widowed">Widowed</option><option value="separated">Separated</option><option value="prefer_not_to_say">Prefer not to say</option></select></div>
+              <div className="space-y-2"><Label htmlFor="mo">Occupation</Label><Input id="mo" required maxLength={120} value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} /></div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="mg">Gender</Label>
                 <select
                   id="mg"
+                  required
                   className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                   value={form.gender}
                   onChange={(e) => setForm({ ...form, gender: e.target.value })}
                 >
-                  <option value="">Not stated</option>
+                  <option value="">Select gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
@@ -406,6 +411,8 @@ function Members() {
                 <Label htmlFor="ma">Residential area</Label>
                 <Input
                   id="ma"
+                  required
+                  maxLength={120}
                   value={form.residential_area}
                   onChange={(e) => setForm({ ...form, residential_area: e.target.value })}
                 />
