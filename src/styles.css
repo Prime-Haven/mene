@@ -151,8 +151,11 @@
 
   h1,
   h2,
-  h3 {
-    letter-spacing: -0.02em;
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    font-weight: 700;
     color: var(--color-ink);
   }
 }
@@ -160,14 +163,30 @@
 @utility surface {
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-panel);
 }
 
+@utility panel {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+}
+
 @utility text-eyebrow {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--color-muted-foreground);
+}
+
+@utility stat-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
 }
