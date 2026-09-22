@@ -13,12 +13,12 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
     meta: [
-      { title: "Set up your church — Patmos" },
+      { title: "Set up your church — Mene" },
       {
         name: "description",
         content: "Name your church, claim your subdomain and choose a subscription tier.",
       },
-      { property: "og:title", content: "Set up your church — Patmos" },
+      { property: "og:title", content: "Set up your church — Mene" },
       { property: "og:description", content: "Claim your subdomain and choose a tier." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

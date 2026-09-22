@@ -89,7 +89,7 @@ export const inviteAccount = createServerFn({ method: "POST" })
       tenantId: data.tenant_id,
       to: data.email,
       subject: `You have been invited to help run ${tenant.name}`,
-      body: `You have been added to ${tenant.name} on Patmos as ${data.role.replace("_", " ")}.\n\nCheck your inbox for the sign-in link from Patmos, then set your password and you are in. If you already have a Patmos login, just sign in as usual.`,
+      body: `You have been added to ${tenant.name} on Mene as ${data.role.replace("_", " ")}.\n\nCheck your inbox for the sign-in link from Mene, then set your password and you are in. If you already have a Mene login, just sign in as usual.`,
     });
     if (!branded.ok) {
       console.warn(`[accounts] branded invite not sent: ${branded.error ?? "unknown"}`);

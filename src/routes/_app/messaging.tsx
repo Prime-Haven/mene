@@ -21,12 +21,12 @@ import {
 export const Route = createFileRoute("/_app/messaging")({
   head: () => ({
     meta: [
-      { title: "Messaging — Patmos" },
+      { title: "Messaging — Mene" },
       {
         name: "description",
         content: "Send branded emails and text messages to your members, and see every delivery.",
       },
-      { property: "og:title", content: "Messaging — Patmos" },
+      { property: "og:title", content: "Messaging — Mene" },
       { property: "og:description", content: "Reach your members by email and text message." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

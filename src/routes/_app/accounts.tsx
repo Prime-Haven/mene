@@ -15,9 +15,9 @@ import { Badge } from "@/components/ui/badge";
 export const Route = createFileRoute("/_app/accounts")({
   head: () => ({
     meta: [
-      { title: "Accounts — Patmos" },
+      { title: "Accounts — Mene" },
       { name: "description", content: "Invite admins, branch admins, leaders and ushers, and suspend access." },
-      { property: "og:title", content: "Accounts — Patmos" },
+      { property: "og:title", content: "Accounts — Mene" },
       { property: "og:description", content: "Invite and manage the people who can sign in." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

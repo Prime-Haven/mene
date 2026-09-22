@@ -24,7 +24,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTenant } from "@/hooks/useTenant";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { InstallPatmos } from "@/components/InstallPatmos";
+import { InstallMene } from "@/components/InstallMene";
 import { getBrandAssetUrl } from "@/lib/checkin.functions";
 
 export const Route = createFileRoute("/_app")({
@@ -111,7 +111,7 @@ function AppLayout() {
         })}
       </nav>
       <div className="border-t border-sidebar-border p-3">
-        {(!collapsed || mobile) && <><InstallPatmos compact /><p className="px-3 pb-2 pt-3 text-xs capitalize text-muted-foreground">{ctx.role?.replace("_", " ")}</p></>}
+        {(!collapsed || mobile) && <><InstallMene compact /><p className="px-3 pb-2 pt-3 text-xs capitalize text-muted-foreground">{ctx.role?.replace("_", " ")}</p></>}
         <Button variant="ghost" size="sm" title="Sign out" className={`w-full gap-3 rounded-xl ${collapsed && !mobile ? "justify-center px-0" : "justify-start"}`} onClick={async () => { await supabase.auth.signOut(); navigate({ to: "/auth" }); }}><LogOut className="size-4" />{(!collapsed || mobile) && "Sign out"}</Button>
       </div>
     </>

@@ -14,9 +14,9 @@ import { useServerFn } from "@tanstack/react-start";
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({
     meta: [
-      { title: "Settings — Patmos" },
+      { title: "Settings — Mene" },
       { name: "description", content: "Church name, group vocabulary and your public check-in link." },
-      { property: "og:title", content: "Settings — Patmos" },
+      { property: "og:title", content: "Settings — Mene" },
       { property: "og:description", content: "Church name, wording and check-in link." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
