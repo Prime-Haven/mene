@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Patmos design system.
- * Cloud White: crisp greys, ink navy, a single confident blue accent.
+ * Mene design system.
+ * Cloud White: crisp greys, true black, and a confident blue accent.
  * Sora for headings, Manrope for body. All colours are oklch tokens.
  */
 
@@ -82,7 +82,7 @@
   --destructive-foreground: oklch(0.99 0.002 250);
   --success: oklch(0.6 0.13 162);
   --success-foreground: oklch(0.99 0.002 250);
-  --deep: oklch(0.21 0.03 265);
+  --deep: oklch(0.08 0.005 265);
   --deep-foreground: oklch(0.97 0.004 250);
   --border: oklch(0.93 0.007 250);
   --input: oklch(0.93 0.007 250);
@@ -122,7 +122,7 @@
   --destructive-foreground: oklch(0.98 0.003 250);
   --success: oklch(0.68 0.13 162);
   --success-foreground: oklch(0.17 0.02 265);
-  --deep: oklch(0.26 0.022 265);
+  --deep: oklch(0.08 0.005 265);
   --deep-foreground: oklch(0.97 0.004 250);
   --border: oklch(0.32 0.025 265);
   --input: oklch(0.34 0.025 265);

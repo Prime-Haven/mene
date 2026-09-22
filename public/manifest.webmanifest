@@ -1,6 +1,6 @@
 {
-  "name": "Patmos Church Management",
-  "short_name": "Patmos",
+  "name": "Mene Church Management",
+  "short_name": "Mene",
   "description": "Church attendance, member care and reporting.",
   "start_url": "/dashboard",
   "scope": "/",
