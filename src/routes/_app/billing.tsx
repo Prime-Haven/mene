@@ -15,6 +15,7 @@ const FEATURE_ORDER: Feature[] = [
   "checkin",
   "branding",
   "reports_basic",
+  "ask_mene",
   "email",
   "structure",
   "groups",

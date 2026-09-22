@@ -1,0 +1,114 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
+import { createClient } from "@supabase/supabase-js";
+import type { Database, Json } from "@/integrations/supabase/types";
+
+const textOf = (message: UIMessage) =>
+  message.parts.filter((part) => part.type === "text").map((part) => part.text).join("").trim();
+
+function userClient(token: string) {
+  const url = process.env["SUPABASE_URL"];
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
+  if (!url || !key) throw new Error("Data service is unavailable");
+  return createClient<Database>(url, key, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+export const Route = createFileRoute("/api/public/ask-mene")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        try {
+          const auth = request.headers.get("authorization") ?? "";
+          const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+          if (!token) return Response.json({ error: "Sign in again to continue." }, { status: 401 });
+
+          const client = userClient(token);
+          const { data: claims } = await client.auth.getClaims(token);
+          if (!claims?.claims?.sub) return Response.json({ error: "Your session has expired." }, { status: 401 });
+
+          const body = (await request.json()) as { tenantId?: string; messages?: UIMessage[] };
+          const tenantId = body.tenantId?.trim();
+          const messages = Array.isArray(body.messages) ? body.messages.slice(-16) : [];
+          const latest = [...messages].reverse().find((message) => message.role === "user");
+          const question = latest ? textOf(latest) : "";
+          if (!tenantId || !question || question.length > 800) {
+            return Response.json({ error: "Ask one question of up to 800 characters." }, { status: 400 });
+          }
+
+          const { data: allowed, error: limitError } = await client.rpc("ask_mene_allow_request", { p_tenant: tenantId });
+          if (limitError) return Response.json({ error: "You do not have access to Ask Mene." }, { status: 403 });
+          if (!allowed) return Response.json({ error: "Ask Mene's hourly limit has been reached. Try again later." }, { status: 429 });
+
+          const { data: context, error: contextError } = await client.rpc("ask_mene_context", { p_tenant: tenantId });
+          if (contextError || !context) return Response.json({ error: "Church insights are unavailable right now." }, { status: 403 });
+
+          const apiKey = process.env["LOVABLE_API_KEY"];
+          if (!apiKey) return Response.json({ error: "Ask Mene is not configured yet." }, { status: 503 });
+
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { data: conversation, error: conversationError } = await supabaseAdmin
+            .from("ask_mene_conversations")
+            .upsert({ tenant_id: tenantId, updated_by: claims.claims.sub }, { onConflict: "tenant_id" })
+            .select("id")
+            .single();
+          if (conversationError) throw conversationError;
+
+          await supabaseAdmin.from("ask_mene_messages").insert({
+            conversation_id: conversation.id,
+            tenant_id: tenantId,
+            role: "user",
+            content: question,
+            created_by: claims.claims.sub,
+          });
+
+          const gateway = createOpenAI({
+            name: "lovable",
+            apiKey,
+            baseURL: "https://ai.gateway.lovable.dev/v1",
+          });
+          const result = streamText({
+            model: gateway.chat("openai/gpt-6-astra"),
+            system: `You are Ask Mene, a concise church operations analyst. Answer only from the aggregate JSON snapshot below. Never infer or request names, contacts, dates of birth, QR data, or individual records. If the snapshot cannot answer, say so plainly. Prefer 2-5 short bullets, include exact dates/counts when relevant, and identify trends without overstating causality. Do not expose hidden reasoning.\n\nAGGREGATE CHURCH SNAPSHOT:\n${JSON.stringify(context)}`,
+            messages: await convertToModelMessages(messages),
+            maxOutputTokens: 700,
+            temperature: 0.2,
+          });
+
+          void supabaseAdmin.from("audit_events").insert({
+            tenant_id: tenantId,
+            actor_user_id: claims.claims.sub,
+            action: "ask_mene.asked",
+            target: conversation.id,
+            detail: { question_length: question.length } as Json,
+          });
+
+          return result.toUIMessageStreamResponse({
+            originalMessages: messages,
+            sendReasoning: false,
+            onError: () => "Ask Mene could not complete that answer. Please try again.",
+            onFinish: async ({ responseMessage, isAborted }) => {
+              if (isAborted) return;
+              const answer = textOf(responseMessage).slice(0, 12000);
+              if (!answer) return;
+              await supabaseAdmin.from("ask_mene_messages").insert({
+                conversation_id: conversation.id,
+                tenant_id: tenantId,
+                role: "assistant",
+                content: answer,
+                created_by: claims.claims.sub,
+              });
+              await supabaseAdmin.from("ask_mene_conversations").update({ updated_at: new Date().toISOString(), updated_by: claims.claims.sub }).eq("id", conversation.id);
+            },
+          });
+        } catch (error) {
+          console.error("[ask-mene] request failed", error instanceof Error ? error.message : error);
+          return Response.json({ error: "Ask Mene is temporarily unavailable. Please try again." }, { status: 500 });
+        }
+      },
+    },
+  },
+});

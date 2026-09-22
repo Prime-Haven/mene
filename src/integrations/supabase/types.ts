@@ -14,6 +14,83 @@ export type Database = {
   }
   public: {
     Tables: {
+      ask_mene_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ask_mene_conversations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ask_mene_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          role: string
+          tenant_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role: string
+          tenant_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ask_mene_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ask_mene_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ask_mene_messages_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance: {
         Row: {
           branch_id: string | null
@@ -479,6 +556,41 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_audit_events: {
+        Row: {
+          action: string
+          actor_user_id: string
+          created_at: string
+          detail: Json
+          id: string
+          tenant_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_user_id: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          tenant_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_audit_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       positions: {
         Row: {
           branch_id: string | null
@@ -878,6 +990,8 @@ export type Database = {
         }
         Returns: undefined
       }
+      ask_mene_allow_request: { Args: { p_tenant: string }; Returns: boolean }
+      ask_mene_context: { Args: { p_tenant: string }; Returns: Json }
       attendance_insights: {
         Args: { p_tenant: string; p_weeks: number }
         Returns: Json
@@ -999,11 +1113,33 @@ export type Database = {
         Returns: undefined
       }
       normalize_phone_gh: { Args: { _phone: string }; Returns: string }
+      platform_create_tenant: {
+        Args: {
+          p_contact_email: string
+          p_contact_phone: string
+          p_name: string
+          p_subdomain: string
+          p_tier: Database["public"]["Enums"]["tenant_tier"]
+        }
+        Returns: string
+      }
       platform_overview: { Args: never; Returns: Json }
       platform_set_tenant_status: {
         Args: {
           p_status: Database["public"]["Enums"]["tenant_status"]
           p_tenant: string
+        }
+        Returns: undefined
+      }
+      platform_update_tenant: {
+        Args: {
+          p_contact_email: string
+          p_contact_phone: string
+          p_name: string
+          p_status: Database["public"]["Enums"]["tenant_status"]
+          p_subdomain: string
+          p_tenant: string
+          p_tier: Database["public"]["Enums"]["tenant_tier"]
         }
         Returns: undefined
       }

@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as AppAccountsRouteImport } from './routes/_app/accounts'
+import { Route as AppAskMeneRouteImport } from './routes/_app/ask-mene'
 import { Route as AppAuditRouteImport } from './routes/_app/audit'
 import { Route as AppBillingRouteImport } from './routes/_app/billing'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
@@ -26,6 +27,7 @@ import { Route as AppServicesRouteImport } from './routes/_app/services'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStructureRouteImport } from './routes/_app/structure'
 import { Route as CSubdomainRouteImport } from './routes/c.$subdomain'
+import { Route as ApiPublicAskMeneRouteImport } from './routes/api/public/ask-mene'
 import { Route as ApiPublicCronMessagingRouteImport } from './routes/api/public/cron/messaging'
 import { Route as ApiPublicWebhooksPaystackRouteImport } from './routes/api/public/webhooks/paystack'
 
@@ -56,6 +58,11 @@ const PlatformRoute = PlatformRouteImport.update({
 const AppAccountsRoute = AppAccountsRouteImport.update({
   id: '/accounts',
   path: '/accounts',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppAskMeneRoute = AppAskMeneRouteImport.update({
+  id: '/ask-mene',
+  path: '/ask-mene',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppAuditRoute = AppAuditRouteImport.update({
@@ -113,6 +120,11 @@ const CSubdomainRoute = CSubdomainRouteImport.update({
   path: '/c/$subdomain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAskMeneRoute = ApiPublicAskMeneRouteImport.update({
+  id: '/api/public/ask-mene',
+  path: '/api/public/ask-mene',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronMessagingRoute = ApiPublicCronMessagingRouteImport.update({
   id: '/api/public/cron/messaging',
   path: '/api/public/cron/messaging',
@@ -131,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/platform': typeof PlatformRoute
   '/accounts': typeof AppAccountsRoute
+  '/ask-mene': typeof AppAskMeneRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
@@ -142,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/ask-mene': typeof ApiPublicAskMeneRoute
   '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
@@ -151,6 +165,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/platform': typeof PlatformRoute
   '/accounts': typeof AppAccountsRoute
+  '/ask-mene': typeof AppAskMeneRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
@@ -162,6 +177,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/ask-mene': typeof ApiPublicAskMeneRoute
   '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
@@ -173,6 +189,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/platform': typeof PlatformRoute
   '/_app/accounts': typeof AppAccountsRoute
+  '/_app/ask-mene': typeof AppAskMeneRoute
   '/_app/audit': typeof AppAuditRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/dashboard': typeof AppDashboardRoute
@@ -184,6 +201,7 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
+  '/api/public/ask-mene': typeof ApiPublicAskMeneRoute
   '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
@@ -195,6 +213,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/platform'
     | '/accounts'
+    | '/ask-mene'
     | '/audit'
     | '/billing'
     | '/dashboard'
@@ -206,6 +225,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/structure'
     | '/c/$subdomain'
+    | '/api/public/ask-mene'
     | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   fileRoutesByTo: FileRoutesByTo
@@ -215,6 +235,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/platform'
     | '/accounts'
+    | '/ask-mene'
     | '/audit'
     | '/billing'
     | '/dashboard'
@@ -226,6 +247,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/structure'
     | '/c/$subdomain'
+    | '/api/public/ask-mene'
     | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   id:
@@ -236,6 +258,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/platform'
     | '/_app/accounts'
+    | '/_app/ask-mene'
     | '/_app/audit'
     | '/_app/billing'
     | '/_app/dashboard'
@@ -247,6 +270,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/structure'
     | '/c/$subdomain'
+    | '/api/public/ask-mene'
     | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   fileRoutesById: FileRoutesById
@@ -258,6 +282,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PlatformRoute: typeof PlatformRoute
   CSubdomainRoute: typeof CSubdomainRoute
+  ApiPublicAskMeneRoute: typeof ApiPublicAskMeneRoute
   ApiPublicCronMessagingRoute: typeof ApiPublicCronMessagingRoute
   ApiPublicWebhooksPaystackRoute: typeof ApiPublicWebhooksPaystackRoute
 }
@@ -304,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/accounts'
       fullPath: '/accounts'
       preLoaderRoute: typeof AppAccountsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/ask-mene': {
+      id: '/_app/ask-mene'
+      path: '/ask-mene'
+      fullPath: '/ask-mene'
+      preLoaderRoute: typeof AppAskMeneRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/audit': {
@@ -383,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CSubdomainRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/ask-mene': {
+      id: '/api/public/ask-mene'
+      path: '/api/public/ask-mene'
+      fullPath: '/api/public/ask-mene'
+      preLoaderRoute: typeof ApiPublicAskMeneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/messaging': {
       id: '/api/public/cron/messaging'
       path: '/api/public/cron/messaging'
@@ -402,6 +441,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteRouteChildren {
   AppAccountsRoute: typeof AppAccountsRoute
+  AppAskMeneRoute: typeof AppAskMeneRoute
   AppAuditRoute: typeof AppAuditRoute
   AppBillingRoute: typeof AppBillingRoute
   AppDashboardRoute: typeof AppDashboardRoute
@@ -416,6 +456,7 @@ interface AppRouteRouteChildren {
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAccountsRoute: AppAccountsRoute,
+  AppAskMeneRoute: AppAskMeneRoute,
   AppAuditRoute: AppAuditRoute,
   AppBillingRoute: AppBillingRoute,
   AppDashboardRoute: AppDashboardRoute,
@@ -439,6 +480,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PlatformRoute: PlatformRoute,
   CSubdomainRoute: CSubdomainRoute,
+  ApiPublicAskMeneRoute: ApiPublicAskMeneRoute,
   ApiPublicCronMessagingRoute: ApiPublicCronMessagingRoute,
   ApiPublicWebhooksPaystackRoute: ApiPublicWebhooksPaystackRoute,
 }

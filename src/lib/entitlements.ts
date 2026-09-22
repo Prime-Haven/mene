@@ -13,6 +13,7 @@ export type Feature =
   | "branding"
   | "reports_basic"
   | "reports_advanced"
+  | "ask_mene"
   | "structure"
   | "groups"
   | "branches"
@@ -35,6 +36,7 @@ export const ENTITLEMENTS: Record<Tier, Entitlement> = {
     branding: true,
     reports_basic: true,
     reports_advanced: false,
+    ask_mene: true,
     structure: false,
     groups: false,
     branches: false,
@@ -55,6 +57,7 @@ export const ENTITLEMENTS: Record<Tier, Entitlement> = {
     branding: true,
     reports_basic: true,
     reports_advanced: true,
+    ask_mene: true,
     structure: true,
     groups: true,
     branches: false,
@@ -75,6 +78,7 @@ export const ENTITLEMENTS: Record<Tier, Entitlement> = {
     branding: true,
     reports_basic: true,
     reports_advanced: true,
+    ask_mene: true,
     structure: true,
     groups: true,
     branches: true,
@@ -108,6 +112,7 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   branding: "Church branding",
   reports_basic: "Reports",
   reports_advanced: "Advanced reports",
+  ask_mene: "Ask Mene AI",
   structure: "Leadership structure",
   groups: "Groups",
   branches: "Multiple branches",
