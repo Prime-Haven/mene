@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 
-import heroVideo from "@/assets/mene-worship-hero.mp4.asset.json";
+import heroVideo from "@/assets/mene-worship-hero.webm";
 import heroPoster from "@/assets/mene-worship-poster.jpg";
 import { Button } from "@/components/ui/button";
 
@@ -132,7 +132,7 @@ function LandingPage() {
           <motion.video
             style={{ scale: videoScale, opacity: videoOpacity }}
             className="absolute inset-0 size-full object-cover grayscale"
-            src={heroVideo.url}
+            src={heroVideo}
             poster={heroPoster}
             autoPlay
             muted
