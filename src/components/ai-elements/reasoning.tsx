@@ -72,7 +72,7 @@ export const Reasoning = memo(
 
     const [isOpen, setIsOpen] = useControllableState<boolean>({
       defaultProp: resolvedDefaultOpen,
-      onChange: onOpenChange,
+      onChange: onOpenChange ?? (() => undefined),
       prop: open,
     });
     const [duration, setDuration] = useControllableState<number | undefined>({
@@ -95,6 +95,7 @@ export const Reasoning = memo(
         setDuration(Math.ceil((Date.now() - startTimeRef.current) / MS_IN_S));
         startTimeRef.current = null;
       }
+      return undefined;
     }, [isStreaming, setDuration]);
 
     // Auto-open when streaming starts (unless explicitly closed)
@@ -119,6 +120,7 @@ export const Reasoning = memo(
 
         return () => clearTimeout(timer);
       }
+      return undefined;
     }, [isStreaming, isOpen, setIsOpen, hasAutoClosed]);
 
     const handleOpenChange = useCallback(
