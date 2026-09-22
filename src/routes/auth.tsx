@@ -36,7 +36,9 @@ function AuthPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && session) navigate({ to: "/dashboard" });
+    if (!loading && session) {
+      supabase.rpc("is_platform_admin").then(({ data }) => navigate({ to: data ? "/platform" : "/dashboard" }));
+    }
   }, [loading, session, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
@@ -58,7 +60,8 @@ function AuthPage() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/dashboard" });
+        const { data: platformAdmin } = await supabase.rpc("is_platform_admin");
+        navigate({ to: platformAdmin ? "/platform" : "/dashboard" });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
