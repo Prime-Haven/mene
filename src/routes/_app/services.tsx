@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Lock, Unlock } from "lucide-react";
+import { Lock, Pencil, Trash2, Unlock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/hooks/useTenant";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ function Services() {
   const qc = useQueryClient();
   const [name, setName] = useState("Sunday Service");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [editing, setEditing] = useState<{ id: string; name: string; date: string } | null>(null);
 
   const { data: services } = useQuery({
     queryKey: ["services", tenant?.id],
