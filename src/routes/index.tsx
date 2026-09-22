@@ -16,9 +16,10 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import heroVideo from "@/assets/mene-worship-hero.mp4.asset.json";
+import heroPoster from "@/assets/mene-worship-poster.jpg";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
@@ -73,6 +74,7 @@ const faqs = [
 
 function LandingPage() {
   const heroRef = useRef<HTMLElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const videoScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
   const videoOpacity = useTransform(scrollYProgress, [0, 0.72, 1], [1, 0.52, 0]);
@@ -102,9 +104,27 @@ function LandingPage() {
             <Button asChild size="sm" className="bg-deep-foreground text-deep hover:bg-deep-foreground/90">
               <Link to="/auth" search={{ mode: "signup" }}>Start free <ArrowRight /></Link>
             </Button>
-            <Menu className="size-5 md:hidden" aria-hidden="true" />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="text-deep-foreground hover:bg-deep-foreground/10 hover:text-deep-foreground md:hidden"
+              aria-label="Open navigation"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              <Menu className="size-5" />
+            </Button>
           </div>
         </div>
+        {menuOpen && (
+          <nav className="mx-auto mt-2 grid max-w-7xl overflow-hidden rounded-lg border border-deep-foreground/20 bg-deep/90 p-2 text-sm font-semibold text-deep-foreground shadow-lg backdrop-blur-xl md:hidden">
+            {[["#why", "Why Mene"], ["#features", "Features"], ["#pricing", "Plans"], ["#faq", "Questions"]].map(([href, label]) => (
+              <a key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-3 hover:bg-deep-foreground/10">{label}</a>
+            ))}
+            <Link to="/auth" search={{ mode: "signin" }} className="rounded-md px-3 py-3 hover:bg-deep-foreground/10">Sign in</Link>
+          </nav>
+        )}
       </header>
 
       <section ref={heroRef} className="relative h-[145svh] bg-deep">
@@ -113,6 +133,7 @@ function LandingPage() {
             style={{ scale: videoScale, opacity: videoOpacity }}
             className="absolute inset-0 size-full object-cover grayscale"
             src={heroVideo.url}
+            poster={heroPoster}
             autoPlay
             muted
             loop
@@ -150,7 +171,7 @@ function LandingPage() {
 
       <main className="relative z-10 -mt-[28svh]">
         <section id="why" className="px-3 sm:px-5">
-          <div className="mx-auto max-w-7xl rounded-t-lg border-x border-t border-deep-foreground/20 bg-deep-foreground/12 px-5 py-14 text-deep-foreground shadow-2xl backdrop-blur-2xl sm:px-10 lg:px-14">
+          <div className="mx-auto max-w-7xl rounded-t-lg border-x border-t border-deep-foreground/20 bg-deep/80 px-5 py-14 text-deep-foreground shadow-2xl backdrop-blur-2xl sm:px-10 lg:px-14">
             <div className="grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-deep-foreground/60">One connected church record</p>
