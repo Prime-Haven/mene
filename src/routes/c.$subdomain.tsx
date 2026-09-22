@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/c/$subdomain")({
   head: () => ({
     meta: [
-      { title: "Check in — Patmos" },
+      { title: "Check in — Mene" },
       { name: "description", content: "Check in to today's service and get your personal QR code." },
       { property: "og:title", content: "Check in" },
       { property: "og:description", content: "Check in to today's service and get your QR code." },
@@ -280,7 +280,7 @@ function CheckIn() {
           {busy ? "Checking you in…" : (church?.submit_button_text || "Check in")}
         </Button>
       </form>
-      <p className="mt-5 text-center text-xs text-muted-foreground">Securely powered by Patmos</p>
+      <p className="mt-5 text-center text-xs text-muted-foreground">Securely powered by Mene</p>
       </motion.div>
     </div>
   );

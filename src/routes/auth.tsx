@@ -13,9 +13,9 @@ export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ mode: z.enum(["signin", "signup"]).optional() }),
   head: () => ({
     meta: [
-      { title: "Sign in — Patmos" },
-      { name: "description", content: "Sign in or create your church account on Patmos." },
-      { property: "og:title", content: "Sign in — Patmos" },
+      { title: "Sign in — Mene" },
+      { name: "description", content: "Sign in or create your church account on Mene." },
+      { property: "og:title", content: "Sign in — Mene" },
       { property: "og:description", content: "Sign in or create your church account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -78,7 +78,7 @@ function AuthPage() {
           <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
             <QrCode className="size-4.5" />
           </span>
-          Patmos
+          Mene
         </Link>
         <div className="relative">
           <h2 className="max-w-sm font-display text-4xl font-extrabold leading-[1.1] text-deep-foreground">
@@ -99,7 +99,7 @@ function AuthPage() {
             <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <QrCode className="size-4" />
             </span>
-            Patmos
+            Mene
           </Link>
           <h1 className="font-display text-2xl font-bold">
             {isSignUp ? "Create your account" : "Welcome back"}
@@ -157,7 +157,7 @@ function AuthPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {isSignUp ? "Already have an account?" : "New to Patmos?"}{" "}
+            {isSignUp ? "Already have an account?" : "New to Mene?"}{" "}
             <button
               type="button"
               className="font-semibold text-primary hover:underline"

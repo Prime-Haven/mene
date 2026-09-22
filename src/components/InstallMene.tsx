@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 type InstallPrompt = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
 
-export function InstallPatmos({ compact = false }: { compact?: boolean }) {
+export function InstallMene({ compact = false }: { compact?: boolean }) {
   const [prompt, setPrompt] = useState<InstallPrompt | null>(null);
   const [isIos, setIsIos] = useState(false);
   const [installed, setInstalled] = useState(false);
@@ -25,9 +25,9 @@ export function InstallPatmos({ compact = false }: { compact?: boolean }) {
         else alert("On iPhone: tap Share, then choose ‘Add to Home Screen’. You may need to scroll down in the share menu.");
       }}>
         {isIos && !prompt ? <Share className="size-4" /> : <Download className="size-4" />}
-        Install Patmos
+        Install Mene
       </Button>
-      {!compact && <p className="mt-2 text-xs text-muted-foreground">Add Patmos to your home screen for app-like access. An internet connection is still required.</p>}
+      {!compact && <p className="mt-2 text-xs text-muted-foreground">Add Mene to your home screen for app-like access. An internet connection is still required.</p>}
     </div>
   );
 }

@@ -20,9 +20,9 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — Patmos" },
+      { title: "Dashboard — Mene" },
       { name: "description", content: "Attendance totals, growth trend and demographics for your church." },
-      { property: "og:title", content: "Dashboard — Patmos" },
+      { property: "og:title", content: "Dashboard — Mene" },
       { property: "og:description", content: "Attendance totals, growth trend and demographics." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
