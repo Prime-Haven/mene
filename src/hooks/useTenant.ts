@@ -65,7 +65,7 @@ export function useTenant() {
     isAdmin,
     isOwner: role === "owner",
     canManageMembers: isAdmin || role === "branch_admin",
-    canSeeReports: role !== "usher",
+    canSeeReports: role !== "usher" && role !== "leader",
     /** Does this church's package include a capability? */
     can: (feature: Feature) => hasFeature(tier, feature),
     limit: (key: Limit) => limitOf(tier, key),

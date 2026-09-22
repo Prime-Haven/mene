@@ -19,8 +19,10 @@ import { Route as AppAskMeneRouteImport } from './routes/_app/ask-mene'
 import { Route as AppAuditRouteImport } from './routes/_app/audit'
 import { Route as AppBillingRouteImport } from './routes/_app/billing'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppLeadersRouteImport } from './routes/_app/leaders'
 import { Route as AppMembersRouteImport } from './routes/_app/members'
 import { Route as AppMessagingRouteImport } from './routes/_app/messaging'
+import { Route as AppMyMembersRouteImport } from './routes/_app/my-members'
 import { Route as AppReportsRouteImport } from './routes/_app/reports'
 import { Route as AppScanRouteImport } from './routes/_app/scan'
 import { Route as AppServicesRouteImport } from './routes/_app/services'
@@ -80,6 +82,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppLeadersRoute = AppLeadersRouteImport.update({
+  id: '/leaders',
+  path: '/leaders',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppMembersRoute = AppMembersRouteImport.update({
   id: '/members',
   path: '/members',
@@ -88,6 +95,11 @@ const AppMembersRoute = AppMembersRouteImport.update({
 const AppMessagingRoute = AppMessagingRouteImport.update({
   id: '/messaging',
   path: '/messaging',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppMyMembersRoute = AppMyMembersRouteImport.update({
+  id: '/my-members',
+  path: '/my-members',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppReportsRoute = AppReportsRouteImport.update({
@@ -147,8 +159,10 @@ export interface FileRoutesByFullPath {
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
+  '/leaders': typeof AppLeadersRoute
   '/members': typeof AppMembersRoute
   '/messaging': typeof AppMessagingRoute
+  '/my-members': typeof AppMyMembersRoute
   '/reports': typeof AppReportsRoute
   '/scan': typeof AppScanRoute
   '/services': typeof AppServicesRoute
@@ -169,8 +183,10 @@ export interface FileRoutesByTo {
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
+  '/leaders': typeof AppLeadersRoute
   '/members': typeof AppMembersRoute
   '/messaging': typeof AppMessagingRoute
+  '/my-members': typeof AppMyMembersRoute
   '/reports': typeof AppReportsRoute
   '/scan': typeof AppScanRoute
   '/services': typeof AppServicesRoute
@@ -193,8 +209,10 @@ export interface FileRoutesById {
   '/_app/audit': typeof AppAuditRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/leaders': typeof AppLeadersRoute
   '/_app/members': typeof AppMembersRoute
   '/_app/messaging': typeof AppMessagingRoute
+  '/_app/my-members': typeof AppMyMembersRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/scan': typeof AppScanRoute
   '/_app/services': typeof AppServicesRoute
@@ -217,8 +235,10 @@ export interface FileRouteTypes {
     | '/audit'
     | '/billing'
     | '/dashboard'
+    | '/leaders'
     | '/members'
     | '/messaging'
+    | '/my-members'
     | '/reports'
     | '/scan'
     | '/services'
@@ -239,8 +259,10 @@ export interface FileRouteTypes {
     | '/audit'
     | '/billing'
     | '/dashboard'
+    | '/leaders'
     | '/members'
     | '/messaging'
+    | '/my-members'
     | '/reports'
     | '/scan'
     | '/services'
@@ -262,8 +284,10 @@ export interface FileRouteTypes {
     | '/_app/audit'
     | '/_app/billing'
     | '/_app/dashboard'
+    | '/_app/leaders'
     | '/_app/members'
     | '/_app/messaging'
+    | '/_app/my-members'
     | '/_app/reports'
     | '/_app/scan'
     | '/_app/services'
@@ -359,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/leaders': {
+      id: '/_app/leaders'
+      path: '/leaders'
+      fullPath: '/leaders'
+      preLoaderRoute: typeof AppLeadersRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/members': {
       id: '/_app/members'
       path: '/members'
@@ -371,6 +402,13 @@ declare module '@tanstack/react-router' {
       path: '/messaging'
       fullPath: '/messaging'
       preLoaderRoute: typeof AppMessagingRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/my-members': {
+      id: '/_app/my-members'
+      path: '/my-members'
+      fullPath: '/my-members'
+      preLoaderRoute: typeof AppMyMembersRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/reports': {
@@ -445,8 +483,10 @@ interface AppRouteRouteChildren {
   AppAuditRoute: typeof AppAuditRoute
   AppBillingRoute: typeof AppBillingRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppLeadersRoute: typeof AppLeadersRoute
   AppMembersRoute: typeof AppMembersRoute
   AppMessagingRoute: typeof AppMessagingRoute
+  AppMyMembersRoute: typeof AppMyMembersRoute
   AppReportsRoute: typeof AppReportsRoute
   AppScanRoute: typeof AppScanRoute
   AppServicesRoute: typeof AppServicesRoute
@@ -460,8 +500,10 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAuditRoute: AppAuditRoute,
   AppBillingRoute: AppBillingRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppLeadersRoute: AppLeadersRoute,
   AppMembersRoute: AppMembersRoute,
   AppMessagingRoute: AppMessagingRoute,
+  AppMyMembersRoute: AppMyMembersRoute,
   AppReportsRoute: AppReportsRoute,
   AppScanRoute: AppScanRoute,
   AppServicesRoute: AppServicesRoute,

@@ -18,15 +18,20 @@ const checkinSchema = z.object({
   phone: z.string().trim().min(9).max(20),
   email: z.string().trim().email().max(160).optional().or(z.literal("")),
   date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  gender: z.enum(["male", "female", "other"]),
+  gender: z.enum(["male", "female"]),
   marital_status: z.enum(["single", "married", "divorced", "widowed", "separated", "prefer_not_to_say"]),
   residential_area: z.string().trim().min(2).max(120),
   occupation: z.string().trim().min(2).max(120),
+  education_level: z.string().trim().max(60).optional().or(z.literal("")),
+  invited_by_leader_id: z.string().uuid().optional().or(z.literal("")),
   service_id: z.string().uuid(),
   consent: z.literal(true),
 });
 
-function clientIp(): string {
+/** Generated RPC types mark optional arguments as non-null; this keeps them honest. */
+export const orNull = <T>(value: T | null): T => value as unknown as T;
+
+export function clientIp(): string {
   const forwarded = getRequestHeader("x-forwarded-for");
   if (forwarded) return forwarded.split(",")[0]!.trim();
   return getRequestHeader("cf-connecting-ip") ?? getRequestHeader("x-real-ip") ?? "unknown";
@@ -88,7 +93,7 @@ export const submitSelfCheckin = createServerFn({ method: "POST" })
     getRequest();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: result, error } = await supabaseAdmin.rpc("self_checkin_v2", {
+    const { data: result, error } = await supabaseAdmin.rpc("self_checkin_v3", {
       p_subdomain: data.subdomain,
       p_service: data.service_id,
       p_full_name: data.full_name,
@@ -99,6 +104,8 @@ export const submitSelfCheckin = createServerFn({ method: "POST" })
       p_marital_status: data.marital_status,
       p_area: data.residential_area,
       p_occupation: data.occupation,
+      p_education: data.education_level ?? "",
+      p_leader: orNull(data.invited_by_leader_id ? data.invited_by_leader_id : null),
       p_ip: clientIp(),
     });
 

@@ -286,6 +286,53 @@ export type Database = {
           },
         ]
       }
+      church_reviews: {
+        Row: {
+          author_name: string
+          author_role: string | null
+          created_at: string
+          id: string
+          quote: string
+          rating: number
+          reviewed_at: string | null
+          status: string
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          author_name: string
+          author_role?: string | null
+          created_at?: string
+          id?: string
+          quote: string
+          rating: number
+          reviewed_at?: string | null
+          status?: string
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          author_role?: string | null
+          created_at?: string
+          id?: string
+          quote?: string
+          rating?: number
+          reviewed_at?: string | null
+          status?: string
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "church_reviews_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       import_batches: {
         Row: {
           created_at: string
@@ -327,16 +374,107 @@ export type Database = {
           },
         ]
       }
+      leader_profiles: {
+        Row: {
+          created_at: string
+          date_of_birth: string | null
+          email: string | null
+          full_name: string
+          id: string
+          leader_type_id: string | null
+          location: string | null
+          phone: string | null
+          photo_path: string | null
+          status: Database["public"]["Enums"]["account_status"]
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          leader_type_id?: string | null
+          location?: string | null
+          phone?: string | null
+          photo_path?: string | null
+          status?: Database["public"]["Enums"]["account_status"]
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          leader_type_id?: string | null
+          location?: string | null
+          phone?: string | null
+          photo_path?: string | null
+          status?: Database["public"]["Enums"]["account_status"]
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leader_profiles_leader_type_id_fkey"
+            columns: ["leader_type_id"]
+            isOneToOne: false
+            referencedRelation: "leader_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leader_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leader_types: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leader_types_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       members: {
         Row: {
           branch_id: string | null
           created_at: string
           date_of_birth: string | null
+          education_level: string | null
           email: string | null
           full_name: string
           gender: Database["public"]["Enums"]["gender_type"] | null
           id: string
           import_batch_id: string | null
+          invited_by_leader_id: string | null
           is_minor: boolean
           joined_on: string
           marital_status: string | null
@@ -352,11 +490,13 @@ export type Database = {
           branch_id?: string | null
           created_at?: string
           date_of_birth?: string | null
+          education_level?: string | null
           email?: string | null
           full_name: string
           gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
           import_batch_id?: string | null
+          invited_by_leader_id?: string | null
           is_minor?: boolean
           joined_on?: string
           marital_status?: string | null
@@ -372,11 +512,13 @@ export type Database = {
           branch_id?: string | null
           created_at?: string
           date_of_birth?: string | null
+          education_level?: string | null
           email?: string | null
           full_name?: string
           gender?: Database["public"]["Enums"]["gender_type"] | null
           id?: string
           import_batch_id?: string | null
+          invited_by_leader_id?: string | null
           is_minor?: boolean
           joined_on?: string
           marital_status?: string | null
@@ -394,6 +536,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "members_invited_by_leader_fkey"
+            columns: ["invited_by_leader_id"]
+            isOneToOne: false
+            referencedRelation: "leader_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -782,6 +931,50 @@ export type Database = {
           },
         ]
       }
+      space_requests: {
+        Row: {
+          amount_cents: number
+          applied_at: string | null
+          created_at: string
+          extra_slots: number
+          id: string
+          reference: string | null
+          requested_by: string | null
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          amount_cents?: number
+          applied_at?: string | null
+          created_at?: string
+          extra_slots: number
+          id?: string
+          reference?: string | null
+          requested_by?: string | null
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          amount_cents?: number
+          applied_at?: string | null
+          created_at?: string
+          extra_slots?: number
+          id?: string
+          reference?: string | null
+          requested_by?: string | null
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "space_requests_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       structure_levels: {
         Row: {
           created_at: string
@@ -858,6 +1051,35 @@ export type Database = {
           },
         ]
       }
+      tenant_leader_access: {
+        Row: {
+          code: string
+          tenant_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          tenant_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          tenant_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_leader_access_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_users: {
         Row: {
           branch_id: string | null
@@ -915,6 +1137,7 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          extra_member_slots: number
           group_vocabulary: string
           id: string
           logo_path: string | null
@@ -937,6 +1160,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          extra_member_slots?: number
           group_vocabulary?: string
           id?: string
           logo_path?: string | null
@@ -959,6 +1183,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          extra_member_slots?: number
           group_vocabulary?: string
           id?: string
           logo_path?: string | null
@@ -981,6 +1206,10 @@ export type Database = {
     }
     Functions: {
       anonymise_member: { Args: { p_member: string }; Returns: undefined }
+      apply_space_purchase: {
+        Args: { p_reference: string }
+        Returns: undefined
+      }
       apply_successful_payment: {
         Args: {
           p_amount?: number
@@ -1050,6 +1279,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_service: { Args: { p_service: string }; Returns: undefined }
       enqueue_message: {
         Args: {
           p_body: string
@@ -1084,6 +1314,7 @@ export type Database = {
       is_tenant_admin: { Args: { _tenant: string }; Returns: boolean }
       is_tenant_member: { Args: { _tenant: string }; Returns: boolean }
       issue_qr_token: { Args: { p_member: string }; Returns: string }
+      leader_overview: { Args: never; Returns: Json }
       log_audit: {
         Args: {
           _action: string
@@ -1112,6 +1343,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      my_review_state: { Args: never; Returns: Json }
       normalize_phone_gh: { Args: { _phone: string }; Returns: string }
       platform_create_tenant: {
         Args: {
@@ -1123,7 +1355,28 @@ export type Database = {
         }
         Returns: string
       }
+      platform_grant_space: {
+        Args: { p_slots: number; p_tenant: string }
+        Returns: undefined
+      }
       platform_overview: { Args: never; Returns: Json }
+      platform_reviews: {
+        Args: never
+        Returns: {
+          author_name: string
+          author_role: string
+          church_name: string
+          created_at: string
+          id: string
+          quote: string
+          rating: number
+          status: string
+        }[]
+      }
+      platform_set_review_status: {
+        Args: { p_review: string; p_status: string }
+        Returns: undefined
+      }
       platform_set_tenant_status: {
         Args: {
           p_status: Database["public"]["Enums"]["tenant_status"]
@@ -1153,12 +1406,38 @@ export type Database = {
         }
         Returns: string
       }
+      public_leader_options: {
+        Args: { p_subdomain: string }
+        Returns: {
+          full_name: string
+          id: string
+          leader_type: string
+        }[]
+      }
+      public_leader_types: {
+        Args: { p_subdomain: string }
+        Returns: {
+          id: string
+          name: string
+        }[]
+      }
       public_open_services: {
         Args: { p_subdomain: string }
         Returns: {
           id: string
           name: string
           service_date: string
+        }[]
+      }
+      public_reviews: {
+        Args: never
+        Returns: {
+          author_name: string
+          author_role: string
+          church_name: string
+          id: string
+          quote: string
+          rating: number
         }[]
       }
       queue_broadcast: {
@@ -1176,6 +1455,35 @@ export type Database = {
       record_delivery_event: {
         Args: { p_event: string; p_provider_id: string }
         Returns: undefined
+      }
+      register_leader: {
+        Args: {
+          p_code: string
+          p_dob: string
+          p_email: string
+          p_full_name: string
+          p_ip: string
+          p_leader_type: string
+          p_location: string
+          p_phone: string
+          p_photo_path: string
+          p_subdomain: string
+          p_user: string
+        }
+        Returns: Json
+      }
+      rename_service: {
+        Args: { p_date: string; p_name: string; p_service: string }
+        Returns: undefined
+      }
+      request_extra_space: {
+        Args: {
+          p_amount: number
+          p_reference: string
+          p_slots: number
+          p_tenant: string
+        }
+        Returns: Json
       }
       resolve_audience: {
         Args: {
@@ -1224,11 +1532,43 @@ export type Database = {
         }
         Returns: Json
       }
+      self_checkin_v3: {
+        Args: {
+          p_area: string
+          p_dob: string
+          p_education: string
+          p_email: string
+          p_full_name: string
+          p_gender: Database["public"]["Enums"]["gender_type"]
+          p_ip: string
+          p_leader: string
+          p_marital_status: string
+          p_occupation: string
+          p_phone: string
+          p_service: string
+          p_subdomain: string
+        }
+        Returns: Json
+      }
+      set_leader_access_code: {
+        Args: { p_code: string; p_tenant: string }
+        Returns: string
+      }
       set_member_messaging: {
         Args: { p_member: string; p_opt_out: boolean }
         Returns: undefined
       }
       subdomain_available: { Args: { p_subdomain: string }; Returns: boolean }
+      submit_church_review: {
+        Args: {
+          p_author_name: string
+          p_author_role: string
+          p_quote: string
+          p_rating: number
+          p_tenant: string
+        }
+        Returns: Json
+      }
       tenant_branding: { Args: { p_subdomain: string }; Returns: Json }
       tenant_can_write: { Args: { _tenant: string }; Returns: boolean }
       tenant_dashboard: { Args: { p_tenant: string }; Returns: Json }

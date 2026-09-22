@@ -16,6 +16,8 @@ import {
   PanelLeftClose,
   Send,
   Sparkles,
+  UserCheck,
+  HeartHandshake,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -27,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { InstallMene } from "@/components/InstallMene";
 import { getBrandAssetUrl } from "@/lib/checkin.functions";
+import { ReviewPrompt } from "@/components/ReviewPrompt";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
@@ -43,7 +46,14 @@ const nav: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: (c) => c.canSeeReports },
   { to: "/scan", label: "Scan & check in", icon: QrCode, show: () => true },
   { to: "/services", label: "Services", icon: CalendarDays, show: (c) => c.canManageMembers },
-  { to: "/members", label: "Members", icon: Users, show: (c) => c.role !== "usher" },
+  { to: "/members", label: "Members", icon: Users, show: (c) => c.role !== "usher" && c.role !== "leader" },
+  { to: "/my-members", label: "My members", icon: HeartHandshake, show: (c) => c.role === "leader" },
+  {
+    to: "/leaders",
+    label: "Leaders",
+    icon: UserCheck,
+    show: (c) => c.isAdmin && c.can("leaders"),
+  },
   { to: "/reports", label: "Reports", icon: BarChart3, show: (c) => c.canSeeReports },
   { to: "/ask-mene", label: "Ask Mene", icon: Sparkles, show: (c) => c.isAdmin && c.can("ask_mene") },
   {
@@ -88,6 +98,13 @@ function AppLayout() {
     if (session && !ctx.isLoading && !ctx.membership) navigate({ to: "/onboarding" });
   }, [session, ctx.isLoading, ctx.membership, navigate]);
 
+  // A leader's home is their own member list, not the church dashboard.
+  useEffect(() => {
+    if (ctx.role === "leader" && (pathname === "/dashboard" || pathname === "/")) {
+      navigate({ to: "/my-members", replace: true });
+    }
+  }, [ctx.role, pathname, navigate]);
+
   if (loading || ctx.isLoading || !ctx.membership) {
     return (
       <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">
@@ -125,6 +142,8 @@ function AppLayout() {
         <Navigation />
         <Button variant="outline" size="icon" className="absolute -right-4 top-20 z-20 size-8 rounded-full bg-background" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}><PanelLeftClose className={`size-4 transition-transform ${collapsed ? "rotate-180" : ""}`} /></Button>
       </aside>
+
+      <ReviewPrompt />
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}><SheetContent side="left" className="flex w-[86vw] max-w-80 flex-col p-0"><SheetTitle className="sr-only">Church navigation</SheetTitle><Navigation mobile /></SheetContent></Sheet>
 

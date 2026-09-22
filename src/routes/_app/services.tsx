@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Lock, Unlock } from "lucide-react";
+import { Lock, Pencil, Trash2, Unlock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/hooks/useTenant";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ function Services() {
   const qc = useQueryClient();
   const [name, setName] = useState("Sunday Service");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [editing, setEditing] = useState<{ id: string; name: string; date: string } | null>(null);
 
   const { data: services } = useQuery({
     queryKey: ["services", tenant?.id],
@@ -70,13 +71,43 @@ function Services() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update service"),
   });
 
+  const rename = useMutation({
+    mutationFn: async ({ id, name: newName, date: newDate }: { id: string; name: string; date: string }) => {
+      const { error } = await supabase.rpc("rename_service", {
+        p_service: id,
+        p_name: newName,
+        p_date: newDate,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setEditing(null);
+      toast.success("Service updated");
+      qc.invalidateQueries({ queryKey: ["services"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update service"),
+  });
+
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.rpc("delete_service", { p_service: id });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Service deleted");
+      qc.invalidateQueries({ queryKey: ["services"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not delete service"),
+  });
+
   return (
     <div className="space-y-6">
       <div>
         <p className="text-eyebrow">Attendance</p>
         <h1 className="mt-2 text-2xl font-bold">Services</h1>
         <p className="text-sm text-muted-foreground">
-          Attendance is recorded against a service. Close a service to stop further scans.
+          Attendance is recorded against a service. Close a service to stop further scans, or delete
+          one you created by mistake.
         </p>
       </div>
 
@@ -103,29 +134,82 @@ function Services() {
       <div className="surface divide-y divide-border">
         {(services ?? []).map((s) => {
           const count = (s.attendance as unknown as Array<{ count: number }>)?.[0]?.count ?? 0;
+          const isEditing = editing?.id === s.id;
           return (
             <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-              <div>
-                <p className="font-semibold">{s.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {s.service_date} · {count} recorded
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => toggle.mutate({ id: s.id, is_open: !s.is_open })}
-              >
-                {s.is_open ? (
-                  <>
-                    <Lock className="size-4" /> Close
-                  </>
-                ) : (
-                  <>
-                    <Unlock className="size-4" /> Reopen
-                  </>
-                )}
-              </Button>
+              {isEditing ? (
+                <form
+                  className="flex flex-1 flex-wrap items-center gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    rename.mutate({ id: s.id, name: editing.name, date: editing.date });
+                  }}
+                >
+                  <Input
+                    className="max-w-56"
+                    value={editing.name}
+                    maxLength={80}
+                    onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+                    required
+                  />
+                  <Input
+                    className="max-w-44"
+                    type="date"
+                    value={editing.date}
+                    onChange={(e) => setEditing({ ...editing, date: e.target.value })}
+                    required
+                  />
+                  <Button type="submit" size="sm" disabled={rename.isPending}>Save</Button>
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
+                </form>
+              ) : (
+                <>
+                  <div>
+                    <p className="font-semibold">{s.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {s.service_date} · {count} recorded
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggle.mutate({ id: s.id, is_open: !s.is_open })}
+                    >
+                      {s.is_open ? (
+                        <>
+                          <Lock className="size-4" /> Close
+                        </>
+                      ) : (
+                        <>
+                          <Unlock className="size-4" /> Reopen
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditing({ id: s.id, name: s.name, date: s.service_date })}
+                    >
+                      <Pencil className="size-4" /> Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive"
+                      disabled={remove.isPending}
+                      onClick={() => {
+                        const warning = count
+                          ? `Delete "${s.name}"? ${count} attendance record${count === 1 ? "" : "s"} for this service will also be removed. This cannot be undone.`
+                          : `Delete "${s.name}"? This cannot be undone.`;
+                        if (window.confirm(warning)) remove.mutate(s.id);
+                      }}
+                    >
+                      <Trash2 className="size-4" /> Delete
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           );
         })}
