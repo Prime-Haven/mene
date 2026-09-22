@@ -15,6 +15,7 @@ import {
   Menu,
   PanelLeftClose,
   Send,
+  Sparkles,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -44,6 +45,7 @@ const nav: NavItem[] = [
   { to: "/services", label: "Services", icon: CalendarDays, show: (c) => c.canManageMembers },
   { to: "/members", label: "Members", icon: Users, show: (c) => c.role !== "usher" },
   { to: "/reports", label: "Reports", icon: BarChart3, show: (c) => c.canSeeReports },
+  { to: "/ask-mene", label: "Ask Mene", icon: Sparkles, show: (c) => c.isAdmin && c.can("ask_mene") },
   {
     to: "/messaging",
     label: "Messaging",
