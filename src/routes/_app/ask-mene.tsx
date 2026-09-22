@@ -13,6 +13,7 @@ import { Message, MessageContent, MessageResponse } from "@/components/ai-elemen
 import { PromptInput, PromptInputBody, PromptInputFooter, PromptInputSubmit, PromptInputTextarea, PromptInputTools } from "@/components/ai-elements/prompt-input";
 import { Reasoning, ReasoningTrigger } from "@/components/ai-elements/reasoning";
 import { Shimmer } from "@/components/ai-elements/shimmer";
+import { PageTransition, StaggerItem, StaggerList } from "@/components/Animated";
 
 export const Route = createFileRoute("/_app/ask-mene")({
   head: () => ({ meta: [{ title: "Ask Mene — Mene" }, { name: "robots", content: "noindex" }] }),
@@ -89,18 +90,18 @@ function AskMene() {
 
   const busy = chat.status === "streaming" || chat.status === "submitted";
   return (
-    <div className="space-y-5">
+    <PageTransition className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div><p className="text-eyebrow">Aggregate intelligence</p><h1 className="mt-2 font-display text-2xl font-bold">Ask Mene</h1><p className="mt-1 max-w-2xl text-sm text-muted-foreground">Ask concise questions about attendance, growth and church operations.</p></div>
         <Button variant="outline" size="sm" onClick={clearHistory} disabled={!chat.messages.length || busy}><Trash2 className="size-4" /> Clear history</Button>
       </div>
-      <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground"><LockKeyhole className="mt-0.5 size-4 shrink-0 text-primary" /><p>Only anonymous totals and trends are sent to AI. Names, contacts, birth dates, QR codes and member rows never leave your church database.</p></div>
+       <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground"><LockKeyhole className="mt-0.5 size-4 shrink-0 text-primary" /><p>Only anonymous totals and trends are sent to AI. Names, contacts, birth dates, QR codes and member rows never leave your church database.</p></div>
       <div className="surface flex h-[min(680px,calc(100svh-250px))] min-h-[520px] flex-col overflow-hidden">
         <Conversation>
           <ConversationContent className="mx-auto w-full max-w-3xl px-4 py-7 sm:px-7">
             {history.isLoading ? <div className="grid h-64 place-items-center"><Shimmer>Loading your conversation…</Shimmer></div> : chat.messages.length === 0 ? (
               <ConversationEmptyState icon={<BrainCircuit className="size-8" />} title="Ask a question grounded in your records" description="Mene sees aggregate church statistics, never individual member details.">
-                <div className="space-y-5"><span className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary"><Sparkles className="size-5" /></span><div><h2 className="font-display text-lg font-bold">Ask a question grounded in your records</h2><p className="mt-1 text-sm text-muted-foreground">Mene sees aggregate church statistics, never individual member details.</p></div><div className="grid gap-2 sm:grid-cols-2">{starters.map((starter) => <Button key={starter} variant="outline" className="h-auto justify-start whitespace-normal p-3 text-left text-xs" onClick={() => ask(starter)}>{starter}</Button>)}</div></div>
+                <div className="space-y-5"><span className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary"><Sparkles className="size-5" /></span><StaggerList className="grid gap-2 sm:grid-cols-2">{starters.map((starter) => <StaggerItem key={starter}><Button variant="outline" className="h-full w-full justify-start whitespace-normal p-3 text-left text-xs" onClick={() => ask(starter)}>{starter}</Button></StaggerItem>)}</StaggerList></div>
               </ConversationEmptyState>
             ) : chat.messages.map((message) => <Message key={message.id} from={message.role}><MessageContent>{message.role === "assistant" ? <MessageResponse isAnimating={busy && message.id === chat.messages.at(-1)?.id}>{textOf(message)}</MessageResponse> : textOf(message)}</MessageContent></Message>)}
             {chat.status === "submitted" && <Reasoning isStreaming><ReasoningTrigger getThinkingMessage={() => <Shimmer>Reading your church trends…</Shimmer>} /></Reasoning>}
@@ -115,6 +116,6 @@ function AskMene() {
           </PromptInput>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }
