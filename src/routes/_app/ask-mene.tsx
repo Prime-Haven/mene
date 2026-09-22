@@ -75,10 +75,14 @@ function AskMene() {
     const { data: conversation } = await supabase.from("ask_mene_conversations").select("id").eq("tenant_id", tenant.id).maybeSingle();
     if (conversation) {
       const { error } = await supabase.from("ask_mene_messages").delete().eq("conversation_id", conversation.id);
-      if (error) return toast.error("Could not clear the conversation.");
+      if (error) {
+        toast.error("Could not clear the conversation.");
+        return;
+      }
     }
     chat.setMessages([]);
     toast.success("Conversation cleared");
+    return;
   }
 
   if (!isAdmin) return <div className="surface p-8 text-center"><LockKeyhole className="mx-auto size-7 text-muted-foreground" /><h1 className="mt-3 font-display text-xl font-bold">Administrator access required</h1></div>;
