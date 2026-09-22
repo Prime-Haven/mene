@@ -8,7 +8,7 @@ import { useTenant } from "@/hooks/useTenant";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FeatureGate } from "@/components/FeatureGate";
+import { UpgradePanel } from "@/components/FeatureGate";
 import { PageTransition, StaggerItem, StaggerList } from "@/components/Animated";
 
 export const Route = createFileRoute("/_app/leaders")({
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_app/leaders")({
 });
 
 function LeadersPage() {
-  const { tenant, isAdmin, can } = useTenant();
+  const { tenant, isAdmin, isOwner, can } = useTenant();
   const qc = useQueryClient();
   const [typeName, setTypeName] = useState("");
   const [code, setCode] = useState("");
@@ -124,7 +124,7 @@ function LeadersPage() {
   }
 
   if (!can("leaders")) {
-    return <FeatureGate feature="leaders" />;
+    return <UpgradePanel feature="leaders" canUpgrade={isOwner} />;
   }
 
   return (
