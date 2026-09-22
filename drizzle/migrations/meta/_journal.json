@@ -64,6 +64,13 @@
       "when": 1790076899054,
       "tag": "0008_ask_mene_and_platform_operations",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790077148427,
+      "tag": "0009_ask_mene_entitlement",
+      "breakpoints": true
     }
   ]
 }
