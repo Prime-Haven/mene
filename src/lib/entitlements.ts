@@ -17,6 +17,8 @@ export type Feature =
   | "structure"
   | "groups"
   | "branches"
+  | "leaders"
+  | "space_addon"
   | "email"
   | "sms"
   | "broadcasts"
