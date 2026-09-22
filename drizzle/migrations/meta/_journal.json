@@ -57,6 +57,13 @@
       "when": 1789993728741,
       "tag": "0007_entitlements_messaging_and_scale",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790076899054,
+      "tag": "0008_ask_mene_and_platform_operations",
+      "breakpoints": true
     }
   ]
 }
