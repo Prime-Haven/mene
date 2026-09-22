@@ -28,6 +28,9 @@ const checkinSchema = z.object({
   consent: z.literal(true),
 });
 
+/** Generated RPC types mark optional arguments as non-null; this keeps them honest. */
+export const orNull = <T>(value: T | null): T => value as unknown as T;
+
 export function clientIp(): string {
   const forwarded = getRequestHeader("x-forwarded-for");
   if (forwarded) return forwarded.split(",")[0]!.trim();
@@ -102,7 +105,7 @@ export const submitSelfCheckin = createServerFn({ method: "POST" })
       p_area: data.residential_area,
       p_occupation: data.occupation,
       p_education: data.education_level ?? "",
-      p_leader: data.invited_by_leader_id ? data.invited_by_leader_id : null,
+      p_leader: orNull(data.invited_by_leader_id ? data.invited_by_leader_id : null),
       p_ip: clientIp(),
     });
 

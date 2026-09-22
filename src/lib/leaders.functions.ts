@@ -3,7 +3,7 @@ import { getRequestHeader } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
-import { clientIp } from "@/lib/checkin.functions";
+import { clientIp, orNull } from "@/lib/checkin.functions";
 
 /**
  * Leader sign-up for Standard and Premium churches. Everything is verified on the
@@ -111,10 +111,10 @@ export const registerLeader = createServerFn({ method: "POST" })
       p_full_name: data.full_name,
       p_email: data.email,
       p_phone: data.phone,
-      p_dob: data.date_of_birth ? data.date_of_birth : null,
+      p_dob: orNull(data.date_of_birth ? data.date_of_birth : null),
       p_location: data.location ?? "",
-      p_leader_type: data.leader_type_id ? data.leader_type_id : null,
-      p_photo_path: photoPath,
+      p_leader_type: orNull(data.leader_type_id ? data.leader_type_id : null),
+      p_photo_path: orNull(photoPath),
       p_ip: clientIp(),
     });
 
