@@ -212,24 +212,39 @@ function CheckIn() {
     );
   }
 
+  const heroBg = backgroundUrl ?? heroPoster;
+  const HeroBackdrop = () => (
+    <div aria-hidden className="fixed inset-0 -z-10 overflow-hidden">
+      <img src={heroBg} alt="" className="size-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black/90" />
+      <div className="motion-blur motion-blur-large left-[-12rem] top-[-8rem] opacity-40" />
+      <div className="motion-blur motion-blur-small bottom-[8%] right-[-5rem] opacity-30 [animation-delay:-5s]" />
+    </div>
+  );
+
   if (done) {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="dark relative flex min-h-screen items-center justify-center p-4 text-foreground">
+        <HeroBackdrop />
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="surface w-full max-w-sm p-6 text-center shadow-2xl backdrop-blur-xl"
+          className="w-full max-w-sm rounded-3xl border border-white/15 bg-black/40 p-6 text-center shadow-2xl backdrop-blur-xl"
         >
-          <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-success/15 text-success">
+          {logoUrl && <img src={logoUrl} alt="" className="mx-auto mb-3 h-14 max-w-40 object-contain" />}
+          <p className="font-display text-lg font-extrabold uppercase tracking-wide">{church?.name}</p>
+          <div className="mx-auto mt-4 grid size-12 place-items-center rounded-2xl bg-success/15 text-success">
             <CheckCircle2 className="size-6" />
           </div>
           <h1 className="mt-4 font-display text-2xl font-bold">You're checked in!</h1>
           <p className="mt-1 text-sm text-muted-foreground">{done.service}</p>
-          <div className="mt-6 rounded-2xl border border-white/20 bg-white p-4 shadow-inner">
+          <div className="mt-6 rounded-2xl bg-white p-4">
             <img src={done.qr} alt="Your member check-in QR code" className="mx-auto aspect-square w-full max-w-[240px]" />
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
-            Save this QR code to your phone. Next Sunday, just show it at the door for instant check-in.
+            {isiPhone
+              ? "iPhone: press and hold the code above, then tap “Save to Photos”. Show it at the door next time."
+              : "Your code has downloaded. Show it at the door next time for instant check-in."}
           </p>
           <div className="mt-6 flex flex-col gap-2">
             <Button onClick={saveQr} className="gap-2 rounded-xl">
@@ -246,36 +261,31 @@ function CheckIn() {
 
   return (
     <div
-      className="min-h-svh bg-cover bg-center px-4 py-8 sm:py-12"
+      className="dark relative min-h-svh px-4 py-8 text-foreground sm:py-12"
       style={{
-        backgroundImage: backgroundUrl
-          ? `linear-gradient(rgba(248, 249, 250, 0.88), rgba(248, 249, 250, 0.94)), url(${backgroundUrl})`
-          : undefined,
         "--church-primary": church?.brand_primary ?? "#3b82f6",
         "--church-accent": church?.brand_accent ?? "#0f172a",
       } as React.CSSProperties}
     >
+      <HeroBackdrop />
       <motion.div
         initial={reduceMotion ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         className="mx-auto max-w-md"
       >
-        {logoUrl && (
-          <div className="mb-5 flex justify-center">
-            <img src={logoUrl} alt={`${church?.name} logo`} className="h-16 max-w-48 object-contain drop-shadow" />
-          </div>
-        )}
-
         <div className="text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-             <Sparkles className="size-3" /> {church?.name ?? "Mene:Log Check-in"}
-          </span>
-          <h1 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl" style={{ color: church?.brand_accent }}>
-            Welcome — Let's check you in
+          {logoUrl && (
+            <img src={logoUrl} alt={`${church?.name} logo`} className="mx-auto mb-4 h-24 max-w-56 object-contain drop-shadow-[0_8px_30px_rgba(0,0,0,0.6)]" />
+          )}
+          <h1 className="font-display text-3xl font-extrabold uppercase leading-tight tracking-tight text-white sm:text-4xl">
+            {church?.name ?? "Loading…"}
           </h1>
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+          <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
+            <Sparkles className="size-3" /> Welcome — let's check you in
+          </span>
+          <p className="mt-3 text-xs leading-relaxed text-white/70 sm:text-sm">
             {church?.welcome_message ||
-              `Welcome to ${church?.name ?? "today's service"}. Fill in your details below to check in and receive your fast personal check-in QR code.`}
+              "Fill in your details below to check in and receive your personal QR code."}
           </p>
         </div>
 
@@ -469,47 +479,23 @@ function CheckIn() {
               </div>
             </div>
 
-            {/* Always visible: Who invited you / name of leader */}
             <div className="space-y-1.5">
-              <Label htmlFor="leader" className="text-xs font-semibold">
-                Who invited you? <span className="font-normal text-muted-foreground">(your leader or friend)</span>
-              </Label>
-              {leaders.length > 0 ? (
-                <div className="space-y-2">
-                  <select
-                    id="leader"
-                    className={selectClass}
-                    value={form.invited_by_leader_id}
-                    onChange={(e) => setForm({ ...form, invited_by_leader_id: e.target.value })}
-                  >
-                    <option value="">No one / I came myself</option>
-                    {leaders.map((leader) => (
-                      <option key={leader.id} value={leader.id}>
-                        {leader.full_name}
-                        {leader.leader_type ? ` — ${leader.leader_type}` : ""}
-                      </option>
-                    ))}
-                    <option value="other">Other / Enter name manually</option>
-                  </select>
-                  {form.invited_by_leader_id === "other" && (
-                    <Input
-                      id="leader-custom-name"
-                      placeholder="Enter their full name"
-                      value={form.invited_by_custom}
-                      onChange={(e) => setForm({ ...form, invited_by_custom: e.target.value })}
-                      className="h-11 rounded-xl"
-                    />
-                  )}
-                </div>
-              ) : (
-                <Input
-                  id="leader-name-text"
-                  placeholder="e.g. Pastor James, Deaconess Sarah, or Self"
-                  value={form.invited_by_custom}
-                  onChange={(e) => setForm({ ...form, invited_by_custom: e.target.value })}
-                  className="h-11 rounded-xl"
-                />
-              )}
+              <Label htmlFor="leader" className="text-xs font-semibold">Who invited you?</Label>
+              <select
+                id="leader"
+                className={selectClass}
+                value={form.invited_by_leader_id}
+                onChange={(e) => setForm({ ...form, invited_by_leader_id: e.target.value })}
+              >
+                <option value="">Self / walk-in</option>
+                {leaderAreaOpen &&
+                  leaders.map((leader) => (
+                    <option key={leader.id} value={leader.id}>
+                      {leader.full_name}
+                      {leader.leader_type ? ` — ${leader.leader_type}` : ""}
+                    </option>
+                  ))}
+              </select>
             </div>
 
             <label className="flex items-start gap-2.5 rounded-xl border border-border/40 bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
