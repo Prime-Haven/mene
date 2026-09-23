@@ -1051,6 +1051,30 @@ export type Database = {
           },
         ]
       }
+      super_admin_credentials: {
+        Row: {
+          created_at: string
+          id: number
+          password_hash: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          password_hash: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          password_hash?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
       tenant_leader_access: {
         Row: {
           code: string
@@ -1131,6 +1155,9 @@ export type Database = {
       tenants: {
         Row: {
           absence_threshold: number
+          admin_notes: string | null
+          approval_status: string
+          approved_at: string | null
           background_path: string | null
           brand_accent: string
           brand_primary: string
@@ -1142,6 +1169,8 @@ export type Database = {
           id: string
           logo_path: string | null
           name: string
+          package_selected: string | null
+          payment_reference: string | null
           quiet_hour_end: number
           quiet_hour_start: number
           reply_to_email: string | null
@@ -1154,6 +1183,9 @@ export type Database = {
         }
         Insert: {
           absence_threshold?: number
+          admin_notes?: string | null
+          approval_status?: string
+          approved_at?: string | null
           background_path?: string | null
           brand_accent?: string
           brand_primary?: string
@@ -1165,6 +1197,8 @@ export type Database = {
           id?: string
           logo_path?: string | null
           name: string
+          package_selected?: string | null
+          payment_reference?: string | null
           quiet_hour_end?: number
           quiet_hour_start?: number
           reply_to_email?: string | null
@@ -1177,6 +1211,9 @@ export type Database = {
         }
         Update: {
           absence_threshold?: number
+          admin_notes?: string | null
+          approval_status?: string
+          approved_at?: string | null
           background_path?: string | null
           brand_accent?: string
           brand_primary?: string
@@ -1188,6 +1225,8 @@ export type Database = {
           id?: string
           logo_path?: string | null
           name?: string
+          package_selected?: string | null
+          payment_reference?: string | null
           quiet_hour_end?: number
           quiet_hour_start?: number
           reply_to_email?: string | null
@@ -1345,6 +1384,10 @@ export type Database = {
       }
       my_review_state: { Args: never; Returns: Json }
       normalize_phone_gh: { Args: { _phone: string }; Returns: string }
+      platform_approve_church: {
+        Args: { p_notes?: string; p_tenant: string }
+        Returns: boolean
+      }
       platform_create_tenant: {
         Args: {
           p_contact_email: string
@@ -1360,6 +1403,10 @@ export type Database = {
         Returns: undefined
       }
       platform_overview: { Args: never; Returns: Json }
+      platform_reject_church: {
+        Args: { p_reason?: string; p_tenant: string }
+        Returns: boolean
+      }
       platform_reviews: {
         Args: never
         Returns: {
@@ -1558,6 +1605,10 @@ export type Database = {
         Args: { p_member: string; p_opt_out: boolean }
         Returns: undefined
       }
+      set_super_admin_password: {
+        Args: { p_new_password: string; p_username: string }
+        Returns: boolean
+      }
       subdomain_available: { Args: { p_subdomain: string }; Returns: boolean }
       submit_church_review: {
         Args: {
@@ -1614,6 +1665,10 @@ export type Database = {
       }
       user_branch: { Args: { _tenant: string }; Returns: string }
       user_position_path: { Args: { _tenant: string }; Returns: unknown }
+      verify_super_admin_credentials: {
+        Args: { p_password: string; p_username: string }
+        Returns: Json
+      }
     }
     Enums: {
       account_status: "active" | "suspended"
