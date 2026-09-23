@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/hooks/useTenant";
-import { startPayment } from "@/lib/billing.functions";
+import { startPayment, startSpacePurchase, EXTRA_SPACE_BUNDLES } from "@/lib/billing.functions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FEATURE_LABELS, type Feature } from "@/lib/entitlements";
@@ -56,6 +56,15 @@ function Billing() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not start payment"),
   });
 
+  const buySpace = useServerFn(startSpacePurchase);
+  const purchaseSpace = useMutation({
+    mutationFn: async (slots: number) => {
+      const result = await buySpace({ data: { tenant_id: tenant!.id, slots } });
+      if (!result.ok) throw new Error(result.message);
+      window.location.href = result.authorization_url;
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not start payment"),
+  });
 
   const { data: usage } = useQuery({
     queryKey: ["tenant-usage", tenant?.id],
@@ -101,7 +110,8 @@ function Billing() {
         <p className="text-eyebrow">Subscription</p>
         <h1 className="mt-2 text-2xl font-bold">Billing</h1>
         <p className="text-sm text-muted-foreground">
-          A lapsed subscription pauses check-in and edits. Your records and exports always stay available.
+          A lapsed subscription pauses check-in and edits. Your records and exports always stay
+          available.
         </p>
       </div>
 
@@ -132,9 +142,13 @@ function Billing() {
         <h2 className="text-base font-semibold">What your package includes</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           {[
-            { label: "Members", used: usage?.members, cap: ctx.limit("member_limit") },
+            { label: "Members", used: usage?.members, cap: ctx.limitWithExtras("member_limit") },
             { label: "Staff logins", used: usage?.staff, cap: ctx.limit("staff_seats") },
-            { label: "Messages today", used: usage?.messages_month, cap: ctx.limit("daily_messages") },
+            {
+              label: "Messages today",
+              used: usage?.messages_month,
+              cap: ctx.limit("daily_messages"),
+            },
           ].map((row) => {
             const pct = row.cap ? Math.min(100, Math.round(((row.used ?? 0) / row.cap) * 100)) : 0;
             return (
@@ -169,10 +183,41 @@ function Billing() {
       </div>
 
       <div className="surface p-5">
+        <h2 className="text-base font-semibold">Extra member space</h2>
+        {ctx.can("space_addon") ? (
+          <>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {tenant?.extra_member_slots
+                ? `You've purchased ${tenant.extra_member_slots.toLocaleString()} extra member slots on top of your package.`
+                : "Growing past your package's member limit? Buy extra room without changing your package."}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {EXTRA_SPACE_BUNDLES.map((bundle) => (
+                <Button
+                  key={bundle.slots}
+                  variant="outline"
+                  disabled={purchaseSpace.isPending}
+                  onClick={() => purchaseSpace.mutate(bundle.slots)}
+                >
+                  +{bundle.slots.toLocaleString()} members — $
+                  {(bundle.amountPesewas / 100).toFixed(2)}
+                </Button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Extra member space is available on the Standard and Premium packages. Move up a package
+            to unlock it.
+          </p>
+        )}
+      </div>
+
+      <div className="surface p-5">
         <h2 className="text-base font-semibold">Pay or renew</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Pay by card or mobile money. Mobile money is never debited automatically — you confirm each
-          renewal yourself. Payments appear below as soon as they clear.
+          Pay by card or mobile money. Mobile money is never debited automatically — you confirm
+          each renewal yourself. Payments appear below as soon as they clear.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {(["basic", "standard", "premium"] as const).map((t) => (

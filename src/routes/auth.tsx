@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordField } from "@/components/PasswordField";
+import { passwordIsStrong } from "@/lib/password";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ mode: z.enum(["signin", "signup"]).optional() }),
@@ -35,14 +37,21 @@ function AuthPage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
 
+  // This is the public church entrance only. Platform operators never land here —
+  // they sign in through the separate, unlisted /super-admin gate — so a session
+  // picked up on this page always belongs to a church account and always goes to
+  // the church dashboard (which itself redirects to /onboarding if there's no
+  // tenant membership yet).
   useEffect(() => {
-    if (!loading && session) {
-      supabase.rpc("is_platform_admin").then(({ data }) => navigate({ to: data ? "/platform" : "/dashboard" }));
-    }
+    if (!loading && session) navigate({ to: "/dashboard" });
   }, [loading, session, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSignUp && !passwordIsStrong(password)) {
+      toast.error("Your password doesn't meet the requirements yet.");
+      return;
+    }
     setBusy(true);
     try {
       if (isSignUp) {
@@ -60,8 +69,7 @@ function AuthPage() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        const { data: platformAdmin } = await supabase.rpc("is_platform_admin");
-        navigate({ to: platformAdmin ? "/platform" : "/dashboard" });
+        navigate({ to: "/dashboard" });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
@@ -98,7 +106,10 @@ function AuthPage() {
 
       <div className="flex items-center justify-center px-5 py-16">
         <div className="w-full max-w-sm">
-          <Link to="/" className="mb-8 inline-flex items-center gap-2 font-display font-bold lg:hidden">
+          <Link
+            to="/"
+            className="mb-8 inline-flex items-center gap-2 font-display font-bold lg:hidden"
+          >
             <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <QrCode className="size-4" />
             </span>
@@ -112,7 +123,6 @@ function AuthPage() {
               ? "You'll set up your church on the next screen."
               : "Sign in to your church workspace."}
           </p>
-
 
           <form onSubmit={onSubmit} className="mt-8 space-y-4">
             {isSignUp && (
@@ -139,22 +149,31 @@ function AuthPage() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
+            {isSignUp ? (
+              <PasswordField
                 id="password"
-                type="password"
+                label="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete={isSignUp ? "new-password" : "current-password"}
-                minLength={8}
-                required
+                onChange={setPassword}
               />
-              {isSignUp && (
-                <p className="text-xs text-muted-foreground">At least 8 characters.</p>
-              )}
-            </div>
-            <Button type="submit" className="w-full" disabled={busy}>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
+            )}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={busy || (isSignUp && !passwordIsStrong(password))}
+            >
               {busy ? "Please wait…" : isSignUp ? "Create account" : "Sign in"}
             </Button>
           </form>

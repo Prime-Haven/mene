@@ -21,6 +21,9 @@ import { useRef, useState } from "react";
 import heroVideo from "@/assets/mene-worship-hero.webm";
 import heroPoster from "@/assets/mene-worship-poster.jpg";
 import { Button } from "@/components/ui/button";
+import { VerseTyper } from "@/components/VerseTyper";
+import { ReviewCarousel } from "@/components/ReviewCarousel";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -57,12 +60,6 @@ const tiers = [
   { name: "Basic", price: "15", blurb: "For a single-site church ready to move beyond paper.", features: ["Branded church check-in", "QR attendance", "Membership registry", "Excel import and export", "Core reports and email"], missing: ["Leadership structure", "Multiple branches"] },
   { name: "Standard", price: "30", blurb: "For churches led through ministries, units or departments.", features: ["Everything in Basic", "Leadership and groups", "Leader access", "Email broadcasts", "Deeper insights"], missing: ["Multiple branches", "Text messaging"] , featured: true},
   { name: "Premium", price: "55", blurb: "For multi-branch and cell-structured ministries.", features: ["Everything in Standard", "Multiple branches", "Text messaging", "Automated follow-up", "Advanced reports and audit"], missing: [] },
-];
-
-const testimonials = [
-  { quote: "For the first time, our attendance records tell us who needs care — not only how many people came.", name: "Church administrator", detail: "Accra" },
-  { quote: "Our ushers learned the check-in flow in minutes. Sunday now feels calm, organised and welcoming.", name: "Head usher", detail: "Kumasi" },
-  { quote: "Leadership can see what is happening across groups without chasing a different spreadsheet from everyone.", name: "Senior pastor", detail: "Tema" },
 ];
 
 const faqs = [
@@ -145,11 +142,7 @@ function LandingPage() {
           <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto flex h-full max-w-7xl items-end px-5 pb-24 sm:pb-20">
             <div className="max-w-3xl text-deep-foreground">
               <p className="mb-5 text-xs font-bold uppercase tracking-[0.18em] text-deep-foreground/70">Made for churches. Built for people.</p>
-              <h1 className="font-display text-[clamp(2.7rem,7vw,6.5rem)] font-bold leading-[0.96] text-deep-foreground">
-                Every person matters.
-                <br />
-                Every Sunday counts.
-              </h1>
+              <VerseTyper />
               <p className="mt-6 max-w-2xl text-base leading-relaxed text-deep-foreground/80 sm:text-lg">
                 Mene brings attendance, membership, leadership and communication together so your church can care with clarity.
               </p>
@@ -215,17 +208,7 @@ function LandingPage() {
           <div className="mx-auto max-w-7xl">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary-foreground/65">Churches thrive through people</p>
             <h2 className="mt-4 max-w-4xl font-display text-3xl font-bold leading-tight text-primary-foreground sm:text-5xl">A clearer picture of your congregation changes how you care.</h2>
-            <div className="mt-14 grid gap-4 lg:grid-cols-3">
-              {testimonials.map((item) => (
-                <blockquote key={item.name} className="flex min-h-64 flex-col justify-between rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 p-7 backdrop-blur-lg">
-                  <p className="text-lg leading-relaxed">“{item.quote}”</p>
-                  <footer className="mt-8 flex items-center gap-3 text-sm">
-                    <span className="grid size-9 place-items-center rounded-full bg-primary-foreground font-bold text-primary">{item.name.charAt(0)}</span>
-                    <span><strong className="block">{item.name}</strong><span className="text-primary-foreground/65">{item.detail}</span></span>
-                  </footer>
-                </blockquote>
-              ))}
-            </div>
+            <ReviewCarousel />
           </div>
         </section>
 
@@ -291,12 +274,7 @@ function LandingPage() {
         </section>
       </main>
 
-      <footer className="bg-deep px-5 py-10 text-deep-foreground">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 border-t border-deep-foreground/15 pt-8 text-sm text-deep-foreground/55 sm:flex-row sm:items-center sm:justify-between">
-          <span className="font-display text-lg font-bold text-deep-foreground">Mene</span>
-          <span>A product of Prime Haven IT Solutions &amp; Consultancy</span>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

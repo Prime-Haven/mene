@@ -30,7 +30,7 @@ export const Route = createFileRoute("/api/public/webhooks/paystack")({
             channel?: string;
             paid_at?: string;
             amount?: number;
-            metadata?: { tenant_id?: string; tier?: string };
+            metadata?: { tenant_id?: string; tier?: string; kind?: string; slots?: number };
           };
         };
         try {
@@ -44,6 +44,18 @@ export const Route = createFileRoute("/api/public/webhooks/paystack")({
         }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+        if (event.data.metadata?.kind === "space") {
+          const { error } = await supabaseAdmin.rpc("apply_space_purchase", {
+            p_reference: event.data.reference,
+          });
+          if (error) {
+            console.error("paystack_webhook_apply_space_failed", error.message);
+            return new Response("Could not record space purchase", { status: 500 });
+          }
+          return new Response("ok");
+        }
+
         const { error } = await supabaseAdmin.rpc("apply_successful_payment", {
           p_reference: event.data.reference,
           p_paid_at: event.data.paid_at ?? new Date().toISOString(),

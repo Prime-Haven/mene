@@ -17,6 +17,7 @@ export type Membership = {
     subdomain: string;
     tier: Tier;
     status: Database["public"]["Enums"]["tenant_status"];
+    extra_member_slots: number;
     logo_path: string | null;
     background_path: string | null;
     brand_primary: string;
@@ -40,7 +41,7 @@ export function useTenant() {
       const { data, error } = await supabase
         .from("tenant_users")
         .select(
-          "id, role, branch_id, position_id, tenant:tenants(id, name, subdomain, tier, status, logo_path, background_path, brand_primary, brand_accent, welcome_message, submit_button_text, group_vocabulary, reply_to_email, sms_sender_id, quiet_hour_start, quiet_hour_end, absence_threshold)",
+          "id, role, branch_id, position_id, tenant:tenants(id, name, subdomain, tier, status, extra_member_slots, logo_path, background_path, brand_primary, brand_accent, welcome_message, submit_button_text, group_vocabulary, reply_to_email, sms_sender_id, quiet_hour_start, quiet_hour_end, absence_threshold)",
         )
         .eq("status", "active")
         .order("created_at", { ascending: true })
@@ -69,6 +70,10 @@ export function useTenant() {
     /** Does this church's package include a capability? */
     can: (feature: Feature) => hasFeature(tier, feature),
     limit: (key: Limit) => limitOf(tier, key),
+    /** member_limit plus any extra space this church has purchased; other limits pass through unchanged. */
+    limitWithExtras: (key: Limit) =>
+      limitOf(tier, key) +
+      (key === "member_limit" ? (query.data?.tenant.extra_member_slots ?? 0) : 0),
     features: tier ? ENTITLEMENTS[tier] : null,
     hasStructure: hasFeature(tier, "structure"),
     hasBranches: hasFeature(tier, "branches"),

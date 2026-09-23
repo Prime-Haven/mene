@@ -1,4 +1,4 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import { getRequest, getRequestHeader } from "@tanstack/react-start/server";
 import { z } from "zod";
 
@@ -19,7 +19,14 @@ const checkinSchema = z.object({
   email: z.string().trim().email().max(160).optional().or(z.literal("")),
   date_of_birth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   gender: z.enum(["male", "female"]),
-  marital_status: z.enum(["single", "married", "divorced", "widowed", "separated", "prefer_not_to_say"]),
+  marital_status: z.enum([
+    "single",
+    "married",
+    "divorced",
+    "widowed",
+    "separated",
+    "prefer_not_to_say",
+  ]),
   residential_area: z.string().trim().min(2).max(120),
   occupation: z.string().trim().min(2).max(120),
   education_level: z.string().trim().max(60).optional().or(z.literal("")),
@@ -31,11 +38,11 @@ const checkinSchema = z.object({
 /** Generated RPC types mark optional arguments as non-null; this keeps them honest. */
 export const orNull = <T>(value: T | null): T => value as unknown as T;
 
-export function clientIp(): string {
+export const clientIp = createServerOnlyFn((): string => {
   const forwarded = getRequestHeader("x-forwarded-for");
   if (forwarded) return forwarded.split(",")[0]!.trim();
   return getRequestHeader("cf-connecting-ip") ?? getRequestHeader("x-real-ip") ?? "unknown";
-}
+});
 
 export const getChurchBranding = createServerFn({ method: "GET" })
   .inputValidator((data: { subdomain: string }) =>
@@ -76,7 +83,9 @@ export const getPublicOpenServices = createServerFn({ method: "GET" })
 
 export const getBrandAssetUrl = createServerFn({ method: "GET" })
   .inputValidator((data: { path: string }) =>
-    z.object({ path: z.string().regex(/^[0-9a-f-]{36}\/[0-9a-f-]+\.(png|jpe?g|webp)$/i) }).parse(data),
+    z
+      .object({ path: z.string().regex(/^[0-9a-f-]{36}\/[0-9a-f-]+\.(png|jpe?g|webp)$/i) })
+      .parse(data),
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
