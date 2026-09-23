@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MfaChallenge, MfaEnroll } from "@/components/TwoStep";
 
 export const Route = createFileRoute("/super-admin")({
   head: () => ({ meta: [
@@ -28,13 +29,23 @@ function SuperAdminSignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [stage, setStage] = useState<"password" | "enroll" | "challenge">("password");
+
+  // Operators must pass two-step sign-in; the console's data functions enforce it too.
+  async function continueOperator() {
+    const { data: isOp } = await supabase.rpc("is_platform_admin_account");
+    if (isOp !== true) return false;
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.currentLevel === "aal2") navigate({ to: "/platform" });
+    else setStage(aal?.nextLevel === "aal2" ? "challenge" : "enroll");
+    return true;
+  }
 
   useEffect(() => {
     if (loading || !session) return;
-    supabase.rpc("is_platform_admin").then(({ data }) => {
-      if (data === true) navigate({ to: "/platform" });
-    });
-  }, [loading, session, navigate]);
+    void continueOperator();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, session]);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -42,12 +53,10 @@ function SuperAdminSignIn() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      const { data, error: roleError } = await supabase.rpc("is_platform_admin");
-      if (roleError || data !== true) {
+      if (!(await continueOperator())) {
         await supabase.auth.signOut();
         throw new Error("This entrance is restricted to Prime Haven operators.");
       }
-      navigate({ to: "/platform" });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not sign in");
     } finally {
@@ -62,11 +71,18 @@ function SuperAdminSignIn() {
         <p className="mt-6 text-eyebrow">Restricted entrance</p>
         <h1 className="mt-2 font-display text-3xl font-bold">Prime Haven console</h1>
         <p className="mt-2 text-sm text-muted-foreground">Manage church accounts, packages, billing health, and reviews. Church member records are never available here.</p>
+        {stage !== "password" ? (
+          <div className="mt-7">
+            <p className="mb-3 text-sm font-semibold">{stage === "enroll" ? "Set up two-step sign-in to continue" : "Two-step sign-in"}</p>
+            {stage === "enroll" ? <MfaEnroll onDone={() => navigate({ to: "/platform" })} /> : <MfaChallenge onDone={() => navigate({ to: "/platform" })} />}
+          </div>
+        ) : (
         <form onSubmit={submit} className="mt-7 space-y-4">
           <div className="space-y-2"><Label htmlFor="operator-email">Operator email</Label><Input id="operator-email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></div>
           <div className="space-y-2"><Label htmlFor="operator-password">Password</Label><Input id="operator-password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} /></div>
           <Button type="submit" className="h-11 w-full" disabled={busy}>{busy ? "Checking access…" : "Sign in securely"}<ArrowRight /></Button>
         </form>
+        )}
         <p className="mt-6 border-t pt-4 text-center text-xs text-muted-foreground">Church administrator? <Link to="/auth" className="font-semibold text-primary">Use church sign in</Link></p>
       </motion.section>
     </main>
