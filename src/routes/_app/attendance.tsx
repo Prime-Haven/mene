@@ -58,7 +58,8 @@ function AttendanceRegister() {
     queryKey: ["register", activeId, search],
     enabled: !!activeId,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("attendance_register", { p_service: activeId, p_search: search.trim() || undefined });
+      const q = search.trim();
+      const { data, error } = await supabase.rpc("attendance_register", q ? { p_service: activeId, p_search: q } : { p_service: activeId });
       if (error) throw error;
       return data as unknown as Register;
     },
