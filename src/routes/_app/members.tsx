@@ -158,11 +158,20 @@ function Members() {
 
   const importRows = useMutation({
     mutationFn: async (file: File) => {
-      const XLSX = await import("xlsx");
-      const buffer = await file.arrayBuffer();
-      const wb = XLSX.read(buffer, { type: "array" });
-      const sheet = wb.Sheets[wb.SheetNames[0]!]!;
-      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
+      const { Workbook } = await import("exceljs");
+      const workbook = new Workbook();
+      await workbook.xlsx.load(await file.arrayBuffer());
+      const worksheet = workbook.worksheets[0];
+      if (!worksheet) throw new Error("The spreadsheet has no worksheets.");
+      const headers = (worksheet.getRow(1).values as unknown[])
+        .slice(1)
+        .map((value) => String(value ?? "").trim());
+      const rows: Record<string, unknown>[] = [];
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return;
+        const values = (row.values as unknown[]).slice(1);
+        rows.push(Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])));
+      });
 
       const pick = (row: Record<string, unknown>, keys: string[]) => {
         for (const key of Object.keys(row)) {
@@ -253,7 +262,7 @@ function Members() {
               <input
                 ref={fileRef}
                 type="file"
-                accept=".xlsx,.xls,.csv"
+                accept=".xlsx"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
