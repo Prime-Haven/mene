@@ -13,6 +13,22 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    // Pre-bundle these up front so the preview never re-bundles mid-session,
+    // which previously loaded two copies of React and caused a blank screen.
+    optimizeDeps: {
+      include: [
+        "react",
+        "react-dom",
+        "react-dom/client",
+        "framer-motion",
+        "@tanstack/react-query",
+        "@tanstack/react-router",
+        "zod",
+        "lucide-react",
+        "@supabase/supabase-js",
+        "sonner",
+      ],
+    },
     // Public browser configuration must be present in the compiled bundle.
     // Lovable Cloud normally injects these values, while these non-secret
     // fallbacks keep published auth and data pages functional if injection is
