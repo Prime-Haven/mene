@@ -217,7 +217,7 @@ function CheckIn() {
 
   const heroBg = backgroundUrl ?? heroPoster;
   const HeroBackdrop = () => (
-    <div aria-hidden className="fixed inset-0 -z-10 overflow-hidden">
+    <div aria-hidden className="fixed inset-0 z-0 overflow-hidden">
       <img src={heroBg} alt="" className="size-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black/90" />
       <div className="motion-blur motion-blur-large left-[-12rem] top-[-8rem] opacity-40" />
@@ -232,7 +232,7 @@ function CheckIn() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-sm rounded-3xl border border-white/15 bg-black/40 p-6 text-center shadow-2xl backdrop-blur-xl"
+          className="relative z-10 w-full max-w-sm rounded-3xl border border-white/15 bg-black/40 p-6 text-center shadow-2xl backdrop-blur-xl"
         >
           {logoUrl && <img src={logoUrl} alt="" className="mx-auto mb-3 h-14 max-w-40 object-contain" />}
           <p className="font-display text-lg font-extrabold uppercase tracking-wide">{church?.name}</p>
@@ -274,7 +274,7 @@ function CheckIn() {
       <motion.div
         initial={reduceMotion ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mx-auto max-w-md"
+        className="relative z-10 mx-auto max-w-md"
       >
         <div className="text-center">
           {logoUrl && (
