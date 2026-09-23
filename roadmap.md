@@ -19,3 +19,4 @@
 - [x] Add smooth transitions and subtle moving blur background
 - [x] Add public Ask Mene:Log product-help assistant
 - [x] Rename the platform everywhere to Mene:Log
+- [x] Keep the homepage Ask Mene:Log button fixed at the viewport's bottom-right

@@ -1,4 +1,5 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { MessageCircle, Send, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,10 +7,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 
 export function PublicAskMene() {
   const reduceMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -34,7 +38,9 @@ export function PublicAskMene() {
     }
   }
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <Dialog>
       <DialogTrigger asChild>
         <Button className="fixed bottom-5 right-5 z-40 h-12 gap-2 rounded-full px-5 shadow-xl sm:bottom-7 sm:right-7" aria-label="Ask Mene:Log">
@@ -62,6 +68,7 @@ export function PublicAskMene() {
           </form>
         </div>
       </DialogContent>
-    </Dialog>
+    </Dialog>,
+    document.body,
   );
 }
