@@ -20,9 +20,11 @@ import { Route as SuperAdminRouteImport } from './routes/super-admin'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppAccountsRouteImport } from './routes/_app/accounts'
 import { Route as AppAskMeneRouteImport } from './routes/_app/ask-mene'
+import { Route as AppAttendanceRouteImport } from './routes/_app/attendance'
 import { Route as AppAuditRouteImport } from './routes/_app/audit'
 import { Route as AppBillingRouteImport } from './routes/_app/billing'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppFollowupsRouteImport } from './routes/_app/followups'
 import { Route as AppLeadersRouteImport } from './routes/_app/leaders'
 import { Route as AppMembersRouteImport } from './routes/_app/members'
 import { Route as AppMessagingRouteImport } from './routes/_app/messaging'
@@ -92,6 +94,11 @@ const AppAskMeneRoute = AppAskMeneRouteImport.update({
   path: '/ask-mene',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppAttendanceRoute = AppAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppAuditRoute = AppAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -105,6 +112,11 @@ const AppBillingRoute = AppBillingRouteImport.update({
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppFollowupsRoute = AppFollowupsRouteImport.update({
+  id: '/followups',
+  path: '/followups',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppLeadersRoute = AppLeadersRouteImport.update({
@@ -190,9 +202,11 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/accounts': typeof AppAccountsRoute
   '/ask-mene': typeof AppAskMeneRoute
+  '/attendance': typeof AppAttendanceRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
+  '/followups': typeof AppFollowupsRoute
   '/leaders': typeof AppLeadersRoute
   '/members': typeof AppMembersRoute
   '/messaging': typeof AppMessagingRoute
@@ -219,9 +233,11 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/accounts': typeof AppAccountsRoute
   '/ask-mene': typeof AppAskMeneRoute
+  '/attendance': typeof AppAttendanceRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
+  '/followups': typeof AppFollowupsRoute
   '/leaders': typeof AppLeadersRoute
   '/members': typeof AppMembersRoute
   '/messaging': typeof AppMessagingRoute
@@ -250,9 +266,11 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_app/accounts': typeof AppAccountsRoute
   '/_app/ask-mene': typeof AppAskMeneRoute
+  '/_app/attendance': typeof AppAttendanceRoute
   '/_app/audit': typeof AppAuditRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/followups': typeof AppFollowupsRoute
   '/_app/leaders': typeof AppLeadersRoute
   '/_app/members': typeof AppMembersRoute
   '/_app/messaging': typeof AppMessagingRoute
@@ -281,9 +299,11 @@ export interface FileRouteTypes {
     | '/terms'
     | '/accounts'
     | '/ask-mene'
+    | '/attendance'
     | '/audit'
     | '/billing'
     | '/dashboard'
+    | '/followups'
     | '/leaders'
     | '/members'
     | '/messaging'
@@ -310,9 +330,11 @@ export interface FileRouteTypes {
     | '/terms'
     | '/accounts'
     | '/ask-mene'
+    | '/attendance'
     | '/audit'
     | '/billing'
     | '/dashboard'
+    | '/followups'
     | '/leaders'
     | '/members'
     | '/messaging'
@@ -340,9 +362,11 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_app/accounts'
     | '/_app/ask-mene'
+    | '/_app/attendance'
     | '/_app/audit'
     | '/_app/billing'
     | '/_app/dashboard'
+    | '/_app/followups'
     | '/_app/leaders'
     | '/_app/members'
     | '/_app/messaging'
@@ -455,6 +479,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAskMeneRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/attendance': {
+      id: '/_app/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AppAttendanceRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/audit': {
       id: '/_app/audit'
       path: '/audit'
@@ -474,6 +505,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/followups': {
+      id: '/_app/followups'
+      path: '/followups'
+      fullPath: '/followups'
+      preLoaderRoute: typeof AppFollowupsRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/leaders': {
@@ -580,9 +618,11 @@ declare module '@tanstack/react-router' {
 interface AppRouteRouteChildren {
   AppAccountsRoute: typeof AppAccountsRoute
   AppAskMeneRoute: typeof AppAskMeneRoute
+  AppAttendanceRoute: typeof AppAttendanceRoute
   AppAuditRoute: typeof AppAuditRoute
   AppBillingRoute: typeof AppBillingRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppFollowupsRoute: typeof AppFollowupsRoute
   AppLeadersRoute: typeof AppLeadersRoute
   AppMembersRoute: typeof AppMembersRoute
   AppMessagingRoute: typeof AppMessagingRoute
@@ -597,9 +637,11 @@ interface AppRouteRouteChildren {
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAccountsRoute: AppAccountsRoute,
   AppAskMeneRoute: AppAskMeneRoute,
+  AppAttendanceRoute: AppAttendanceRoute,
   AppAuditRoute: AppAuditRoute,
   AppBillingRoute: AppBillingRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppFollowupsRoute: AppFollowupsRoute,
   AppLeadersRoute: AppLeadersRoute,
   AppMembersRoute: AppMembersRoute,
   AppMessagingRoute: AppMessagingRoute,

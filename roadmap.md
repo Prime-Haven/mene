@@ -35,3 +35,10 @@
 - [x] February review prompt; keep personal details on signed-in onboarding path
 - [ ] Paystack webhook setup + real renewal — needs owner to configure webhook in Paystack
 - [ ] New features (giving, events, first-timer follow-up, exports, absence alerts, 2-step sign-in) — awaiting owner's pick
+
+## New features — 2026-09-23
+- [x] Attendance register with tick boxes (admins)
+- [x] First-timer follow-ups (Standard/Premium) + leader view
+- [x] Absence alerts on dashboard
+- [x] Owner full data export (ZIP of CSVs, 3/hour)
+- [x] Two-step sign-in (optional, church-required, always for Prime Haven operator)

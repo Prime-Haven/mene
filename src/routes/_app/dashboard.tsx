@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/hooks/useTenant";
+import { AbsenceAlerts } from "@/components/AbsenceAlerts";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_app/dashboard")({
@@ -167,6 +168,8 @@ function Dashboard() {
           )}
         </div>
       </div>
+
+      <AbsenceAlerts />
 
       <div className="grid gap-3 lg:grid-cols-3">
         <div className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-panel)]">

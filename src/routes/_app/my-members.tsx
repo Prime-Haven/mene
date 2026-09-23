@@ -7,9 +7,9 @@ import { PageTransition, StaggerItem, StaggerList } from "@/components/Animated"
 export const Route = createFileRoute("/_app/my-members")({
   head: () => ({
     meta: [
-      { title: "My members — Mene" },
+      { title: "My members — Mene:Log" },
       { name: "description", content: "The members who chose you as their leader." },
-      { property: "og:title", content: "My members — Mene" },
+      { property: "og:title", content: "My members — Mene:Log" },
       { property: "og:description", content: "Members who chose you as their leader." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -35,6 +35,15 @@ function MyMembers() {
       const { data: result, error } = await supabase.rpc("leader_overview");
       if (error) throw error;
       return result as unknown as Overview;
+    },
+  });
+
+  const { data: followups } = useQuery({
+    queryKey: ["my-followups"],
+    queryFn: async () => {
+      const { data: rows, error } = await supabase.rpc("my_followups");
+      if (error) throw error;
+      return rows as unknown as Array<{ member_id: string; full_name: string; phone: string | null; status: string; note: string | null; next_contact_on: string | null }>;
     },
   });
 
@@ -70,6 +79,19 @@ function MyMembers() {
           <p className="mt-2 font-display text-3xl font-bold">{data.first_timers ?? 0}</p>
         </div>
       </div>
+
+      {followups && followups.length > 0 && (
+        <div className="surface divide-y divide-border">
+          <div className="p-5"><h2 className="font-display font-bold">People to follow up</h2><p className="text-sm text-muted-foreground">Assigned to you by your church.</p></div>
+          {followups.map((f) => (
+            <div key={f.member_id} className="p-4 text-sm">
+              <p className="font-semibold">{f.full_name}</p>
+              <p className="text-muted-foreground capitalize">{f.status.replace("_", " ")}{f.phone ? ` · ${f.phone}` : ""}{f.next_contact_on ? ` · contact by ${f.next_contact_on}` : ""}</p>
+              {f.note && <p className="mt-1 text-muted-foreground">{f.note}</p>}
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="surface divide-y divide-border">
         <div className="flex items-center gap-2 p-5">

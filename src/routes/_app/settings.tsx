@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getBrandAssetUrl } from "@/lib/checkin.functions";
 import { useServerFn } from "@tanstack/react-start";
+import { TwoStepSettings } from "@/components/TwoStep";
+import { ExportChurchData } from "@/components/ExportChurchData";
 
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({
@@ -104,6 +106,13 @@ function Settings() {
         <p className="text-eyebrow">Church</p>
         <h1 className="mt-2 text-2xl font-bold">Settings</h1>
       </div>
+
+      {tenant && (
+        <div className="grid gap-5 lg:grid-cols-2">
+          <TwoStepSettings tenantId={tenant.id} isOwner={ctx.isOwner} requireMfa={tenant.require_mfa} />
+          {ctx.isOwner && <ExportChurchData tenantId={tenant.id} subdomain={tenant.subdomain} />}
+        </div>
+      )}
 
       <form
         className="grid gap-5 lg:grid-cols-[1fr_.9fr]"
