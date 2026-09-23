@@ -137,17 +137,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={pathname}
-          initial={reduceMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={reduceMotion ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: reduceMotion ? 0 : 0.28 }}
-        >
-          <Outlet />
-        </motion.div>
-      </AnimatePresence>
+      <motion.div
+        key={pathname.startsWith("/c/") ? pathname : pathname.split("/")[1] === "" ? "home" : "page"}
+        initial={reduceMotion ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: reduceMotion ? 0 : 0.15 }}
+      >
+        <Outlet />
+      </motion.div>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
