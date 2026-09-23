@@ -229,8 +229,10 @@ function Onboarding() {
   if (!selectedTier) return null;
 
   return (
-    <div className="min-h-screen bg-deep px-5 py-10 text-deep-foreground sm:py-14">
-      <div className="mx-auto max-w-3xl">
+    <div className="relative min-h-screen overflow-hidden bg-deep px-5 py-10 text-deep-foreground sm:py-14">
+      <div aria-hidden className="motion-blur motion-blur-large left-[-12rem] top-[-8rem] opacity-45" />
+      <div aria-hidden className="motion-blur motion-blur-small bottom-[8%] right-[-5rem] opacity-35 [animation-delay:-5s]" />
+      <div className="relative z-10 mx-auto max-w-3xl">
       <div className="flex items-center justify-between">
         <p className="text-eyebrow">
           Step {step + 1} of {STEPS.length} · {STEPS[step]}
