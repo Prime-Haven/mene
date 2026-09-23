@@ -14,6 +14,9 @@ import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PlatformRouteImport } from './routes/platform'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SuperAdminRouteImport } from './routes/super-admin'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppAccountsRouteImport } from './routes/_app/accounts'
 import { Route as AppAskMeneRouteImport } from './routes/_app/ask-mene'
 import { Route as AppAuditRouteImport } from './routes/_app/audit'
@@ -55,6 +58,21 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const PlatformRoute = PlatformRouteImport.update({
   id: '/platform',
   path: '/platform',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuperAdminRoute = SuperAdminRouteImport.update({
+  id: '/super-admin',
+  path: '/super-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppAccountsRoute = AppAccountsRouteImport.update({
@@ -154,6 +172,9 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/platform': typeof PlatformRoute
+  '/privacy': typeof PrivacyRoute
+  '/super-admin': typeof SuperAdminRoute
+  '/terms': typeof TermsRoute
   '/accounts': typeof AppAccountsRoute
   '/ask-mene': typeof AppAskMeneRoute
   '/audit': typeof AppAuditRoute
@@ -178,6 +199,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/platform': typeof PlatformRoute
+  '/privacy': typeof PrivacyRoute
+  '/super-admin': typeof SuperAdminRoute
+  '/terms': typeof TermsRoute
   '/accounts': typeof AppAccountsRoute
   '/ask-mene': typeof AppAskMeneRoute
   '/audit': typeof AppAuditRoute
@@ -204,6 +228,9 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
   '/platform': typeof PlatformRoute
+  '/privacy': typeof PrivacyRoute
+  '/super-admin': typeof SuperAdminRoute
+  '/terms': typeof TermsRoute
   '/_app/accounts': typeof AppAccountsRoute
   '/_app/ask-mene': typeof AppAskMeneRoute
   '/_app/audit': typeof AppAuditRoute
@@ -230,6 +257,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/platform'
+    | '/privacy'
+    | '/super-admin'
+    | '/terms'
     | '/accounts'
     | '/ask-mene'
     | '/audit'
@@ -254,6 +284,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/platform'
+    | '/privacy'
+    | '/super-admin'
+    | '/terms'
     | '/accounts'
     | '/ask-mene'
     | '/audit'
@@ -279,6 +312,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/platform'
+    | '/privacy'
+    | '/super-admin'
+    | '/terms'
     | '/_app/accounts'
     | '/_app/ask-mene'
     | '/_app/audit'
@@ -305,6 +341,9 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   OnboardingRoute: typeof OnboardingRoute
   PlatformRoute: typeof PlatformRoute
+  PrivacyRoute: typeof PrivacyRoute
+  SuperAdminRoute: typeof SuperAdminRoute
+  TermsRoute: typeof TermsRoute
   CSubdomainRoute: typeof CSubdomainRoute
   ApiPublicAskMeneRoute: typeof ApiPublicAskMeneRoute
   ApiPublicCronMessagingRoute: typeof ApiPublicCronMessagingRoute
@@ -346,6 +385,27 @@ declare module '@tanstack/react-router' {
       path: '/platform'
       fullPath: '/platform'
       preLoaderRoute: typeof PlatformRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/super-admin': {
+      id: '/super-admin'
+      path: '/super-admin'
+      fullPath: '/super-admin'
+      preLoaderRoute: typeof SuperAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/accounts': {
@@ -521,6 +581,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   OnboardingRoute: OnboardingRoute,
   PlatformRoute: PlatformRoute,
+  PrivacyRoute: PrivacyRoute,
+  SuperAdminRoute: SuperAdminRoute,
+  TermsRoute: TermsRoute,
   CSubdomainRoute: CSubdomainRoute,
   ApiPublicAskMeneRoute: ApiPublicAskMeneRoute,
   ApiPublicCronMessagingRoute: ApiPublicCronMessagingRoute,
