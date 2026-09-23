@@ -94,6 +94,7 @@ export type Database = {
       attendance: {
         Row: {
           branch_id: string | null
+          designation: string
           id: string
           member_id: string | null
           method: Database["public"]["Enums"]["attendance_method"]
@@ -105,6 +106,7 @@ export type Database = {
         }
         Insert: {
           branch_id?: string | null
+          designation?: string
           id?: string
           member_id?: string | null
           method?: Database["public"]["Enums"]["attendance_method"]
@@ -116,6 +118,7 @@ export type Database = {
         }
         Update: {
           branch_id?: string | null
+          designation?: string
           id?: string
           member_id?: string | null
           method?: Database["public"]["Enums"]["attendance_method"]
@@ -374,6 +377,58 @@ export type Database = {
           },
         ]
       }
+      leader_contact_logs: {
+        Row: {
+          created_at: string
+          id: string
+          leader_id: string
+          member_id: string
+          note: string | null
+          outcome: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          leader_id: string
+          member_id: string
+          note?: string | null
+          outcome: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          leader_id?: string
+          member_id?: string
+          note?: string | null
+          outcome?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leader_contact_logs_leader_id_fkey"
+            columns: ["leader_id"]
+            isOneToOne: false
+            referencedRelation: "leader_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leader_contact_logs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leader_contact_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leader_profiles: {
         Row: {
           created_at: string
@@ -383,6 +438,7 @@ export type Database = {
           id: string
           leader_type_id: string | null
           location: string | null
+          member_id: string | null
           phone: string | null
           photo_path: string | null
           status: Database["public"]["Enums"]["account_status"]
@@ -397,6 +453,7 @@ export type Database = {
           id?: string
           leader_type_id?: string | null
           location?: string | null
+          member_id?: string | null
           phone?: string | null
           photo_path?: string | null
           status?: Database["public"]["Enums"]["account_status"]
@@ -411,6 +468,7 @@ export type Database = {
           id?: string
           leader_type_id?: string | null
           location?: string | null
+          member_id?: string | null
           phone?: string | null
           photo_path?: string | null
           status?: Database["public"]["Enums"]["account_status"]
@@ -423,6 +481,13 @@ export type Database = {
             columns: ["leader_type_id"]
             isOneToOne: false
             referencedRelation: "leader_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leader_profiles_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
             referencedColumns: ["id"]
           },
           {
@@ -539,6 +604,7 @@ export type Database = {
           id: string
           import_batch_id: string | null
           invited_by_leader_id: string | null
+          is_leader: boolean
           is_minor: boolean
           joined_on: string
           marital_status: string | null
@@ -561,6 +627,7 @@ export type Database = {
           id?: string
           import_batch_id?: string | null
           invited_by_leader_id?: string | null
+          is_leader?: boolean
           is_minor?: boolean
           joined_on?: string
           marital_status?: string | null
@@ -583,6 +650,7 @@ export type Database = {
           id?: string
           import_batch_id?: string | null
           invited_by_leader_id?: string | null
+          is_leader?: boolean
           is_minor?: boolean
           joined_on?: string
           marital_status?: string | null
@@ -893,23 +961,29 @@ export type Database = {
       qr_tokens: {
         Row: {
           issued_at: string
+          kind: string
           member_id: string
           revoked_at: string | null
           tenant_id: string
+          token_enc: string | null
           token_hash: string
         }
         Insert: {
           issued_at?: string
+          kind?: string
           member_id: string
           revoked_at?: string | null
           tenant_id: string
+          token_enc?: string | null
           token_hash: string
         }
         Update: {
           issued_at?: string
+          kind?: string
           member_id?: string
           revoked_at?: string | null
           tenant_id?: string
+          token_enc?: string | null
           token_hash?: string
         }
         Relationships: [
@@ -1411,6 +1485,8 @@ export type Database = {
         }
         Returns: string
       }
+      get_all_member_qrs: { Args: { p_tenant: string }; Returns: Json }
+      get_member_qr: { Args: { p_member: string }; Returns: Json }
       has_tenant_role: {
         Args: {
           _roles: Database["public"]["Enums"]["app_role"][]
@@ -1432,7 +1508,14 @@ export type Database = {
       is_tenant_admin: { Args: { _tenant: string }; Returns: boolean }
       is_tenant_member: { Args: { _tenant: string }; Returns: boolean }
       issue_qr_token: { Args: { p_member: string }; Returns: string }
+      leader_dashboard: { Args: never; Returns: Json }
+      leader_log_contact: {
+        Args: { p_member: string; p_note: string; p_outcome: string }
+        Returns: undefined
+      }
+      leader_my_qr: { Args: never; Returns: Json }
       leader_overview: { Args: never; Returns: Json }
+      leader_scope_member_ids: { Args: { p_leader: string }; Returns: string[] }
       list_followups: { Args: { p_tenant: string }; Returns: Json }
       log_audit: {
         Args: {
