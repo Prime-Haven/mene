@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Cake, QrCode, TrendingUp, UserPlus, Users } from "lucide-react";
+import { Cake, CalendarDays, ChartNoAxesColumn, Filter, QrCode, TrendingUp, UserPlus, Users, VenusAndMars, X } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -51,13 +53,19 @@ const pieColors = [
 ];
 
 function Dashboard() {
-  const { tenant } = useTenant();
+  const ctx = useTenant();
+  const { tenant } = ctx;
+  const reduceMotion = useReducedMotion();
+  const [serviceName, setServiceName] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const { data } = useQuery({
     queryKey: ["dashboard", tenant?.id],
     enabled: !!tenant,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("tenant_dashboard", { p_tenant: tenant!.id });
+      if (!tenant) throw new Error("Church account is unavailable");
+      const { data, error } = await supabase.rpc("tenant_dashboard", { p_tenant: tenant.id });
       if (error) throw error;
       return data as unknown as Dash;
     },
@@ -67,63 +75,81 @@ function Dashboard() {
     queryKey: ["birthdays", tenant?.id],
     enabled: !!tenant,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("birthdays_this_month", { p_tenant: tenant!.id });
+      if (!tenant) throw new Error("Church account is unavailable");
+      const { data, error } = await supabase.rpc("birthdays_this_month", { p_tenant: tenant.id });
       if (error) throw error;
       return data ?? [];
     },
   });
 
   const trend = [...(data?.trend ?? [])].reverse();
+  const serviceOptions = useMemo(() => Array.from(new Set(trend.map((item) => item.name))), [trend]);
+  const filteredTrend = trend.filter((item) => {
+    if (serviceName !== "all" && item.name !== serviceName) return false;
+    if (dateFrom && item.service_date < dateFrom) return false;
+    if (dateTo && item.service_date > dateTo) return false;
+    return true;
+  });
+  const averageAttendance = filteredTrend.length
+    ? Math.round(filteredTrend.reduce((total, item) => total + item.attendance, 0) / filteredTrend.length)
+    : 0;
+  const genderTotal = (data?.gender ?? []).reduce((total, item) => total + item.value, 0);
+  const hasFilters = serviceName !== "all" || Boolean(dateFrom) || Boolean(dateTo);
+  const metrics = [
+    { label: "Total members", value: data?.members ?? 0, icon: Users, tint: "bg-primary/10 text-primary" },
+    { label: "Last attendance", value: data?.last_service_attendance ?? 0, icon: TrendingUp, tint: "bg-success/10 text-success" },
+    { label: "First-timers · 30 days", value: data?.first_timers_30d ?? 0, icon: UserPlus, tint: "bg-chart-2/10 text-chart-2" },
+    { label: "Services recorded", value: data?.services ?? 0, icon: CalendarDays, tint: "bg-chart-4/10 text-chart-4" },
+    { label: "Average attendance", value: averageAttendance, icon: ChartNoAxesColumn, tint: "bg-chart-3/10 text-chart-3" },
+    { label: "Birthdays this month", value: birthdays?.length ?? 0, icon: Cake, tint: "bg-chart-5/10 text-chart-5" },
+    { label: "Profile coverage", value: `${data?.members ? Math.round((genderTotal / data.members) * 100) : 0}%`, icon: VenusAndMars, tint: "bg-secondary text-secondary-foreground" },
+    { label: "Member capacity", value: `${data?.members ?? 0} / ${ctx.limitWithExtras("member_limit").toLocaleString()}`, icon: Users, tint: "bg-primary/10 text-primary" },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-eyebrow">Overview</p>
-          <h1 className="mt-2 text-2xl font-bold">{tenant?.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            Check-in address: {tenant?.subdomain}.patmos.app
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link to="/members">Members</Link>
-          </Button>
-          <Button asChild>
-            <Link to="/scan">
-              <QrCode className="size-4" /> Open scanner
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          { label: "Members", value: data?.members ?? 0, icon: Users },
-          { label: "Last service", value: data?.last_service_attendance ?? 0, icon: TrendingUp },
-          { label: "First-timers (30 days)", value: data?.first_timers_30d ?? 0, icon: UserPlus },
-          { label: "Services recorded", value: data?.services ?? 0, icon: QrCode },
-        ].map(({ label, value, icon: Icon }) => (
-          <div key={label} className="surface p-5">
-            <div className="flex items-center justify-between">
-              <p className="text-eyebrow">{label}</p>
-              <Icon className="size-4 text-primary" />
-            </div>
-            <p className="mt-3 text-3xl font-bold">{value}</p>
+    <div className="space-y-5">
+      <motion.section initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-lg bg-deep px-5 py-6 text-deep-foreground shadow-[var(--shadow-panel)] sm:px-7">
+        <div className="absolute inset-y-0 right-0 w-1/3 bg-primary/15" aria-hidden="true" />
+        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold text-deep-foreground/65">Church operations overview</p>
+            <h1 className="mt-1 text-2xl font-bold text-deep-foreground">Hello, {tenant?.name}</h1>
+            <p className="mt-1 text-xs text-deep-foreground/60">menelog.site/c/{tenant?.subdomain}</p>
           </div>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" className="border-deep-foreground/25 bg-deep-foreground/10 text-deep-foreground hover:bg-deep-foreground/20 hover:text-deep-foreground"><Link to="/members"><UserPlus className="size-4" /> Add member</Link></Button>
+            <Button asChild><Link to="/scan"><QrCode className="size-4" /> Record attendance</Link></Button>
+          </div>
+        </div>
+      </motion.section>
+
+      <section aria-label="Dashboard filters" className="grid gap-3 border-y border-border bg-card/60 py-4 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_auto] lg:items-end">
+        <label className="space-y-1.5"><span className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Service type</span><select value={serviceName} onChange={(event) => setServiceName(event.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"><option value="all">All services</option>{serviceOptions.map((name) => <option key={name} value={name}>{name}</option>)}</select></label>
+        <label className="space-y-1.5"><span className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">From</span><input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" /></label>
+        <label className="space-y-1.5"><span className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">To</span><input type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" /></label>
+        <Button variant={hasFilters ? "outline" : "secondary"} disabled={!hasFilters} onClick={() => { setServiceName("all"); setDateFrom(""); setDateTo(""); }}><X className="size-4" /> Clear</Button>
+      </section>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {metrics.map(({ label, value, icon: Icon, tint }, index) => (
+          <motion.div key={label} initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduceMotion ? 0 : index * 0.035 }} className="rounded-lg border border-border bg-card p-4 shadow-[var(--shadow-panel)] sm:p-5">
+            <div className="flex items-center justify-between">
+              <p className="max-w-[75%] text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
+              <span className={`grid size-8 shrink-0 place-items-center rounded-md ${tint}`}><Icon className="size-4" /></span>
+            </div>
+            <p className="mt-4 break-words font-display text-2xl font-bold sm:text-3xl">{value}</p>
+          </motion.div>
         ))}
       </div>
 
-      <div className="surface p-5">
-        <h2 className="text-base font-semibold">Attendance over the last 12 services</h2>
+      <div className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-panel)]">
+        <div className="flex flex-wrap items-center justify-between gap-2"><div><h2 className="text-base font-semibold">Attendance trend</h2><p className="mt-1 text-xs text-muted-foreground">Last 12 recorded services</p></div><span className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground"><Filter className="size-3.5" /> {filteredTrend.length} shown</span></div>
         <div className="mt-4 h-64">
-          {trend.length === 0 ? (
-            <p className="py-16 text-center text-sm text-muted-foreground">
-              No services recorded yet. Create one from the Services screen, then start scanning.
-            </p>
+          {filteredTrend.length === 0 ? (
+            <div className="grid h-full place-items-center rounded-md border border-dashed border-border bg-muted/30 text-center"><div><CalendarDays className="mx-auto size-6 text-muted-foreground" /><p className="mt-3 text-sm font-semibold">No attendance in this view</p><p className="mt-1 text-xs text-muted-foreground">Create a service or clear the filters to see activity.</p><Button asChild variant="outline" size="sm" className="mt-4"><Link to="/services">Manage services</Link></Button></div></div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trend}>
+              <BarChart data={filteredTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
                 <XAxis dataKey="service_date" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
@@ -142,8 +168,8 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="surface p-5">
+      <div className="grid gap-3 lg:grid-cols-3">
+        <div className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-panel)]">
           <h2 className="text-base font-semibold">Gender split</h2>
           <div className="mt-2 h-52">
             <ResponsiveContainer width="100%" height="100%">
@@ -166,7 +192,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="surface p-5">
+        <div className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-panel)]">
           <h2 className="text-base font-semibold">Age bands</h2>
           <ul className="mt-4 space-y-2 text-sm">
             {(data?.age_bands ?? []).map((band) => (
@@ -181,7 +207,7 @@ function Dashboard() {
           </ul>
         </div>
 
-        <div className="surface p-5">
+        <div className="rounded-lg border border-border bg-card p-5 shadow-[var(--shadow-panel)]">
           <h2 className="flex items-center gap-2 text-base font-semibold">
             <Cake className="size-4 text-primary" /> Birthdays this month
           </h2>

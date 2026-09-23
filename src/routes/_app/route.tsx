@@ -18,6 +18,7 @@ import {
   Sparkles,
   UserCheck,
   HeartHandshake,
+  ChevronRight,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -39,40 +40,46 @@ type NavItem = {
   to: string;
   label: string;
   icon: typeof LayoutDashboard;
+  group: "Workspace" | "People" | "Growth" | "Administration";
   show: (ctx: ReturnType<typeof useTenant>) => boolean;
 };
 
 const nav: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, show: (c) => c.canSeeReports },
-  { to: "/scan", label: "Scan & check in", icon: QrCode, show: () => true },
-  { to: "/services", label: "Services", icon: CalendarDays, show: (c) => c.canManageMembers },
-  { to: "/members", label: "Members", icon: Users, show: (c) => c.role !== "usher" && c.role !== "leader" },
-  { to: "/my-members", label: "My members", icon: HeartHandshake, show: (c) => c.role === "leader" },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, group: "Workspace", show: (c) => c.canSeeReports },
+  { to: "/scan", label: "Scan & check in", icon: QrCode, group: "Workspace", show: () => true },
+  { to: "/services", label: "Services", icon: CalendarDays, group: "Workspace", show: (c) => c.canManageMembers },
+  { to: "/members", label: "Members", icon: Users, group: "People", show: (c) => c.role !== "usher" && c.role !== "leader" },
+  { to: "/my-members", label: "My members", icon: HeartHandshake, group: "People", show: (c) => c.role === "leader" },
   {
     to: "/leaders",
     label: "Leaders",
     icon: UserCheck,
+    group: "People",
     show: (c) => c.isAdmin && c.can("leaders"),
   },
-  { to: "/reports", label: "Reports", icon: BarChart3, show: (c) => c.canSeeReports },
-  { to: "/ask-mene", label: "Ask Mene:Log", icon: Sparkles, show: (c) => c.isAdmin && c.can("ask_mene") },
+  { to: "/reports", label: "Reports", icon: BarChart3, group: "Growth", show: (c) => c.canSeeReports },
+  { to: "/ask-mene", label: "Ask Mene:Log", icon: Sparkles, group: "Growth", show: (c) => c.isAdmin && c.can("ask_mene") },
   {
     to: "/messaging",
     label: "Messaging",
     icon: Send,
+    group: "Growth",
     show: (c) => c.isAdmin && c.can("broadcasts"),
   },
   {
     to: "/structure",
     label: "Structure",
     icon: Network,
+    group: "Administration",
     show: (c) => c.can("structure") && c.isAdmin,
   },
-  { to: "/accounts", label: "Accounts", icon: UserCog, show: (c) => c.isAdmin },
-  { to: "/billing", label: "Billing", icon: CreditCard, show: (c) => c.isOwner },
-  { to: "/audit", label: "Audit log", icon: ScrollText, show: (c) => c.isOwner && c.can("audit") },
-  { to: "/settings", label: "Settings", icon: Settings, show: (c) => c.isAdmin },
+  { to: "/accounts", label: "Accounts", icon: UserCog, group: "Administration", show: (c) => c.isAdmin },
+  { to: "/billing", label: "Billing", icon: CreditCard, group: "Administration", show: (c) => c.isOwner },
+  { to: "/audit", label: "Audit log", icon: ScrollText, group: "Administration", show: (c) => c.isOwner && c.can("audit") },
+  { to: "/settings", label: "Settings", icon: Settings, group: "Administration", show: (c) => c.isAdmin },
 ];
+
+const navGroups: NavItem["group"][] = ["Workspace", "People", "Growth", "Administration"];
 
 function AppLayout() {
   const navigate = useNavigate();
@@ -87,7 +94,10 @@ function AppLayout() {
   const { data: logoUrl } = useQuery({
     queryKey: ["sidebar-logo", pendingTenant?.logo_path],
     enabled: !!pendingTenant?.logo_path,
-    queryFn: () => loadAsset({ data: { path: pendingTenant!.logo_path! } }),
+    queryFn: () => {
+      if (!pendingTenant?.logo_path) return Promise.resolve(null);
+      return loadAsset({ data: { path: pendingTenant.logo_path } });
+    },
   });
 
   useEffect(() => {
@@ -119,14 +129,18 @@ function AppLayout() {
   const current = nav.find((item) => pathname.startsWith(item.to));
   const Navigation = ({ mobile = false }: { mobile?: boolean }) => (
     <>
-      <div className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-4">
-        {logoUrl ? <img src={logoUrl} alt="Church logo" className="size-10 shrink-0 rounded-xl object-contain" /> : <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground"><QrCode className="size-4.5" /></span>}
-        {(!collapsed || mobile) && <span className="min-w-0"><span className="block truncate font-display text-sm font-bold">{tenant.name}</span><span className="block text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{tenant.tier}</span></span>}
+      <div className="flex h-[76px] items-center gap-3 border-b border-sidebar-border px-4">
+        {logoUrl ? <img src={logoUrl} alt="Church logo" className="size-10 shrink-0 rounded-lg border border-sidebar-border object-contain" /> : <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground shadow-[var(--shadow-accent)]"><QrCode className="size-4.5" /></span>}
+        {(!collapsed || mobile) && <span className="min-w-0"><span className="block truncate font-display text-sm font-bold">{tenant.name}</span><span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.16em] text-primary">{tenant.tier} package</span></span>}
       </div>
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-        {nav.filter((item) => item.show(ctx)).map(({ to, label, icon: Icon }) => {
-          const active = pathname.startsWith(to);
-          return <Link key={to} to={to} onClick={() => mobile && setMobileOpen(false)} title={label} className={`flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${active ? "bg-primary text-primary-foreground shadow-[var(--shadow-accent)]" : "text-sidebar-foreground hover:bg-secondary"}`}><Icon className="size-4 shrink-0" />{(!collapsed || mobile) && label}</Link>;
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        {navGroups.map((group) => {
+          const items = nav.filter((item) => item.group === group && item.show(ctx));
+          if (items.length === 0) return null;
+          return <div key={group} className="mb-4 last:mb-0">{(!collapsed || mobile) && <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{group}</p>}<div className="space-y-1">{items.map(({ to, label, icon: Icon }) => {
+            const active = pathname.startsWith(to);
+            return <Link key={to} to={to} onClick={() => mobile && setMobileOpen(false)} title={label} className={`group flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-semibold transition-all duration-200 ${active ? "bg-primary text-primary-foreground shadow-[var(--shadow-accent)]" : "text-sidebar-foreground hover:bg-secondary hover:text-foreground"}`}><Icon className="size-4 shrink-0" />{(!collapsed || mobile) && <><span className="flex-1 truncate">{label}</span><ChevronRight className={`size-3.5 transition-transform ${active ? "translate-x-0 opacity-90" : "-translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-60"}`} /></>}</Link>;
+          })}</div></div>;
         })}
       </nav>
       <div className="border-t border-sidebar-border p-3">
@@ -138,16 +152,16 @@ function AppLayout() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className={`${collapsed ? "w-[72px]" : "w-64"} relative hidden shrink-0 flex-col border-r border-border bg-sidebar transition-[width] duration-200 md:flex`}>
+      <aside className={`${collapsed ? "w-[72px]" : "w-60"} fixed inset-y-0 left-0 z-40 hidden shrink-0 flex-col border-r border-border bg-sidebar shadow-[var(--shadow-panel)] transition-[width] duration-300 md:flex`}>
         <Navigation />
-        <Button variant="outline" size="icon" className="absolute -right-4 top-20 z-20 size-8 rounded-full bg-background" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}><PanelLeftClose className={`size-4 transition-transform ${collapsed ? "rotate-180" : ""}`} /></Button>
+        <Button variant="outline" size="icon" className="absolute -right-3.5 top-24 z-20 size-7 rounded-full bg-background shadow-sm" onClick={() => setCollapsed((value) => !value)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}><PanelLeftClose className={`size-3.5 transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`} /></Button>
       </aside>
 
       <ReviewPrompt />
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}><SheetContent side="left" className="flex w-[86vw] max-w-80 flex-col p-0"><SheetTitle className="sr-only">Church navigation</SheetTitle><Navigation mobile /></SheetContent></Sheet>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className={`flex min-w-0 flex-1 flex-col transition-[margin] duration-300 ${collapsed ? "md:ml-[72px]" : "md:ml-60"}`}>
         <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur md:hidden">
           <div className="flex h-16 items-center gap-3 px-4 pt-[env(safe-area-inset-top)]">
             <Button variant="outline" size="icon" className="size-10 shrink-0" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu className="size-5" /></Button>
@@ -159,6 +173,17 @@ function AppLayout() {
           </div>
         </header>
 
+        <header className="sticky top-0 z-30 hidden h-[76px] items-center justify-between border-b border-border bg-background/90 px-6 backdrop-blur-xl md:flex lg:px-8">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">{current?.group ?? "Workspace"}</p>
+            <p className="mt-1 font-display text-sm font-bold">{current?.label ?? "Mene:Log"}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm"><Link to="/members"><Users className="size-4" /> Members</Link></Button>
+            <Button asChild size="sm"><Link to="/scan"><QrCode className="size-4" /> Record attendance</Link></Button>
+          </div>
+        </header>
+
         {suspended && (
           <div className="border-b border-destructive/30 bg-destructive/10 px-5 py-3 text-sm text-destructive">
             This subscription is inactive. Check-in and edits are paused — your records stay safe and
@@ -166,10 +191,7 @@ function AppLayout() {
           </div>
         )}
 
-        <main className="mx-auto min-w-0 w-full max-w-6xl flex-1 px-4 py-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-7 lg:px-8">
-          {current && (
-            <p className="text-eyebrow mb-1 hidden lg:block">{current.label}</p>
-          )}
+        <main className="mx-auto min-w-0 w-full max-w-[1440px] flex-1 px-4 py-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-6 lg:px-8">
           <AnimatePresence mode="wait"><motion.div key={pathname} initial={reduceMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: reduceMotion ? 1 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.18 }}><Outlet /></motion.div></AnimatePresence>
         </main>
       </div>
