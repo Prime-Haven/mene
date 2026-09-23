@@ -463,6 +463,70 @@ export type Database = {
           },
         ]
       }
+      member_followups: {
+        Row: {
+          assigned_leader_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          member_id: string
+          next_contact_on: string | null
+          note: string | null
+          source: string
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_leader_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          member_id: string
+          next_contact_on?: string | null
+          note?: string | null
+          source?: string
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_leader_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          member_id?: string
+          next_contact_on?: string | null
+          note?: string | null
+          source?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_followups_assigned_leader_id_fkey"
+            columns: ["assigned_leader_id"]
+            isOneToOne: false
+            referencedRelation: "leader_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_followups_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_followups_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       members: {
         Row: {
           branch_id: string | null
@@ -1174,6 +1238,7 @@ export type Database = {
           quiet_hour_end: number
           quiet_hour_start: number
           reply_to_email: string | null
+          require_mfa: boolean
           sms_sender_id: string | null
           status: Database["public"]["Enums"]["tenant_status"]
           subdomain: string
@@ -1203,6 +1268,7 @@ export type Database = {
           quiet_hour_end?: number
           quiet_hour_start?: number
           reply_to_email?: string | null
+          require_mfa?: boolean
           sms_sender_id?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           subdomain: string
@@ -1232,6 +1298,7 @@ export type Database = {
           quiet_hour_end?: number
           quiet_hour_start?: number
           reply_to_email?: string | null
+          require_mfa?: boolean
           sms_sender_id?: string | null
           status?: Database["public"]["Enums"]["tenant_status"]
           subdomain?: string
@@ -1247,6 +1314,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      absent_members: { Args: { p_tenant: string }; Returns: Json }
       anonymise_member: { Args: { p_member: string }; Returns: undefined }
       apply_space_purchase:
         | { Args: { p_reference: string }; Returns: undefined }
@@ -1267,6 +1335,10 @@ export type Database = {
       ask_mene_context: { Args: { p_tenant: string }; Returns: Json }
       attendance_insights: {
         Args: { p_tenant: string; p_weeks: number }
+        Returns: Json
+      }
+      attendance_register: {
+        Args: { p_search?: string; p_service: string }
         Returns: Json
       }
       birthdays_this_month: {
@@ -1356,10 +1428,12 @@ export type Database = {
         Returns: Json
       }
       is_platform_admin: { Args: never; Returns: boolean }
+      is_platform_admin_account: { Args: never; Returns: boolean }
       is_tenant_admin: { Args: { _tenant: string }; Returns: boolean }
       is_tenant_member: { Args: { _tenant: string }; Returns: boolean }
       issue_qr_token: { Args: { p_member: string }; Returns: string }
       leader_overview: { Args: never; Returns: Json }
+      list_followups: { Args: { p_tenant: string }; Returns: Json }
       log_audit: {
         Args: {
           _action: string
@@ -1388,6 +1462,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      my_followups: { Args: never; Returns: Json }
       my_review_state: { Args: never; Returns: Json }
       normalize_phone_gh: { Args: { _phone: string }; Returns: string }
       platform_approve_church: {
@@ -1612,8 +1687,16 @@ export type Database = {
         Args: { p_code: string; p_tenant: string }
         Returns: string
       }
+      set_manual_attendance: {
+        Args: { p_members: string[]; p_present: boolean; p_service: string }
+        Returns: Json
+      }
       set_member_messaging: {
         Args: { p_member: string; p_opt_out: boolean }
+        Returns: undefined
+      }
+      set_require_mfa: {
+        Args: { p_required: boolean; p_tenant: string }
         Returns: undefined
       }
       subdomain_available: { Args: { p_subdomain: string }; Returns: boolean }
@@ -1669,6 +1752,17 @@ export type Database = {
       update_tenant_vocabulary: {
         Args: { p_tenant: string; p_vocabulary: string }
         Returns: undefined
+      }
+      upsert_followup: {
+        Args: {
+          p_leader: string
+          p_member: string
+          p_next: string
+          p_note: string
+          p_source?: string
+          p_status: string
+        }
+        Returns: string
       }
       user_branch: { Args: { _tenant: string }; Returns: string }
       user_position_path: { Args: { _tenant: string }; Returns: unknown }

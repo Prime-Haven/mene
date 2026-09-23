@@ -113,6 +113,13 @@
       "when": 1790192244263,
       "tag": "0015_remove_backdoor_and_tighten_anon_access",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1790192885072,
+      "tag": "0016_followups_register_absence_mfa",
+      "breakpoints": true
     }
   ]
 }
