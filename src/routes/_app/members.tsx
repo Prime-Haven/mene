@@ -158,20 +158,13 @@ function Members() {
 
   const importRows = useMutation({
     mutationFn: async (file: File) => {
-      const { Workbook } = await import("exceljs");
-      const workbook = new Workbook();
-      await workbook.xlsx.load(await file.arrayBuffer());
-      const worksheet = workbook.worksheets[0];
-      if (!worksheet) throw new Error("The spreadsheet has no worksheets.");
-      const headers = (worksheet.getRow(1).values as unknown[])
-        .slice(1)
-        .map((value) => String(value ?? "").trim());
-      const rows: Record<string, unknown>[] = [];
-      worksheet.eachRow((row, rowNumber) => {
-        if (rowNumber === 1) return;
-        const values = (row.values as unknown[]).slice(1);
-        rows.push(Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""])));
+      const { default: Papa } = await import("papaparse");
+      const parsed = Papa.parse<Record<string, unknown>>(await file.text(), {
+        header: true,
+        skipEmptyLines: true,
       });
+      if (parsed.errors.length) throw new Error(`Could not read CSV row ${parsed.errors[0]?.row ?? 1}.`);
+      const rows = parsed.data;
 
       const pick = (row: Record<string, unknown>, keys: string[]) => {
         for (const key of Object.keys(row)) {
@@ -262,7 +255,7 @@ function Members() {
               <input
                 ref={fileRef}
                 type="file"
-                accept=".xlsx"
+                accept=".csv,text/csv"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -271,7 +264,7 @@ function Members() {
                 }}
               />
               <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={importRows.isPending}>
-                <Upload className="size-4" /> Import Excel
+                <Upload className="size-4" /> Import CSV
               </Button>
               <Button onClick={() => setAddOpen(true)}>
                 <UserPlus className="size-4" /> Add member
