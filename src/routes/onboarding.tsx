@@ -174,6 +174,11 @@ function Onboarding() {
         return;
       }
 
+      // Keep the personal details on the account for the already-signed-in path too.
+      await supabase.auth.updateUser({
+        data: { full_name: fullName.trim(), phone: phone.trim(), location: location.trim() },
+      });
+
       // The database reserves the address and creates the trial atomically.
       const { data: tenantId, error } = await supabase.rpc("provision_tenant", {
         p_name: churchName.trim(),
