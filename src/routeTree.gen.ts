@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as OnboardingCompleteRouteImport } from './routes/onboarding-complete'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
@@ -33,6 +34,7 @@ import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppStructureRouteImport } from './routes/_app/structure'
 import { Route as CSubdomainRouteImport } from './routes/c.$subdomain'
 import { Route as ApiPublicAskMeneRouteImport } from './routes/api/public/ask-mene'
+import { Route as ApiPublicProductHelpRouteImport } from './routes/api/public/product-help'
 import { Route as ApiPublicCronMessagingRouteImport } from './routes/api/public/cron/messaging'
 import { Route as ApiPublicWebhooksPaystackRouteImport } from './routes/api/public/webhooks/paystack'
 
@@ -53,6 +55,11 @@ const AuthRoute = AuthRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingCompleteRoute = OnboardingCompleteRouteImport.update({
+  id: '/onboarding-complete',
+  path: '/onboarding-complete',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlatformRoute = PlatformRouteImport.update({
@@ -155,6 +162,11 @@ const ApiPublicAskMeneRoute = ApiPublicAskMeneRouteImport.update({
   path: '/api/public/ask-mene',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicProductHelpRoute = ApiPublicProductHelpRouteImport.update({
+  id: '/api/public/product-help',
+  path: '/api/public/product-help',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronMessagingRoute = ApiPublicCronMessagingRouteImport.update({
   id: '/api/public/cron/messaging',
   path: '/api/public/cron/messaging',
@@ -171,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/onboarding-complete': typeof OnboardingCompleteRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/super-admin': typeof SuperAdminRoute
@@ -191,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
   '/api/public/ask-mene': typeof ApiPublicAskMeneRoute
+  '/api/public/product-help': typeof ApiPublicProductHelpRoute
   '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
@@ -198,6 +212,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/onboarding-complete': typeof OnboardingCompleteRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/super-admin': typeof SuperAdminRoute
@@ -218,6 +233,7 @@ export interface FileRoutesByTo {
   '/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
   '/api/public/ask-mene': typeof ApiPublicAskMeneRoute
+  '/api/public/product-help': typeof ApiPublicProductHelpRoute
   '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
@@ -227,6 +243,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/onboarding': typeof OnboardingRoute
+  '/onboarding-complete': typeof OnboardingCompleteRoute
   '/platform': typeof PlatformRoute
   '/privacy': typeof PrivacyRoute
   '/super-admin': typeof SuperAdminRoute
@@ -247,6 +264,7 @@ export interface FileRoutesById {
   '/_app/structure': typeof AppStructureRoute
   '/c/$subdomain': typeof CSubdomainRoute
   '/api/public/ask-mene': typeof ApiPublicAskMeneRoute
+  '/api/public/product-help': typeof ApiPublicProductHelpRoute
   '/api/public/cron/messaging': typeof ApiPublicCronMessagingRoute
   '/api/public/webhooks/paystack': typeof ApiPublicWebhooksPaystackRoute
 }
@@ -256,6 +274,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/onboarding-complete'
     | '/platform'
     | '/privacy'
     | '/super-admin'
@@ -276,6 +295,7 @@ export interface FileRouteTypes {
     | '/structure'
     | '/c/$subdomain'
     | '/api/public/ask-mene'
+    | '/api/public/product-help'
     | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   fileRoutesByTo: FileRoutesByTo
@@ -283,6 +303,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/onboarding'
+    | '/onboarding-complete'
     | '/platform'
     | '/privacy'
     | '/super-admin'
@@ -303,6 +324,7 @@ export interface FileRouteTypes {
     | '/structure'
     | '/c/$subdomain'
     | '/api/public/ask-mene'
+    | '/api/public/product-help'
     | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   id:
@@ -311,6 +333,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/auth'
     | '/onboarding'
+    | '/onboarding-complete'
     | '/platform'
     | '/privacy'
     | '/super-admin'
@@ -331,6 +354,7 @@ export interface FileRouteTypes {
     | '/_app/structure'
     | '/c/$subdomain'
     | '/api/public/ask-mene'
+    | '/api/public/product-help'
     | '/api/public/cron/messaging'
     | '/api/public/webhooks/paystack'
   fileRoutesById: FileRoutesById
@@ -340,12 +364,14 @@ export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   OnboardingRoute: typeof OnboardingRoute
+  OnboardingCompleteRoute: typeof OnboardingCompleteRoute
   PlatformRoute: typeof PlatformRoute
   PrivacyRoute: typeof PrivacyRoute
   SuperAdminRoute: typeof SuperAdminRoute
   TermsRoute: typeof TermsRoute
   CSubdomainRoute: typeof CSubdomainRoute
   ApiPublicAskMeneRoute: typeof ApiPublicAskMeneRoute
+  ApiPublicProductHelpRoute: typeof ApiPublicProductHelpRoute
   ApiPublicCronMessagingRoute: typeof ApiPublicCronMessagingRoute
   ApiPublicWebhooksPaystackRoute: typeof ApiPublicWebhooksPaystackRoute
 }
@@ -378,6 +404,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding-complete': {
+      id: '/onboarding-complete'
+      path: '/onboarding-complete'
+      fullPath: '/onboarding-complete'
+      preLoaderRoute: typeof OnboardingCompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/platform': {
@@ -520,6 +553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicAskMeneRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/product-help': {
+      id: '/api/public/product-help'
+      path: '/api/public/product-help'
+      fullPath: '/api/public/product-help'
+      preLoaderRoute: typeof ApiPublicProductHelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/messaging': {
       id: '/api/public/cron/messaging'
       path: '/api/public/cron/messaging'
@@ -580,12 +620,14 @@ const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   OnboardingRoute: OnboardingRoute,
+  OnboardingCompleteRoute: OnboardingCompleteRoute,
   PlatformRoute: PlatformRoute,
   PrivacyRoute: PrivacyRoute,
   SuperAdminRoute: SuperAdminRoute,
   TermsRoute: TermsRoute,
   CSubdomainRoute: CSubdomainRoute,
   ApiPublicAskMeneRoute: ApiPublicAskMeneRoute,
+  ApiPublicProductHelpRoute: ApiPublicProductHelpRoute,
   ApiPublicCronMessagingRoute: ApiPublicCronMessagingRoute,
   ApiPublicWebhooksPaystackRoute: ApiPublicWebhooksPaystackRoute,
 }

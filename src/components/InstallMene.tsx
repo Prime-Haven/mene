@@ -25,9 +25,9 @@ export function InstallMene({ compact = false }: { compact?: boolean }) {
         else alert("On iPhone: tap Share, then choose ‘Add to Home Screen’. You may need to scroll down in the share menu.");
       }}>
         {isIos && !prompt ? <Share className="size-4" /> : <Download className="size-4" />}
-        Install Mene
+        Install Mene:Log
       </Button>
-      {!compact && <p className="mt-2 text-xs text-muted-foreground">Add Mene to your home screen for app-like access. An internet connection is still required.</p>}
+      {!compact && <p className="mt-2 text-xs text-muted-foreground">Add Mene:Log to your home screen for app-like access. An internet connection is still required.</p>}
     </div>
   );
 }

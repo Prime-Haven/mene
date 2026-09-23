@@ -66,15 +66,16 @@ export const Route = createFileRoute("/api/public/ask-mene")({
           });
 
           const gateway = createOpenAI({
-            name: "lovable",
             apiKey,
             baseURL: "https://ai.gateway.lovable.dev/v1",
+            headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
           });
           const result = streamText({
-            model: gateway.chat("openai/gpt-6-astra"),
-            system: `You are Ask Mene, a concise church operations analyst. Answer only from the aggregate JSON snapshot below. Never infer or request names, contacts, dates of birth, QR data, or individual records. If the snapshot cannot answer, say so plainly. Prefer 2-5 short bullets, include exact dates/counts when relevant, and identify trends without overstating causality. Do not expose hidden reasoning.\n\nAGGREGATE CHURCH SNAPSHOT:\n${JSON.stringify(context)}`,
+            model: gateway.responses("openai/gpt-6-astra"),
+            system: `You are Ask Mene:Log, a concise church operations analyst. Answer only from the aggregate JSON snapshot below. Never infer or request names, contacts, dates of birth, QR data, or individual records. If the snapshot cannot answer, say so plainly. Prefer 2-5 short bullets, include exact dates/counts when relevant, and identify trends without overstating causality. Do not expose hidden reasoning.\n\nAGGREGATE CHURCH SNAPSHOT:\n${JSON.stringify(context)}`,
             messages: await convertToModelMessages(messages),
             maxOutputTokens: 700,
+            providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } },
           });
 
           void supabaseAdmin.from("audit_events").insert({
@@ -88,7 +89,7 @@ export const Route = createFileRoute("/api/public/ask-mene")({
           return result.toUIMessageStreamResponse({
             originalMessages: messages,
             sendReasoning: false,
-            onError: () => "Ask Mene could not complete that answer. Please try again.",
+            onError: () => "Ask Mene:Log could not complete that answer. Please try again.",
             onFinish: async ({ responseMessage, isAborted }) => {
               if (isAborted) return;
               const answer = textOf(responseMessage).slice(0, 12000);
@@ -105,7 +106,7 @@ export const Route = createFileRoute("/api/public/ask-mene")({
           });
         } catch (error) {
           console.error("[ask-mene] request failed", error instanceof Error ? error.message : error);
-          return Response.json({ error: "Ask Mene is temporarily unavailable. Please try again." }, { status: 500 });
+          return Response.json({ error: "Ask Mene:Log is temporarily unavailable. Please try again." }, { status: 500 });
         }
       },
     },

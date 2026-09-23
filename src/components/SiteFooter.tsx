@@ -7,7 +7,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl border-t border-deep-foreground/15 pt-9">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-sm">
-            <span className="font-display text-xl font-bold text-deep-foreground">Mene</span>
+            <span className="font-display text-xl font-bold text-deep-foreground">Mene:Log</span>
             <p className="mt-3 text-sm leading-relaxed text-deep-foreground/55">
               Attendance, membership and care records for churches — one clear record from the door to
               the week ahead.
@@ -24,7 +24,7 @@ export function SiteFooter() {
         </div>
         <div className="mt-9 flex flex-col gap-2 border-t border-deep-foreground/10 pt-6 text-xs text-deep-foreground/45 sm:flex-row sm:items-center sm:justify-between">
           <span>A product of Prime Haven IT Solutions &amp; Consultancy</span>
-          <span>© {new Date().getFullYear()} Mene. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Mene:Log. All rights reserved.</span>
         </div>
       </div>
     </footer>

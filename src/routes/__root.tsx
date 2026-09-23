@@ -4,10 +4,12 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -79,13 +81,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#fafbfc" },
-      { title: "Mene" },
+      { title: "Mene:Log" },
       {
         name: "description",
         content: "Church attendance, membership records and reporting for Ghanaian churches.",
       },
       { name: "author", content: "Prime Haven IT Solutions & Consultancy" },
-      { property: "og:title", content: "Mene" },
+      { property: "og:title", content: "Mene:Log" },
       {
         property: "og:description",
         content: "Church attendance, membership records and reporting for Ghanaian churches.",
@@ -130,11 +132,16 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const reduceMotion = useReducedMotion();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div key={pathname} initial={reduceMotion ? false : { opacity: 0, filter: "blur(7px)" }} animate={{ opacity: 1, filter: "blur(0px)" }} exit={reduceMotion ? { opacity: 1 } : { opacity: 0, filter: "blur(5px)" }} transition={{ duration: reduceMotion ? 0 : 0.28 }}>
+          <Outlet />
+        </motion.div>
+      </AnimatePresence>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

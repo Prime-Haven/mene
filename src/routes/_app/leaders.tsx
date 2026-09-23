@@ -14,9 +14,9 @@ import { PageTransition, StaggerItem, StaggerList } from "@/components/Animated"
 export const Route = createFileRoute("/_app/leaders")({
   head: () => ({
     meta: [
-      { title: "Leaders — Mene" },
+      { title: "Leaders — Mene:Log" },
       { name: "description", content: "Create leader roles, share your access code and see every registered leader." },
-      { property: "og:title", content: "Leaders — Mene" },
+      { property: "og:title", content: "Leaders — Mene:Log" },
       { property: "og:description", content: "Manage leader roles and accounts for your church." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -16,13 +16,13 @@ import { passwordIsStrong } from "@/lib/password";
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
     meta: [
-      { title: "Set up your church — Mene" },
+      { title: "Set up your church — Mene:Log" },
       {
         name: "description",
         content: "Tell us about you and your church, choose a package and secure your account.",
       },
-      { property: "og:title", content: "Set up your church — Mene" },
-      { property: "og:description", content: "Create your church account on Mene in a guided onboarding flow." },
+      { property: "og:title", content: "Set up your church — Mene:Log" },
+      { property: "og:description", content: "Create your church account on Mene:Log in a guided onboarding flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
@@ -80,7 +80,7 @@ function Onboarding() {
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const [available, setAvailable] = useState<boolean | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState<"verification" | "complete" | null>(null);
 
   // Step 1: Personal
   const [fullName, setFullName] = useState("");
@@ -152,13 +152,26 @@ function Onboarding() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/onboarding`,
-            data: { full_name: fullName, phone, location, church_city: churchCity },
+            emailRedirectTo: `${window.location.origin}/onboarding-complete`,
+            data: {
+              onboarding_version: "1",
+              full_name: fullName.trim(),
+              phone: phone.trim(),
+              location: location.trim(),
+              church_name: churchName.trim(),
+              church_city: churchCity.trim(),
+              church_email: churchEmail.trim(),
+              church_phone: churchPhone.trim(),
+              subdomain: subdomain.trim().toLowerCase(),
+              tier,
+            },
           },
         });
         if (signUpError) throw signUpError;
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-        if (signInError) throw new Error("Verify your email, then return here to finish creating your church.");
+        window.sessionStorage.setItem("menelog-onboarding-draft", JSON.stringify({ email, churchName, subdomain, tier }));
+        setSubmitted("verification");
+        toast.success("Check your email to verify your account and start your trial.");
+        return;
       }
 
       // The database reserves the address and creates the trial atomically.
@@ -174,7 +187,7 @@ function Onboarding() {
       if (!tenantId) throw new Error("Your church account could not be created.");
 
       await qc.invalidateQueries({ queryKey: ["membership"] });
-      setSubmitted(true);
+      setSubmitted("complete");
       toast.success("Your 14-day trial is ready and your church was submitted for approval.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not complete onboarding");
@@ -196,17 +209,16 @@ function Onboarding() {
           </div>
           <h1 className="font-display text-3xl font-bold">Registration Received!</h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Thank you, <b className="text-foreground">{fullName}</b>. Your account for{" "}
-             <b className="text-foreground">{churchName}</b> is now on a 14-day {tier.toUpperCase()} trial and has been submitted for approval.
+             Thank you, <b className="text-foreground">{fullName}</b>. {submitted === "verification" ? <>We sent a verification link to <b className="text-foreground">{email}</b>. Your church and 14-day trial will be created after you confirm it.</> : <>Your account for <b className="text-foreground">{churchName}</b> is now on a 14-day {tier.toUpperCase()} trial and has been submitted for approval.</>}
           </p>
           <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 text-left text-xs space-y-2">
             <p className="font-semibold text-foreground">What happens next?</p>
              <p className="text-muted-foreground">• Your permanent check-in address is <b>menelog.site/c/{subdomain}</b>.</p>
-            <p className="text-muted-foreground">• Our platform administrator will approve and activate your church workspace.</p>
-            <p className="text-muted-foreground">• Once approved, you can sign in anytime at <b>/auth</b> to access your dashboard.</p>
+             <p className="text-muted-foreground">• {submitted === "verification" ? "Open the verification link on this device to complete registration." : "Our platform administrator will approve and activate your church workspace."}</p>
+             <p className="text-muted-foreground">• Once verified, you can sign in anytime to access your dashboard.</p>
           </div>
           <Button asChild className="w-full rounded-xl">
-            <Link to="/auth">Go to Sign in</Link>
+             <Link to="/auth">{submitted === "verification" ? "I have verified my email" : "Go to Sign in"}</Link>
           </Button>
         </motion.div>
       </div>
@@ -217,16 +229,18 @@ function Onboarding() {
   if (!selectedTier) return null;
 
   return (
-    <div className="min-h-screen bg-deep px-5 py-10 text-deep-foreground sm:py-14">
-      <div className="mx-auto max-w-3xl">
+    <div className="relative min-h-screen overflow-hidden bg-deep px-5 py-10 text-deep-foreground sm:py-14">
+      <div aria-hidden className="motion-blur motion-blur-large left-[-12rem] top-[-8rem] opacity-45" />
+      <div aria-hidden className="motion-blur motion-blur-small bottom-[8%] right-[-5rem] opacity-35 [animation-delay:-5s]" />
+      <div className="relative z-10 mx-auto max-w-3xl">
       <div className="flex items-center justify-between">
         <p className="text-eyebrow">
           Step {step + 1} of {STEPS.length} · {STEPS[step]}
         </p>
-       <Link to="/" className="font-display text-lg font-bold text-deep-foreground">Mene</Link>
+        <Link to="/" className="font-display text-lg font-bold text-deep-foreground">Mene:Log</Link>
       </div>
 
-       <h1 className="mt-5 max-w-2xl font-display text-4xl font-bold text-deep-foreground sm:text-5xl">Set up your church on Mene</h1>
+        <h1 className="mt-5 max-w-2xl font-display text-4xl font-bold text-deep-foreground sm:text-5xl">Set up your church on Mene:Log</h1>
        <p className="mt-3 max-w-xl text-sm text-deep-foreground/70">
          Four focused steps, then your 14-day trial begins. Pay from Billing when you are ready.
       </p>

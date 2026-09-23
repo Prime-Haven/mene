@@ -1308,6 +1308,7 @@ export type Database = {
           tenant_id: string
         }[]
       }
+      complete_verified_onboarding: { Args: never; Returns: string }
       create_member: {
         Args: {
           p_area: string
@@ -1458,6 +1459,10 @@ export type Database = {
         }
         Returns: string
       }
+      public_help_allow_request: {
+        Args: { p_identifier: string }
+        Returns: boolean
+      }
       public_leader_options: {
         Args: { p_subdomain: string }
         Returns: {
@@ -1481,6 +1486,7 @@ export type Database = {
           service_date: string
         }[]
       }
+      public_platform_stats: { Args: never; Returns: Json }
       public_reviews: {
         Args: never
         Returns: {

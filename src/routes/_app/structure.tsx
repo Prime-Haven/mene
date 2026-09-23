@@ -13,9 +13,9 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/_app/structure")({
   head: () => ({
     meta: [
-      { title: "Leadership structure — Mene" },
+      { title: "Leadership structure — Mene:Log" },
       { name: "description", content: "Name your leadership levels and create the groups beneath them." },
-      { property: "og:title", content: "Leadership structure — Mene" },
+      { property: "og:title", content: "Leadership structure — Mene:Log" },
       { property: "og:description", content: "Define your church's own leadership levels and groups." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

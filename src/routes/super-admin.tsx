@@ -11,10 +11,10 @@ import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/super-admin")({
   head: () => ({ meta: [
-    { title: "Prime Haven operator sign in — Mene" },
-    { name: "description", content: "Restricted Prime Haven operator access for Mene platform administration." },
-    { property: "og:title", content: "Prime Haven operator sign in — Mene" },
-    { property: "og:description", content: "Restricted Prime Haven operator access for Mene platform administration." },
+    { title: "Prime Haven operator sign in — Mene:Log" },
+    { name: "description", content: "Restricted Prime Haven operator access for Mene:Log platform administration." },
+    { property: "og:title", content: "Prime Haven operator sign in — Mene:Log" },
+    { property: "og:description", content: "Restricted Prime Haven operator access for Mene:Log platform administration." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
     { name: "robots", content: "noindex, nofollow" },

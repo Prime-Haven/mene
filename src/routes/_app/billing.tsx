@@ -30,9 +30,9 @@ const FEATURE_ORDER: Feature[] = [
 export const Route = createFileRoute("/_app/billing")({
   head: () => ({
     meta: [
-      { title: "Billing — Mene" },
+      { title: "Billing — Mene:Log" },
       { name: "description", content: "Your subscription tier, renewal date and payment history." },
-      { property: "og:title", content: "Billing — Mene" },
+      { property: "og:title", content: "Billing — Mene:Log" },
       { property: "og:description", content: "Subscription tier, renewal date and invoices." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

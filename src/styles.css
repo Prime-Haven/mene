@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Mene design system.
+ * Mene:Log design system.
  * Cloud White: crisp greys, true black, and a confident blue accent.
  * Sora for headings, Manrope for body. All colours are oklch tokens.
  */
@@ -149,6 +149,7 @@
     font-variant-numeric: tabular-nums lining-nums;
     min-width: 320px;
     -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
   }
 
   h1,
@@ -160,6 +161,36 @@
     font-weight: 700;
     color: var(--color-ink);
   }
+}
+
+@keyframes blur-drift {
+  0%, 100% { transform: translate3d(-8%, -4%, 0) scale(1); opacity: 0.22; }
+  45% { transform: translate3d(14%, 10%, 0) scale(1.08); opacity: 0.38; }
+  72% { transform: translate3d(4%, -12%, 0) scale(0.94); opacity: 0.28; }
+}
+
+.motion-blur {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 9999px;
+  background: color-mix(in oklch, var(--color-primary) 42%, transparent);
+  filter: blur(88px);
+  animation: blur-drift 15s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.motion-blur-large {
+  left: 14%;
+  top: 22%;
+  width: min(54vw, 46rem);
+  aspect-ratio: 1;
+}
+
+.motion-blur-small {
+  right: -4rem;
+  top: -5rem;
+  width: 16rem;
+  aspect-ratio: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -242,4 +273,5 @@
 @media (prefers-reduced-motion: reduce) {
   .review-marquee { overflow-x: auto; }
   .review-marquee-track { animation: none; }
+  .motion-blur { animation: none; }
 }

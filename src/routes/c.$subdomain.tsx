@@ -32,7 +32,7 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/c/$subdomain")({
   head: () => ({
     meta: [
-      { title: "Check in — Mene" },
+      { title: "Check in — Mene:Log" },
       { name: "description", content: "Check in to today's service and get your personal QR code." },
       { property: "og:title", content: "Check in" },
       { property: "og:description", content: "Check in to today's service and get your QR code." },
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/c/$subdomain")({
           We could not load this church's check-in page. Please verify the web address or contact the church administrator.
         </p>
         <Button asChild className="mt-6">
-          <Link to="/">Return to Mene Home</Link>
+          <Link to="/">Return to Mene:Log Home</Link>
         </Button>
       </div>
     </div>
@@ -268,7 +268,7 @@ function CheckIn() {
 
         <div className="text-center">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <Sparkles className="size-3" /> {church?.name ?? "Mene Check-in"}
+             <Sparkles className="size-3" /> {church?.name ?? "Mene:Log Check-in"}
           </span>
           <h1 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl" style={{ color: church?.brand_accent }}>
             Welcome — Let's check you in
@@ -539,7 +539,7 @@ function CheckIn() {
         )}
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Protected by Mene Multi-Tenant Privacy Guarantee · No public directory access
+           Protected by the Mene:Log Multi-Tenant Privacy Guarantee · No public directory access
         </p>
       </motion.div>
     </div>

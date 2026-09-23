@@ -5,13 +5,13 @@ import { ShieldCheck, Lock, EyeOff, Server, Database, CheckCircle2 } from "lucid
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — Mene" },
+      { title: "Privacy Policy — Mene:Log" },
       {
         name: "description",
         content:
-          "How Mene protects church records: multi-tenant isolation, role-based visibility, Ghana Data Protection Act 2012 compliance, and our strict operator zero-access guarantee.",
+          "How Mene:Log protects church records: multi-tenant isolation, role-based visibility, Ghana Data Protection Act 2012 compliance, and our strict operator zero-access guarantee.",
       },
-      { property: "og:title", content: "Privacy Policy — Mene" },
+      { property: "og:title", content: "Privacy Policy — Mene:Log" },
       { property: "og:description", content: "Technical isolation, role-based access control and operator limits explained." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -24,7 +24,7 @@ const sections: Array<{ title: string; icon?: any; body: string[] }> = [
   {
     title: "1. Data Controller vs. Data Processor Principles",
     body: [
-      "Every church using Mene is the absolute Data Controller of its own congregation's information. You decide what information to collect, how long to retain it, and how to communicate with your members.",
+      "Every church using Mene:Log is the absolute Data Controller of its own congregation's information. You decide what information to collect, how long to retain it, and how to communicate with your members.",
       "Prime Haven IT Solutions & Consultancy ('Prime Haven') acts exclusively as a Data Processor. We store, calculate, and transmit data solely on your explicit instructions to deliver the attendance, membership, leadership, and communication features of the platform.",
       "We adhere to the provisions of the Data Protection Act 2012 (Act 843) of Ghana, as well as recognized global data protection and privacy standards.",
     ],
@@ -50,7 +50,7 @@ const sections: Array<{ title: string; icon?: any; body: string[] }> = [
   {
     title: "4. Multi-Tenant Architectural Isolation & Database Security",
     body: [
-      "Every query executed on Mene is strictly scoped to the authenticated user's church tenant identifier. Church A can never inspect, query, or infer records belonging to Church B.",
+      "Every query executed on Mene:Log is strictly scoped to the authenticated user's church tenant identifier. Church A can never inspect, query, or infer records belonging to Church B.",
       "Database connections use Transport Layer Security (TLS 1.3) in transit. Static assets and databases are encrypted at rest with industry-standard AES-256 encryption.",
       "Member attendance codes are stored as cryptographically salted one-way hashes, preventing token enumeration or unauthorized code generation.",
     ],
@@ -77,7 +77,7 @@ const sections: Array<{ title: string; icon?: any; body: string[] }> = [
   {
     title: "7. Congregation Members' Legal Rights",
     body: [
-      "Attendees and members whose records are stored on Mene retain full rights under applicable data protection law:",
+      "Attendees and members whose records are stored on Mene:Log retain full rights under applicable data protection law:",
       "• Right of Access: Members may request a complete copy of their personal attendance history directly from their church administration.",
       "• Right to Rectification: Members may update inaccurate contact details upon subsequent check-ins or by notifying church leadership.",
       "• Right to Erasure / Anonymization: Churches can delete or irreversibly anonymize any member record at any time, instantly wiping personal identifiers while preserving aggregate historical service tallies.",
@@ -107,7 +107,7 @@ function PrivacyPage() {
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold">
             <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">M</span>
-            Mene
+            Mene:Log
           </Link>
           <div className="flex items-center gap-4 text-xs font-semibold">
             <Link to="/terms" className="text-muted-foreground hover:text-foreground">Terms of Use</Link>

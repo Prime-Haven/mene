@@ -6,16 +6,16 @@
 - [x] Harden billing, subscription renewal, and space purchases
 - [x] Route application email through connected Resend
 - [x] Verify public onboarding, address uniqueness, password rules, package-gated leader access, operator console, and Billing fallback
-- [ ] Confirm a real Paystack subscription renewal — blocked by missing Paystack key and webhook configuration
-- [ ] Confirm live Resend delivery — blocked by a verified menelog.site sending domain and recipient test
+- [ ] Confirm a real Paystack subscription renewal — live key is saved; webhook configuration and an owner-approved payment are still required
+- [ ] Confirm live Resend delivery — the updated send-only key is connected; a verified menelog.site sending domain and recipient test are still required
 - [ ] Submit and approve a real church review — blocked until a church administrator signs in on/after the 30th
 
 ## Current request — 2026-09-23
-- [ ] Require email verification after successful onboarding before trial or paid access
-- [ ] Fix onboarding completion failure
-- [ ] Update Resend credentials and verify email path
-- [ ] Add Paystack live credentials and verify payment integration
-- [ ] Add privacy-safe live homepage platform statistics
-- [ ] Add smooth transitions and subtle moving blur background
-- [ ] Add public Ask Mene product-help assistant
-- [ ] Rename the platform everywhere to Mene:Log
+- [x] Require email verification after successful onboarding before trial or paid access
+- [x] Fix onboarding completion failure
+- [x] Update Resend credentials and verify email path
+- [x] Add Paystack live credentials and verify payment integration
+- [x] Add privacy-safe live homepage platform statistics
+- [x] Add smooth transitions and subtle moving blur background
+- [x] Add public Ask Mene:Log product-help assistant
+- [x] Rename the platform everywhere to Mene:Log

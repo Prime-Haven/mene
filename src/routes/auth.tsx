@@ -16,9 +16,9 @@ export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ mode: z.enum(["signin", "signup"]).optional() }),
   head: () => ({
     meta: [
-      { title: "Sign in — Mene" },
-      { name: "description", content: "Sign in or create your church account on Mene." },
-      { property: "og:title", content: "Sign in — Mene" },
+      { title: "Sign in — Mene:Log" },
+      { name: "description", content: "Sign in or create your church account on Mene:Log." },
+      { property: "og:title", content: "Sign in — Mene:Log" },
       { property: "og:description", content: "Sign in or create your church account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -92,7 +92,7 @@ function AuthPage() {
           <span className="grid size-10 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
             <QrCode className="size-5" />
           </span>
-          Mene
+          Mene:Log
         </Link>
 
         <div className="relative max-w-lg space-y-6">
@@ -117,7 +117,7 @@ function AuthPage() {
 
         <div className="relative flex items-center justify-between text-xs text-deep-foreground/50">
           <span>Prime Haven IT Solutions &amp; Consultancy</span>
-          <span>© {new Date().getFullYear()} Mene</span>
+          <span>© {new Date().getFullYear()} Mene:Log</span>
         </div>
       </div>
 
@@ -128,7 +128,7 @@ function AuthPage() {
             <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-md">
               <QrCode className="size-4.5" />
             </span>
-            Mene
+            Mene:Log
           </Link>
 
           <motion.div

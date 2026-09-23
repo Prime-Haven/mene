@@ -14,9 +14,9 @@ const CameraScanner = lazy(() => import("@/components/CameraScanner"));
 export const Route = createFileRoute("/_app/scan")({
   head: () => ({
     meta: [
-      { title: "Scan & check in — Mene" },
+      { title: "Scan & check in — Mene:Log" },
       { name: "description", content: "Scan member QR codes to record attendance for an open service." },
-      { property: "og:title", content: "Scan & check in — Mene" },
+      { property: "og:title", content: "Scan & check in — Mene:Log" },
       { property: "og:description", content: "Record attendance by scanning member QR codes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

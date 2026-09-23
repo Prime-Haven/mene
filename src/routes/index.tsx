@@ -24,17 +24,19 @@ import { Button } from "@/components/ui/button";
 import { VerseTyper } from "@/components/VerseTyper";
 import { ReviewCarousel } from "@/components/ReviewCarousel";
 import { SiteFooter } from "@/components/SiteFooter";
+import { HomepageStats } from "@/components/HomepageStats";
+import { PublicAskMene } from "@/components/PublicAskMene";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Mene — church attendance and membership, made simple" },
+      { title: "Mene:Log — church attendance and membership, made simple" },
       {
         name: "description",
         content:
-          "Mene gives churches QR check-in, a complete membership registry, leadership structure and clear attendance reports.",
+          "Mene:Log gives churches QR check-in, a complete membership registry, leadership structure and clear attendance reports.",
       },
-      { property: "og:title", content: "Mene — church attendance and membership, made simple" },
+      { property: "og:title", content: "Mene:Log — church attendance and membership, made simple" },
       {
         property: "og:description",
         content: "QR check-in, membership, communication and reporting for churches in Ghana.",
@@ -63,7 +65,7 @@ const tiers = [
 ];
 
 const faqs = [
-  { q: "Do members need to install an app?", a: "No. Members can check in from any browser or present the QR code saved on their phone. Church teams can install Mene to their home screen for app-like access." },
+  { q: "Do members need to install an app?", a: "No. Members can check in from any browser or present the QR code saved on their phone. Church teams can install Mene:Log to their home screen for app-like access." },
   { q: "How are subscriptions billed?", a: "Plans are billed monthly in US dollars. Payments are secured through Paystack and you receive an invoice before renewal." },
   { q: "What happens if we pause?", a: "Your records are not deleted. Check-in and editing pause, while your church keeps read and export access until renewal." },
   { q: "Is our congregation's information protected?", a: "Yes. Every church is isolated at the data level, access follows staff responsibilities, and sensitive member details are protected by strict permissions." },
@@ -82,14 +84,14 @@ function LandingPage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-5">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between rounded-2xl border border-white/20 bg-deep/80 px-4 text-deep-foreground shadow-2xl backdrop-blur-2xl sm:px-6">
-          <Link to="/" aria-label="Mene home" className="flex items-center gap-2.5">
+          <Link to="/" aria-label="Mene:Log home" className="flex items-center gap-2.5">
             <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
               <span className="size-3.5 rounded-sm bg-primary-foreground" />
             </span>
-            <span className="font-display text-lg font-bold tracking-tight text-white">Mene</span>
+            <span className="font-display text-lg font-bold tracking-tight text-deep-foreground">Mene:Log</span>
           </Link>
           <nav className="hidden items-center gap-8 text-xs font-semibold text-white/80 md:flex">
-            <a href="#why" className="transition-colors hover:text-white">Why Mene</a>
+            <a href="#why" className="transition-colors hover:text-white">Why Mene:Log</a>
             <a href="#features" className="transition-colors hover:text-white">Features</a>
             <a href="#pricing" className="transition-colors hover:text-white">Plans</a>
             <a href="#faq" className="transition-colors hover:text-white">FAQ</a>
@@ -127,7 +129,7 @@ function LandingPage() {
               className="mx-auto mt-2 grid max-w-7xl overflow-hidden rounded-2xl border border-white/20 bg-deep/95 p-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-2xl md:hidden"
             >
               {[
-                ["#why", "Why Mene"],
+                ["#why", "Why Mene:Log"],
                 ["#features", "Features"],
                 ["#pricing", "Plans"],
                 ["#faq", "Questions & Answers"],
@@ -163,14 +165,15 @@ function LandingPage() {
             playsInline
             aria-hidden="true"
           />
-          <div className="absolute inset-0 bg-deep/65" />
+           <div className="absolute inset-0 bg-deep/65" />
+           <div aria-hidden className="motion-blur motion-blur-large" />
           <div className="absolute inset-0 bg-[linear-gradient(to_top,var(--deep)_0%,transparent_55%)] opacity-70" />
            <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto flex h-full max-w-7xl items-end justify-center px-5 pb-24 text-center sm:pb-20">
              <div className="max-w-3xl text-deep-foreground">
               <p className="mb-5 text-xs font-bold uppercase tracking-[0.18em] text-deep-foreground/70">Made for churches. Built for people.</p>
               <VerseTyper />
                <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-deep-foreground/80 sm:text-lg">
-                Mene brings attendance, membership, leadership and communication together so your church can care with clarity.
+                 Mene:Log brings attendance, membership, leadership and communication together so your church can care with clarity.
               </p>
                <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <Button asChild size="lg" className="h-12 bg-primary px-6 text-primary-foreground hover:bg-primary/90">
@@ -188,7 +191,7 @@ function LandingPage() {
         </div>
       </section>
 
-      <main className="relative z-10 -mt-[28svh]">
+       <main className="relative z-10 -mt-[28svh]">
         <section id="why" className="px-3 sm:px-5">
           <div className="mx-auto max-w-7xl rounded-t-lg border-x border-t border-deep-foreground/20 bg-deep/80 px-5 py-14 text-deep-foreground shadow-2xl backdrop-blur-2xl sm:px-10 lg:px-14">
             <div className="grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
@@ -209,6 +212,8 @@ function LandingPage() {
           </div>
         </section>
 
+        <HomepageStats />
+
         <section id="features" className="bg-background px-5 py-24 sm:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-6 lg:grid-cols-2 lg:items-end">
@@ -216,7 +221,7 @@ function LandingPage() {
                 <p className="text-eyebrow">Built around real church work</p>
                 <h2 className="mt-4 max-w-2xl font-display text-3xl font-bold leading-tight sm:text-5xl">Less administration. More room for ministry.</h2>
               </div>
-              <p className="max-w-lg text-muted-foreground lg:justify-self-end">Every part of Mene connects, so teams spend less time reconciling lists and more time responding to people.</p>
+              <p className="max-w-lg text-muted-foreground lg:justify-self-end">Every part of Mene:Log connects, so teams spend less time reconciling lists and more time responding to people.</p>
             </div>
             <div className="mt-12 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
               {features.map(({ icon: Icon, title, body }, index) => (
@@ -271,7 +276,7 @@ function LandingPage() {
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-deep-foreground/50">Protection by design</p>
               <h2 className="mt-4 font-display text-3xl font-bold text-deep-foreground sm:text-5xl">Your congregation’s data belongs to your church.</h2>
-              <p className="mt-5 max-w-xl leading-relaxed text-deep-foreground/65">Mene isolates each church’s records and applies permissions to every request, not only what appears on screen.</p>
+              <p className="mt-5 max-w-xl leading-relaxed text-deep-foreground/65">Mene:Log isolates each church’s records and applies permissions to every request, not only what appears on screen.</p>
             </div>
             <div className="grid gap-px overflow-hidden rounded-lg border border-deep-foreground/15 bg-deep-foreground/15 sm:grid-cols-2">
               {[[Lock, "Church-level isolation"], [ShieldCheck, "Role-based access"], [Users, "Protected minors"], [Smartphone, "Secure check-in"]].map(([Icon, label]) => {
@@ -295,12 +300,13 @@ function LandingPage() {
           <div className="mx-auto max-w-4xl">
             <h2 className="font-display text-4xl font-bold text-primary-foreground sm:text-6xl">Ready before next Sunday.</h2>
             <p className="mx-auto mt-5 max-w-xl text-primary-foreground/70">Create your church, add a service and welcome your first member in minutes.</p>
-             <Button asChild size="lg" className="mt-8 h-12 bg-deep text-deep-foreground hover:bg-deep/90"><Link to="/onboarding">Start with Mene <ArrowRight /></Link></Button>
+             <Button asChild size="lg" className="mt-8 h-12 bg-deep text-deep-foreground hover:bg-deep/90"><Link to="/onboarding">Start with Mene:Log <ArrowRight /></Link></Button>
           </div>
         </section>
       </main>
 
       <SiteFooter />
+      <PublicAskMene />
     </div>
   );
 }

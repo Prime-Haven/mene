@@ -120,7 +120,7 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   branding: "Church branding",
   reports_basic: "Reports",
   reports_advanced: "Advanced reports",
-  ask_mene: "Ask Mene AI",
+  ask_mene: "Ask Mene:Log AI",
   structure: "Leadership structure",
   groups: "Groups",
   branches: "Multiple branches",
