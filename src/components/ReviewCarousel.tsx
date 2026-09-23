@@ -1,13 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 type PublicReview = {
   id: string;
@@ -33,13 +26,23 @@ export function ReviewCarousel() {
     },
   });
 
-  if (isLoading || !data?.length) return null;
+  if (isLoading) return <div className="mt-12 h-56 animate-pulse rounded-lg bg-primary-foreground/10" />;
+
+  if (!data?.length) {
+    return (
+      <div className="mt-12 border-y border-primary-foreground/20 py-9 text-sm text-primary-foreground/70">
+        Stories from churches using Mene will appear here after they are reviewed.
+      </div>
+    );
+  }
+
+  const reviews = data.length > 1 ? [...data, ...data] : data;
 
   return (
-    <Carousel opts={{ align: "start", loop: data.length > 1 }} className="mt-14">
-      <CarouselContent>
-        {data.map((review) => (
-          <CarouselItem key={review.id} className="sm:basis-1/2 lg:basis-1/3">
+    <div className="review-marquee mt-14 overflow-hidden" tabIndex={0} aria-label="Church reviews">
+      <div className={data.length > 1 ? "review-marquee-track" : "max-w-xl"}>
+        {reviews.map((review, copyIndex) => (
+          <div key={`${review.id}-${copyIndex}`} className="w-[min(82vw,24rem)] shrink-0">
             <blockquote className="flex h-full min-h-64 flex-col justify-between rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 p-7 backdrop-blur-lg">
               <div>
                 <div className="flex gap-0.5">
@@ -65,15 +68,9 @@ export function ReviewCarousel() {
                 </span>
               </footer>
             </blockquote>
-          </CarouselItem>
+          </div>
         ))}
-      </CarouselContent>
-      {data.length > 1 && (
-        <div className="mt-6 flex justify-end gap-2">
-          <CarouselPrevious className="static translate-y-0 border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" />
-          <CarouselNext className="static translate-y-0 border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" />
-        </div>
-      )}
-    </Carousel>
+      </div>
+    </div>
   );
 }

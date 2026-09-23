@@ -95,7 +95,7 @@ const sections: Array<{ title: string; icon?: any; body: string[] }> = [
   {
     title: "9. Contact and Data Protection Inquiries",
     body: [
-      "For questions regarding our privacy architecture, multi-tenant isolation, or data processor obligations, contact our Data Protection Team at Prime Haven IT Solutions & Consultancy via legal@mene.church or through the support channels in your church console.",
+      "For questions regarding our privacy architecture, multi-tenant isolation, or data processor obligations, contact our Data Protection Team at Prime Haven IT Solutions & Consultancy via legal@menelog.site or through the support channels in your church console.",
     ],
   },
 ];

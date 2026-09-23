@@ -14,7 +14,7 @@ export type SendResult = {
 };
 
 export function emailConfigured(): boolean {
-  return !!process.env["RESEND_API_KEY"];
+  return !!process.env["RESEND_API_KEY"] && !!process.env["LOVABLE_API_KEY"];
 }
 
 export function smsConfigured(): boolean {
@@ -67,15 +67,22 @@ export async function sendEmail(options: {
 }): Promise<SendResult> {
   const key = process.env["RESEND_API_KEY"];
   if (!key) return { ok: false, error: "Email is not configured yet" };
-  const from = process.env["PATMOS_EMAIL_FROM"] ?? "notifications@resend.dev";
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  if (!lovableKey) return { ok: false, error: "Email is not configured yet" };
+  const from = process.env["MENE_EMAIL_FROM"] ?? "Mene <onboarding@resend.dev>";
   const safeName = options.fromName.replace(/[<>"\n\r]/g, "").slice(0, 60) || "Mene";
+  const sender = from.includes("<") ? from : `${safeName} <${from}>`;
 
   try {
-    const response = await fetch("https://api.resend.com/emails", {
+    const response = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${lovableKey}`,
+        "X-Connection-Api-Key": key,
+      },
       body: JSON.stringify({
-        from: `${safeName} <${from}>`,
+        from: sender,
         to: [options.to],
         subject: options.subject,
         html: options.html,

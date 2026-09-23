@@ -58,6 +58,7 @@ export const getChurchBranding = createServerFn({ method: "GET" })
       id: string;
       name: string;
       subdomain: string;
+      tier: "basic" | "standard" | "premium";
       logo_path: string | null;
       background_path: string | null;
       brand_primary: string;

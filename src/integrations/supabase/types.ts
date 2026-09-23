@@ -1179,6 +1179,7 @@ export type Database = {
           subdomain: string
           submit_button_text: string
           tier: Database["public"]["Enums"]["tenant_tier"]
+          trial_ends_at: string | null
           welcome_message: string | null
         }
         Insert: {
@@ -1207,6 +1208,7 @@ export type Database = {
           subdomain: string
           submit_button_text?: string
           tier?: Database["public"]["Enums"]["tenant_tier"]
+          trial_ends_at?: string | null
           welcome_message?: string | null
         }
         Update: {
@@ -1235,6 +1237,7 @@ export type Database = {
           subdomain?: string
           submit_button_text?: string
           tier?: Database["public"]["Enums"]["tenant_tier"]
+          trial_ends_at?: string | null
           welcome_message?: string | null
         }
         Relationships: []
@@ -1245,10 +1248,12 @@ export type Database = {
     }
     Functions: {
       anonymise_member: { Args: { p_member: string }; Returns: undefined }
-      apply_space_purchase: {
-        Args: { p_reference: string }
-        Returns: undefined
-      }
+      apply_space_purchase:
+        | { Args: { p_reference: string }; Returns: undefined }
+        | {
+            Args: { p_amount?: number; p_reference: string }
+            Returns: undefined
+          }
       apply_successful_payment: {
         Args: {
           p_amount?: number

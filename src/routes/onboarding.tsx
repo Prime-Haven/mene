@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, ArrowLeft, ArrowRight, CreditCard, ShieldCheck, Sparkles, Building2, User, KeyRound, Clock, Smartphone } from "lucide-react";
+import { Check, ArrowLeft, ArrowRight, ShieldCheck, Sparkles, Building2, User, KeyRound, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -65,7 +65,11 @@ const tierCopy: Array<{
   },
 ];
 
-const STEPS = ["About you", "Your church", "Pick package", "Payment", "Security"] as const;
+const STEPS = ["About you", "Your church", "Pick package", "Security"] as const;
+
+function toHandle(value: string) {
+  return value.toLowerCase().trim().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+}
 
 function Onboarding() {
   const navigate = useNavigate();
@@ -94,18 +98,18 @@ function Onboarding() {
   // Step 3: Package
   const [tier, setTier] = useState<Tier>("standard");
 
-  // Step 4: Payment
-  const [payMethod, setPayMethod] = useState<"momo" | "card">("momo");
-  const [momoNetwork, setMomoNetwork] = useState<"mtn" | "telecel" | "at">("mtn");
-  const [momoNumber, setMomoNumber] = useState("");
-  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
-  const [payReference, setPayReference] = useState("");
-
-  // Step 5: Security
+  // Step 4: Security
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
   const hasSession = !loading && !!session;
+  const suggestions = useMemo(() => {
+    const base = toHandle(churchName);
+    if (base.length < 3) return [];
+    return Array.from(new Set([base, `${base}-church`, `${base}-${toHandle(churchCity)}`]))
+      .filter((value) => value.length >= 3 && value.length <= 40)
+      .slice(0, 3);
+  }, [churchName, churchCity]);
 
   useEffect(() => {
     if (session?.user.email) setEmail((value) => value || session.user.email!);
@@ -117,6 +121,7 @@ function Onboarding() {
 
   useEffect(() => {
     const value = subdomain.trim().toLowerCase();
+    setAvailable(null);
     if (!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(value)) {
       setAvailable(null);
       return;
@@ -136,19 +141,8 @@ function Onboarding() {
     if (step === 0) return fullName.trim().length > 1 && /.+@.+\..+/.test(email) && phone.trim().length > 8 && location.trim().length > 1;
     if (step === 1) return churchName.trim().length > 1 && churchCity.trim().length > 1 && available === true;
     if (step === 2) return true;
-    if (step === 3) return paymentConfirmed || (payMethod === "momo" && momoNumber.trim().length > 8);
     return hasSession || (passwordIsStrong(password) && password === confirm);
   })();
-
-  async function handleSimulatePayment() {
-    setBusy(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    const ref = `PAY-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 8999 + 1000)}`;
-    setPayReference(ref);
-    setPaymentConfirmed(true);
-    setBusy(false);
-    toast.success("Payment verified! Proceed to security step.");
-  }
 
   async function finish() {
     setBusy(true);
@@ -163,10 +157,11 @@ function Onboarding() {
           },
         });
         if (signUpError) throw signUpError;
-        await supabase.auth.signInWithPassword({ email, password });
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) throw new Error("Verify your email, then return here to finish creating your church.");
       }
 
-      // Provision church with pending_approval status
+      // The database reserves the address and creates the trial atomically.
       const { data: tenantId, error } = await supabase.rpc("provision_tenant", {
         p_name: churchName.trim(),
         p_subdomain: subdomain.trim().toLowerCase(),
@@ -175,29 +170,12 @@ function Onboarding() {
         ...(churchPhone.trim() ? { p_contact_phone: churchPhone.trim() } : phone ? { p_contact_phone: phone } : {}),
       });
 
-      if (error) {
-        // Fallback direct create if RPC has strict signature
-        await supabase.from("tenants").insert({
-          name: churchName.trim(),
-          subdomain: subdomain.trim().toLowerCase(),
-          tier,
-          contact_email: churchEmail.trim() || email,
-          contact_phone: churchPhone.trim() || phone,
-          approval_status: "pending_approval",
-          status: "active",
-          payment_reference: payReference || "PAID_ONBOARDING",
-        });
-      } else if (tenantId) {
-        // Attach payment reference and pending status
-        await supabase.from("tenants").update({
-          approval_status: "pending_approval",
-          payment_reference: payReference || "PAID_ONBOARDING",
-        }).eq("id", tenantId);
-      }
+      if (error) throw error;
+      if (!tenantId) throw new Error("Your church account could not be created.");
 
       await qc.invalidateQueries({ queryKey: ["membership"] });
       setSubmitted(true);
-      toast.success("Church registration submitted! Awaiting administrator approval.");
+      toast.success("Your 14-day trial is ready and your church was submitted for approval.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not complete onboarding");
     } finally {
@@ -219,11 +197,11 @@ function Onboarding() {
           <h1 className="font-display text-3xl font-bold">Registration Received!</h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
             Thank you, <b className="text-foreground">{fullName}</b>. Your account for{" "}
-            <b className="text-foreground">{churchName}</b> has been received along with your {tier.toUpperCase()} package payment confirmation (Ref: {payReference || "PAID"}).
+             <b className="text-foreground">{churchName}</b> is now on a 14-day {tier.toUpperCase()} trial and has been submitted for approval.
           </p>
           <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 text-left text-xs space-y-2">
             <p className="font-semibold text-foreground">What happens next?</p>
-            <p className="text-muted-foreground">• A verification link was sent to <b>{email}</b>.</p>
+             <p className="text-muted-foreground">• Your permanent check-in address is <b>menelog.site/c/{subdomain}</b>.</p>
             <p className="text-muted-foreground">• Our platform administrator will approve and activate your church workspace.</p>
             <p className="text-muted-foreground">• Once approved, you can sign in anytime at <b>/auth</b> to access your dashboard.</p>
           </div>
@@ -235,20 +213,22 @@ function Onboarding() {
     );
   }
 
-  const selectedTier = (tierCopy.find((t) => t.id === tier) ?? tierCopy[1])!;
+  const selectedTier = tierCopy.find((t) => t.id === tier);
+  if (!selectedTier) return null;
 
   return (
-    <div className="mx-auto max-w-2xl px-5 py-12">
+    <div className="min-h-screen bg-deep px-5 py-10 text-deep-foreground sm:py-14">
+      <div className="mx-auto max-w-3xl">
       <div className="flex items-center justify-between">
         <p className="text-eyebrow">
           Step {step + 1} of {STEPS.length} · {STEPS[step]}
         </p>
-        <span className="text-xs text-muted-foreground">Church Onboarding</span>
+       <Link to="/" className="font-display text-lg font-bold text-deep-foreground">Mene</Link>
       </div>
 
-      <h1 className="mt-2 font-display text-3xl font-bold tracking-tight">Set up your church on Mene</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Guided setup in 5 simple steps. You will pick your package and verify payment before final approval.
+       <h1 className="mt-5 max-w-2xl font-display text-4xl font-bold text-deep-foreground sm:text-5xl">Set up your church on Mene</h1>
+       <p className="mt-3 max-w-xl text-sm text-deep-foreground/70">
+         Four focused steps, then your 14-day trial begins. Pay from Billing when you are ready.
       </p>
 
       {/* Progress Bar */}
@@ -264,11 +244,11 @@ function Onboarding() {
       </div>
 
       <form
-        className="surface mt-8 space-y-6 p-6 sm:p-8 shadow-xl backdrop-blur-xl"
+         className="mt-8 space-y-6 rounded-lg border border-deep-foreground/15 bg-background p-6 text-foreground shadow-2xl sm:p-8"
         onSubmit={(e) => {
           e.preventDefault();
           if (!stepValid) return;
-          if (step < 4) setStep(step + 1);
+           if (step < 3) setStep(step + 1);
           else void finish();
         }}
       >
@@ -312,7 +292,7 @@ function Onboarding() {
               <div className="space-y-2 pt-2">
                 <Label htmlFor="subdomain">Permanent check-in address</Label>
                 <div className="flex items-center rounded-xl border border-input bg-background/80 px-3 focus-within:ring-2 focus-within:ring-primary/20">
-                  <span className="text-xs font-semibold text-muted-foreground">mene.church/c/</span>
+                  <span className="text-xs font-semibold text-muted-foreground">menelog.site/c/</span>
                   <input
                     id="subdomain"
                     className="h-11 flex-1 bg-transparent px-2 text-sm font-semibold outline-none"
@@ -324,6 +304,16 @@ function Onboarding() {
                   {available === true && <span className="text-xs font-bold text-success">✓ Available</span>}
                   {available === false && <span className="text-xs font-bold text-destructive">Taken</span>}
                 </div>
+                {suggestions.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {suggestions.map((suggestion) => (
+                      <Button key={suggestion} type="button" size="sm" variant="outline" onClick={() => setSubdomain(suggestion)}>
+                        {suggestion}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">This address is checked against every church before it can be reserved.</p>
               </div>
             </motion.div>
           )}
@@ -344,11 +334,12 @@ function Onboarding() {
                 {tierCopy.map((t) => {
                   const selected = t.id === tier;
                   return (
-                    <button
+                    <Button
                       key={t.id}
                       type="button"
                       onClick={() => setTier(t.id)}
-                      className={`relative flex flex-col justify-between rounded-2xl border p-4 text-left transition-all ${
+                      variant="outline"
+                      className={`relative h-auto whitespace-normal flex-col items-stretch justify-between rounded-lg p-4 text-left ${
                         selected
                           ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"
                           : "border-border hover:bg-muted/30"
@@ -374,7 +365,7 @@ function Onboarding() {
                           </li>
                         ))}
                       </ul>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -390,125 +381,18 @@ function Onboarding() {
               className="space-y-4"
             >
               <div className="flex items-center gap-2 border-b border-border/40 pb-3">
-                <CreditCard className="size-5 text-primary" />
-                <h2 className="font-display text-base font-bold">Package Payment &amp; Billing</h2>
-              </div>
-
-              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">Selected Package</p>
-                  <p className="font-display text-xl font-bold">{selectedTier.name} Subscription</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">Total Due</p>
-                  <p className="font-display text-2xl font-extrabold text-primary">{selectedTier.price}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setPayMethod("momo")}
-                  className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-semibold transition-all ${
-                    payMethod === "momo" ? "border-primary bg-primary/10 text-primary ring-1 ring-primary" : "border-border"
-                  }`}
-                >
-                  <Smartphone className="size-4" /> Mobile Money
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPayMethod("card")}
-                  className={`flex items-center justify-center gap-2 rounded-xl border p-3 text-sm font-semibold transition-all ${
-                    payMethod === "card" ? "border-primary bg-primary/10 text-primary ring-1 ring-primary" : "border-border"
-                  }`}
-                >
-                  <CreditCard className="size-4" /> Bank Card
-                </button>
-              </div>
-
-              {payMethod === "momo" && (
-                <div className="space-y-3 pt-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs font-semibold">Select Network</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(["mtn", "telecel", "at"] as const).map((net) => (
-                        <button
-                          key={net}
-                          type="button"
-                          onClick={() => setMomoNetwork(net)}
-                          className={`rounded-xl border py-2 text-xs font-bold uppercase transition-all ${
-                            momoNetwork === net ? "border-primary bg-primary text-primary-foreground" : "border-border"
-                          }`}
-                        >
-                          {net}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <Field label="Mobile Money Number" value={momoNumber} onChange={setMomoNumber} placeholder="024 000 0000" inputMode="tel" />
-                </div>
-              )}
-
-              <div className="rounded-xl border border-border/60 bg-muted/20 p-4">
-                {paymentConfirmed ? (
-                  <div className="flex items-center gap-3 text-success">
-                    <Check className="size-5 shrink-0" />
-                    <div>
-                      <p className="font-bold text-sm">Payment Verified Successfully</p>
-                      <p className="text-xs text-muted-foreground">Reference: {payReference}</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-xs text-muted-foreground">
-                      Secured via Paystack Payment Gateway. Click below to verify and complete transaction.
-                    </p>
-                    <Button
-                      type="button"
-                      onClick={handleSimulatePayment}
-                      disabled={busy}
-                      className="w-full rounded-xl bg-success text-success-foreground hover:bg-success/90"
-                    >
-                      {busy ? "Processing transaction…" : `Pay ${selectedTier.price} via Paystack`}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-
-          {step === 4 && (
-            <motion.div
-              key="step-4"
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              className="space-y-4"
-            >
-              <div className="flex items-center gap-2 border-b border-border/40 pb-3">
                 <KeyRound className="size-5 text-primary" />
                 <h2 className="font-display text-base font-bold">Security Credentials</h2>
               </div>
-              <PasswordField id="pass" label="Create account password" value={password} onChange={setPassword} />
-              <div className="space-y-1.5">
-                <Label htmlFor="confirm" className="text-xs font-semibold">Confirm password</Label>
-                <Input
-                  id="confirm"
-                  type="password"
-                  autoComplete="new-password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  required
-                  className="h-11 rounded-xl"
-                />
-                {confirm.length > 0 && confirm !== password && (
-                  <p className="text-xs text-destructive">Both passwords must match.</p>
-                )}
-              </div>
+               <div className="grid gap-5 sm:grid-cols-2">
+                 <PasswordField id="pass" label="Create account password" value={password} onChange={setPassword} />
+                 <div className="space-y-1.5"><Label htmlFor="confirm">Confirm password</Label><Input id="confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required maxLength={16}/>{confirm.length > 0 && confirm !== password && <p className="text-xs text-destructive">Both passwords must match.</p>}</div>
+               </div>
+               <div className="rounded-lg border border-primary/20 bg-primary/5 p-4"><p className="font-semibold">14-day {selectedTier.name} trial</p><p className="mt-1 text-xs text-muted-foreground">No payment is collected now. Your monthly price will be {selectedTier.price} when you choose to pay from Billing.</p></div>
               <div className="flex items-start gap-2 pt-2 text-xs text-muted-foreground">
                 <ShieldCheck className="mt-0.5 size-4 text-primary shrink-0" />
                 <span>
-                  After submitting, your church account is reviewed and approved by the platform operator before activation.
+           After submitting, your trial starts and the platform operator reviews your church account.
                 </span>
               </div>
             </motion.div>
@@ -530,11 +414,12 @@ function Onboarding() {
             disabled={!stepValid || busy}
             className="gap-2 rounded-xl px-6"
           >
-            {busy ? "Processing…" : step < 4 ? "Continue" : "Submit Church for Approval"}
+             {busy ? "Processing…" : step < 3 ? "Continue" : "Start 14-day trial"}
             {!busy && <ArrowRight className="size-4" />}
           </Button>
         </div>
       </form>
+      </div>
     </div>
   );
 }

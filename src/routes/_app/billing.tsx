@@ -45,6 +45,7 @@ export const Route = createFileRoute("/_app/billing")({
 function Billing() {
   const ctx = useTenant();
   const { tenant } = ctx;
+  const trialActive = !!tenant?.trial_ends_at && new Date(tenant.trial_ends_at).getTime() > Date.now();
   const pay = useServerFn(startPayment);
 
   const renew = useMutation({
@@ -126,8 +127,8 @@ function Billing() {
           )}
         </div>
         <div className="surface p-5">
-          <p className="text-eyebrow">Renews</p>
-          <p className="mt-2 text-2xl font-bold">{sub?.period_end ?? "—"}</p>
+           <p className="text-eyebrow">{trialActive ? "Trial ends" : "Renews"}</p>
+           <p className="mt-2 text-2xl font-bold">{trialActive ? new Intl.DateTimeFormat(undefined,{dateStyle:"medium"}).format(new Date(tenant.trial_ends_at as string)) : sub?.period_end ?? "—"}</p>
         </div>
         <div className="surface p-5">
           <p className="text-eyebrow">Payment method</p>
@@ -137,6 +138,8 @@ function Billing() {
           </p>
         </div>
       </div>
+
+      {trialActive && <div className="rounded-lg border border-primary/25 bg-primary/5 p-4 text-sm"><b>Your trial is active.</b> Choose a package below before it ends to continue uninterrupted.</div>}
 
       <div className="surface p-5">
         <h2 className="text-base font-semibold">What your package includes</h2>
