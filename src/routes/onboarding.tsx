@@ -235,7 +235,7 @@ function Onboarding() {
     );
   }
 
-  const selectedTier = tierCopy.find((t) => t.id === tier) ?? tierCopy[1];
+  const selectedTier = (tierCopy.find((t) => t.id === tier) ?? tierCopy[1])!;
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12">

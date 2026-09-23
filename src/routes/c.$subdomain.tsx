@@ -20,6 +20,7 @@ import {
   Phone,
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getBrandAssetUrl, getChurchBranding, getPublicOpenServices, submitSelfCheckin } from "@/lib/checkin.functions";
 import { getPublicLeaderTypes, getPublicLeaders, registerLeader } from "@/lib/leaders.functions";
