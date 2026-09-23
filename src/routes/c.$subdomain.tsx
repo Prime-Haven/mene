@@ -25,6 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getBrandAssetUrl, getChurchBranding, getPublicOpenServices, submitSelfCheckin } from "@/lib/checkin.functions";
 import { getPublicLeaderTypes, getPublicLeaders, registerLeader } from "@/lib/leaders.functions";
 import { passwordChecks, passwordIsStrong, PASSWORD_RULE_TEXT } from "@/lib/password";
+import heroPoster from "@/assets/mene-worship-poster.jpg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -132,7 +133,7 @@ function CheckIn() {
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [done, setDone] = useState<{ qr: string; returning: boolean; service: string } | null>(null);
+  const [done, setDone] = useState<{ qr: string; returning: boolean; service: string; file: string } | null>(null);
   const isiPhone = typeof navigator !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   useEffect(() => {
@@ -140,11 +141,11 @@ function CheckIn() {
   }, [services]);
 
   useEffect(() => {
-    if (!done || isiPhone) return;
+    if (!done || isiPhone) return; // iPhone saves via press-and-hold
     const timer = window.setTimeout(() => {
       const a = document.createElement("a");
       a.href = done.qr;
-      a.download = "my-mene-member-code.png";
+      a.download = done.file;
       a.click();
     }, 350);
     return () => window.clearTimeout(timer);
@@ -155,7 +156,7 @@ function CheckIn() {
     if (isiPhone && navigator.share) {
       try {
         const blob = await (await fetch(done.qr)).blob();
-        const file = new File([blob], "my-mene-member-code.png", { type: "image/png" });
+        const file = new File([blob], done.file, { type: "image/png" });
         await navigator.share({ title: "My church member code", files: [file] });
         return;
       } catch {
@@ -164,7 +165,7 @@ function CheckIn() {
     }
     const a = document.createElement("a");
     a.href = done.qr;
-    a.download = "my-mene-member-code.png";
+    a.download = done.file;
     if (isiPhone) window.open(done.qr, "_blank");
     else a.click();
   }
@@ -195,8 +196,9 @@ function CheckIn() {
         setError(result.message);
         return;
       }
-      const qr = await QRCode.toDataURL(result.token, { width: 420, margin: 1 });
-      setDone({ qr, returning: result.returning, service: result.service });
+      const qr = await labelledQr(result.token, church?.name ?? "", form.full_name);
+      const slug = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      setDone({ qr, returning: result.returning, service: result.service, file: `${slug(church?.name ?? "church")}-${slug(form.full_name)}-qr.png` });
     } catch {
       setError("Something went wrong. Please ask an usher for help.");
     } finally {
@@ -290,7 +292,7 @@ function CheckIn() {
         </div>
 
         {/* Member / Leader tab switch */}
-         <div className={`mt-6 grid gap-1.5 rounded-2xl border border-white/20 bg-card/75 p-1.5 shadow-md backdrop-blur-xl ${leaderAreaOpen ? "grid-cols-2" : "grid-cols-1"}`}>
+         <div className={`mt-6 grid gap-1.5 rounded-2xl border border-white/20 bg-black/30 p-1.5 shadow-md backdrop-blur-xl ${leaderAreaOpen ? "grid-cols-2" : "grid-cols-1"}`}>
            <Button
             type="button"
              variant="ghost"
@@ -320,7 +322,7 @@ function CheckIn() {
         {tab === "leader" ? (
           <LeaderArea subdomain={subdomain} churchName={church?.name ?? "this church"} leaderTypes={leaderTypes} />
         ) : (
-          <form onSubmit={onSubmit} className="surface mt-6 space-y-4 p-5 sm:p-6 shadow-xl backdrop-blur-xl">
+          <form onSubmit={onSubmit} className="mt-6 rounded-3xl border border-white/15 bg-black/35 space-y-4 p-5 sm:p-6 shadow-xl backdrop-blur-xl">
             <div className="space-y-1.5">
               <Label htmlFor="service" className="text-xs font-semibold">Service</Label>
               <select
@@ -524,8 +526,8 @@ function CheckIn() {
           </form>
         )}
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-           Protected by the Mene:Log Multi-Tenant Privacy Guarantee · No public directory access
+        <p className="mt-6 text-center text-[11px] text-white/50">
+           Powered by Mene:Log · Protected by the privacy guarantee · No public directory access
         </p>
       </motion.div>
     </div>
@@ -924,4 +926,28 @@ function LeaderArea({
       </AnimatePresence>
     </div>
   );
+}
+
+/** QR code PNG with the church and member name printed underneath. */
+export async function labelledQr(token: string, church: string, name: string, kind = "Member"): Promise<string> {
+  const qr = await QRCode.toDataURL(token, { width: 480, margin: 2 });
+  const img = new Image();
+  img.src = qr;
+  await img.decode();
+  const canvas = document.createElement("canvas");
+  canvas.width = 480;
+  canvas.height = 580;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return qr;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, 480, 580);
+  ctx.drawImage(img, 0, 0, 480, 480);
+  ctx.fillStyle = "#0f172a";
+  ctx.textAlign = "center";
+  ctx.font = "bold 24px sans-serif";
+  ctx.fillText(name.slice(0, 34), 240, 512);
+  ctx.fillStyle = "#3b82f6";
+  ctx.font = "600 16px sans-serif";
+  ctx.fillText(`${kind} · ${church}`.slice(0, 50), 240, 544);
+  return canvas.toDataURL("image/png");
 }
