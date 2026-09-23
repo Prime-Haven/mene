@@ -22,7 +22,7 @@
 - [x] Keep the homepage Ask Mene:Log button fixed at the viewport's bottom-right
 
 ## Tiered account dashboard redesign — 2026-09-23
-- [ ] Restyle the signed-in shell using the supplied compact operations-dashboard reference
-- [ ] Redesign the dashboard with compact controls, KPI tiles, charts, and useful empty states
-- [ ] Preserve Basic, Standard, and Premium feature visibility and limits
+- [x] Restyle the signed-in shell using the supplied compact operations-dashboard reference
+- [x] Redesign the dashboard with compact controls, KPI tiles, charts, and useful empty states
+- [x] Preserve Basic, Standard, and Premium feature visibility and limits
 - [ ] Verify desktop and mobile layouts, motion, navigation, and browser stability
