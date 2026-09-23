@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getBrandAssetUrl } from "@/lib/checkin.functions";
 import { useServerFn } from "@tanstack/react-start";
+import { TwoStepSettings } from "@/components/TwoStep";
+import { ExportChurchData } from "@/components/ExportChurchData";
 
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({
