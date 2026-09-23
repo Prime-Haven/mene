@@ -12,4 +12,18 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Public browser configuration must be present in the compiled bundle.
+    // Lovable Cloud normally injects these values, while these non-secret
+    // fallbacks keep published auth and data pages functional if injection is
+    // unavailable during a deployment. Private credentials remain server-only.
+    define: {
+      "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(
+        "https://edhtwycqgiokiwnmtlio.supabase.co",
+      ),
+      "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
+        "sb_publishable_aKCzF6IdC-5fOR40yHgMMA_EB2UepNT",
+      ),
+    },
+  },
 });
