@@ -112,8 +112,7 @@ function CheckIn() {
     queryFn: () => loadAsset({ data: { path: church!.background_path! } }),
   });
 
-  // Always enable leader area on check-in so leaders can sign in or register
-  const leaderAreaOpen = true;
+  const leaderAreaOpen = church?.tier === "standard" || church?.tier === "premium";
 
   const [form, setForm] = useState({
     full_name: "",
@@ -281,9 +280,10 @@ function CheckIn() {
         </div>
 
         {/* Member / Leader tab switch */}
-        <div className="mt-6 grid grid-cols-2 gap-1.5 rounded-2xl border border-white/20 bg-card/75 p-1.5 shadow-md backdrop-blur-xl">
-          <button
+         <div className={`mt-6 grid gap-1.5 rounded-2xl border border-white/20 bg-card/75 p-1.5 shadow-md backdrop-blur-xl ${leaderAreaOpen ? "grid-cols-2" : "grid-cols-1"}`}>
+           <Button
             type="button"
+             variant="ghost"
             onClick={() => setTab("member")}
             className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold transition-all sm:text-sm ${
               tab === "member"
@@ -292,9 +292,10 @@ function CheckIn() {
             }`}
           >
             <User className="size-4" /> Member Check-in
-          </button>
-          <button
+           </Button>
+           {leaderAreaOpen && <Button
             type="button"
+             variant="ghost"
             onClick={() => setTab("leader")}
             className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold transition-all sm:text-sm ${
               tab === "leader"
@@ -303,7 +304,7 @@ function CheckIn() {
             }`}
           >
             <UserCog className="size-4" /> Leader Area
-          </button>
+           </Button>}
         </div>
 
         {tab === "leader" ? (
@@ -753,13 +754,14 @@ function LeaderArea({
             </Button>
 
             <div className="text-center">
-              <button
+               <Button
                 type="button"
+                 variant="link"
                 onClick={() => setAuthMode("register")}
                 className="text-xs text-primary hover:underline"
               >
                 Need to register? Create leader account
-              </button>
+               </Button>
             </div>
           </motion.form>
         ) : (

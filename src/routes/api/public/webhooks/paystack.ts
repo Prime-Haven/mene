@@ -48,6 +48,7 @@ export const Route = createFileRoute("/api/public/webhooks/paystack")({
         if (event.data.metadata?.kind === "space") {
           const { error } = await supabaseAdmin.rpc("apply_space_purchase", {
             p_reference: event.data.reference,
+            p_amount: event.data.amount,
           });
           if (error) {
             console.error("paystack_webhook_apply_space_failed", error.message);

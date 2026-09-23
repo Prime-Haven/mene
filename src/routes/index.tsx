@@ -165,16 +165,16 @@ function LandingPage() {
           />
           <div className="absolute inset-0 bg-deep/65" />
           <div className="absolute inset-0 bg-[linear-gradient(to_top,var(--deep)_0%,transparent_55%)] opacity-70" />
-          <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto flex h-full max-w-7xl items-end px-5 pb-24 sm:pb-20">
-            <div className="max-w-3xl text-deep-foreground">
+           <motion.div style={{ y: contentY, opacity: contentOpacity }} className="relative mx-auto flex h-full max-w-7xl items-end justify-center px-5 pb-24 text-center sm:pb-20">
+             <div className="max-w-3xl text-deep-foreground">
               <p className="mb-5 text-xs font-bold uppercase tracking-[0.18em] text-deep-foreground/70">Made for churches. Built for people.</p>
               <VerseTyper />
-              <p className="mt-6 max-w-2xl text-base leading-relaxed text-deep-foreground/80 sm:text-lg">
+               <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-deep-foreground/80 sm:text-lg">
                 Mene brings attendance, membership, leadership and communication together so your church can care with clarity.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <Button asChild size="lg" className="h-12 bg-primary px-6 text-primary-foreground hover:bg-primary/90">
-                  <Link to="/auth" search={{ mode: "signup" }}>Create your church <ArrowRight /></Link>
+                  <Link to="/onboarding">Create your church <ArrowRight /></Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-12 border-deep-foreground/40 bg-deep-foreground/10 px-6 text-deep-foreground backdrop-blur hover:bg-deep-foreground/20 hover:text-deep-foreground">
                   <a href="#why"><Play className="fill-current" /> See how it works</a>
@@ -258,7 +258,7 @@ function LandingPage() {
                     {tier.missing.map((feature) => <li key={feature} className={`flex gap-2.5 ${tier.featured ? "text-primary-foreground/45" : "text-muted-foreground"}`}><X className="mt-0.5 size-4 shrink-0" />{feature}</li>)}
                   </ul>
                   <Button asChild variant={tier.featured ? "secondary" : "outline"} className="mt-8 h-11">
-                    <Link to="/auth" search={{ mode: "signup" }}>Choose {tier.name} <ArrowRight /></Link>
+                     <Link to="/onboarding">Choose {tier.name} <ArrowRight /></Link>
                   </Button>
                 </article>
               ))}
@@ -295,7 +295,7 @@ function LandingPage() {
           <div className="mx-auto max-w-4xl">
             <h2 className="font-display text-4xl font-bold text-primary-foreground sm:text-6xl">Ready before next Sunday.</h2>
             <p className="mx-auto mt-5 max-w-xl text-primary-foreground/70">Create your church, add a service and welcome your first member in minutes.</p>
-            <Button asChild size="lg" className="mt-8 h-12 bg-deep text-deep-foreground hover:bg-deep/90"><Link to="/auth" search={{ mode: "signup" }}>Start with Mene <ArrowRight /></Link></Button>
+             <Button asChild size="lg" className="mt-8 h-12 bg-deep text-deep-foreground hover:bg-deep/90"><Link to="/onboarding">Start with Mene <ArrowRight /></Link></Button>
           </div>
         </section>
       </main>

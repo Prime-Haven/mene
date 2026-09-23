@@ -81,9 +81,9 @@ export function ReviewPrompt() {
             <Label>Your rating</Label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((value) => (
-                <button key={value} type="button" aria-label={`${value} star`} onClick={() => setRating(value)}>
+                 <Button key={value} type="button" variant="ghost" size="icon" aria-label={`${value} star`} onClick={() => setRating(value)}>
                   <Star className={`size-7 ${value <= rating ? "fill-primary text-primary" : "text-muted-foreground"}`} />
-                </button>
+                 </Button>
               ))}
             </div>
           </div>

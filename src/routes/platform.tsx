@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Building2, CircleDollarSign, CreditCard, LogOut, Plus, Search, ShieldCheck, Users, Activity, AlertTriangle, Pencil, Star, Check, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,9 +15,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { staggerContainer, fadeUp } from "@/lib/animations";
 
-export const Route = createFileRoute("/platform")({ ssr: false, head: () => ({ meta: [{ title: "Prime Haven console — Mene" }, { name: "robots", content: "noindex, nofollow" }] }), component: Platform });
+export const Route = createFileRoute("/platform")({ ssr: false, head: () => ({ meta: [
+  { title: "Prime Haven console — Mene" },
+  { name: "description", content: "Restricted account, package, billing health, and review operations for Mene." },
+  { property: "og:title", content: "Prime Haven console — Mene" },
+  { property: "og:description", content: "Restricted account, package, billing health, and review operations for Mene." },
+  { property: "og:type", content: "website" },
+  { name: "twitter:card", content: "summary" },
+  { name: "robots", content: "noindex, nofollow" },
+] }), component: Platform });
 
-type Church = { id:string; name:string; subdomain:string; tier:"basic"|"standard"|"premium"; status:"active"|"grace"|"suspended"|"closed"; contact_email:string|null; contact_phone:string|null; created_at:string; members:number; staff:number; period_end:string|null; auto_renew:boolean|null; last_payment_status:string|null; last_payment_at:string|null };
+type Church = { id:string; name:string; subdomain:string; tier:"basic"|"standard"|"premium"; status:"active"|"grace"|"suspended"|"closed"; approval_status:string; trial_ends_at:string|null; contact_email:string|null; contact_phone:string|null; created_at:string; members:number; staff:number; period_end:string|null; auto_renew:boolean|null; last_payment_status:string|null; last_payment_at:string|null };
 type Payment = { id:string; church:string; tier:string; amount:number; currency:string; status:string; channel:string|null; created_at:string; paid_at:string|null };
 type Audit = { id:string; action:string; tenant_id:string|null; church:string|null; detail:unknown; created_at:string };
 type Review = { id:string; church_name:string; quote:string; rating:number; author_name:string; author_role:string; status:string; created_at:string };
@@ -28,62 +36,18 @@ const fmtDate = (value:string|null) => value ? new Intl.DateTimeFormat(undefined
 
 function Platform() {
   const { session, loading } = useAuth(); const navigate = useNavigate(); const qc = useQueryClient();
-  const [masterToken, setMasterToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("mene_super_admin_token");
-      if (stored) setMasterToken(stored);
-    }
-  }, []);
-
-  const isOperator = !!session || !!masterToken;
+  const operator = useQuery({queryKey:["platform-access",session?.user.id],enabled:!!session,retry:false,queryFn:async()=>{const {data,error}=await supabase.rpc("is_platform_admin");if(error)throw error;return data===true;}});
+  const isOperator = operator.data === true;
 
   const [search,setSearch]=useState(""); const [tier,setTier]=useState("all"); const [status,setStatus]=useState("all"); const [form,setForm]=useState<Form|null>(null); const [selected,setSelected]=useState<Church|null>(null);
   const overview = useQuery({
     queryKey:["platform-overview"],
-    enabled: isOperator,
+     enabled: isOperator,
     retry:false,
     queryFn:async()=>{
-      try {
-        const {data,error}=await supabase.rpc("platform_overview");
-        if(error) throw error;
-        return data as unknown as Overview;
-      } catch (e) {
-        // Fallback for master operator if RPC permissions are being configured
-        const { data: churchesData } = await supabase.from("tenants").select("*").order("created_at", { ascending: false }).limit(200);
-        return {
-          tenants: churchesData?.length || 0,
-          active_tenants: churchesData?.filter((c: any) => c.status === "active").length || 0,
-          grace_tenants: churchesData?.filter((c: any) => c.status === "grace").length || 0,
-          suspended_tenants: churchesData?.filter((c: any) => c.status === "suspended").length || 0,
-          members: 0,
-          attendance_30d: 0,
-          by_tier: { basic: 0, standard: 0, premium: 0 },
-          revenue_usd_90d: 0,
-          payments_30d: 0,
-          failed_payments_30d: 0,
-          churches: (churchesData || []).map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            subdomain: c.subdomain,
-            tier: c.tier || "basic",
-            status: c.status || "active",
-            contact_email: c.contact_email,
-            contact_phone: c.contact_phone,
-            created_at: c.created_at,
-            members: 0,
-            staff: 0,
-            period_end: null,
-            auto_renew: true,
-            last_payment_status: "paid",
-            last_payment_at: c.created_at,
-            approval_status: c.approval_status || "approved",
-          })),
-          recent_payments: [],
-          audit: []
-        } as Overview;
-      }
+      const {data,error}=await supabase.rpc("platform_overview");
+      if(error) throw error;
+      return data as unknown as Overview;
     }
   });
 
@@ -93,10 +57,7 @@ function Platform() {
   const approveChurch = useMutation({
     mutationFn: async (tenantId: string) => {
       const { error } = await supabase.rpc("platform_approve_church", { p_tenant: tenantId });
-      if (error) {
-        // Direct table update fallback
-        await supabase.from("tenants").update({ approval_status: "approved", status: "active" }).eq("id", tenantId);
-      }
+       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Church application approved and activated!");
@@ -104,23 +65,22 @@ function Platform() {
     },
     onError: () => toast.error("Could not approve church"),
   });
+  const rejectChurch = useMutation({mutationFn:async(tenantId:string)=>{const reason=window.prompt("Reason for rejection?");if(!reason)throw new Error("A reason is required");const {error}=await supabase.rpc("platform_reject_church",{p_tenant:tenantId,p_reason:reason});if(error)throw error;},onSuccess:()=>{toast.success("Church application rejected");qc.invalidateQueries({queryKey:["platform-overview"]});},onError:(error)=>toast.error(error instanceof Error?error.message:"Could not reject church")});
+  const grantSpace = useMutation({mutationFn:async(tenantId:string)=>{const raw=window.prompt("Set this church's total extra member spaces:","500");const slots=Number(raw);if(!Number.isInteger(slots)||slots<0)throw new Error("Enter a whole number of spaces");const {error}=await supabase.rpc("platform_grant_space",{p_tenant:tenantId,p_slots:slots});if(error)throw error;},onSuccess:()=>toast.success("Extra member space updated"),onError:(error)=>toast.error(error instanceof Error?error.message:"Could not update space")});
 
   const reviews=useQuery({queryKey:["platform-reviews"],enabled:isOperator,retry:false,queryFn:async()=>{const {data,error}=await supabase.rpc("platform_reviews");if(error) throw error; return (data??[]) as Review[];}});
   const setReviewStatus=useMutation({mutationFn:async({id,status}:{id:string;status:"approved"|"rejected"})=>{const {error}=await supabase.rpc("platform_set_review_status",{p_review:id,p_status:status});if(error)throw error;},onSuccess:(_data,vars)=>{toast.success(vars.status==="approved"?"Review approved — it's now live on the homepage":"Review rejected");qc.invalidateQueries({queryKey:["platform-reviews"]});},onError:()=>toast.error("Could not update this review")});
   const pendingReviews=useMemo(()=>reviews.data?.filter(r=>r.status==="pending")??[],[reviews.data]);
   const decidedReviews=useMemo(()=>reviews.data?.filter(r=>r.status!=="pending")??[],[reviews.data]);
   const churches=useMemo(()=>overview.data?.churches.filter(c=>(tier==="all"||c.tier===tier)&&(status==="all"||c.status===status)&&`${c.name} ${c.subdomain} ${c.contact_email??""}`.toLowerCase().includes(search.toLowerCase()))??[],[overview.data,search,tier,status]);
-  const pendingChurches = useMemo(() => overview.data?.churches.filter((c: any) => c.approval_status === "pending_approval" || c.status === "grace") ?? [], [overview.data]);
+  const pendingChurches = useMemo(() => overview.data?.churches.filter((c) => c.approval_status === "pending") ?? [], [overview.data]);
 
-  if(loading||overview.isLoading)return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading Prime Haven console…</div>;
+  if(loading||operator.isLoading||(isOperator&&overview.isLoading))return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading Prime Haven console…</div>;
   if(!isOperator)return <div className="grid min-h-screen place-items-center px-5 text-center"><div><ShieldCheck className="mx-auto size-8 text-muted-foreground"/><h1 className="mt-4 text-xl font-bold">Prime Haven access only</h1><p className="mt-2 text-sm text-muted-foreground">This console never grants access to church member records.</p><Button asChild className="mt-5"><Link to="/super-admin">Sign in as Super Admin</Link></Button></div></div>;
   const d=overview.data ?? { tenants: 0, active_tenants: 0, grace_tenants: 0, suspended_tenants: 0, members: 0, attendance_30d: 0, by_tier: {}, revenue_usd_90d: 0, payments_30d: 0, failed_payments_30d: 0, churches: [], recent_payments: [], audit: [] };
   const stats=[{label:"Churches",value:d.tenants,icon:Building2},{label:"Active",value:d.active_tenants,icon:Activity},{label:"Aggregate members",value:d.members,icon:Users},{label:"Attendance · 30 days",value:d.attendance_30d,icon:Activity},{label:"Revenue · 90 days",value:`$${Number(d.revenue_usd_90d).toLocaleString()}`,icon:CircleDollarSign},{label:"Failed payments",value:d.failed_payments_30d,icon:AlertTriangle}];
   
   const handleSignOut = async () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("mene_super_admin_token");
-    }
     await supabase.auth.signOut();
     navigate({ to: "/super-admin" });
   };
@@ -143,7 +103,7 @@ function Platform() {
                 <Button size="sm" onClick={() => approveChurch.mutate(c.id)} disabled={approveChurch.isPending} className="bg-success text-success-foreground hover:bg-success/90">
                   <Check className="size-4" /> Approve &amp; Activate
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => changeStatus.mutate({ id: c.id, next: "closed" })}>
+                 <Button size="sm" variant="outline" onClick={() => rejectChurch.mutate(c.id)} disabled={rejectChurch.isPending}>
                   Reject
                 </Button>
               </div>
@@ -189,7 +149,7 @@ function Platform() {
       </TabsContent>
       <TabsContent value="audit"><div className="surface divide-y">{d.audit.map(a=><div key={a.id} className="p-4"><div className="flex flex-wrap justify-between gap-2"><p className="font-mono text-xs font-semibold">{a.action}</p><p className="text-xs text-muted-foreground">{fmtDate(a.created_at)}</p></div><p className="mt-1 text-sm">{a.church??"Platform"}</p></div>)}{!d.audit.length&&<p className="p-10 text-center text-sm text-muted-foreground">No platform actions yet.</p>}</div></TabsContent>
     </Tabs></main>
-    <Dialog open={!!selected} onOpenChange={open=>!open&&setSelected(null)}><DialogContent>{selected&&<><DialogHeader><DialogTitle>{selected.name}</DialogTitle><DialogDescription>Account and billing health. Member-level records are intentionally unavailable.</DialogDescription></DialogHeader><div className="grid gap-3 rounded-xl bg-muted/50 p-4 text-sm sm:grid-cols-2"><p><span className="text-muted-foreground">Package</span><br/><b className="capitalize">{selected.tier}</b></p><p><span className="text-muted-foreground">Status</span><br/><b className="capitalize">{selected.status}</b></p><p><span className="text-muted-foreground">Members</span><br/><b>{selected.members}</b></p><p><span className="text-muted-foreground">Staff</span><br/><b>{selected.staff}</b></p><p><span className="text-muted-foreground">Period ends</span><br/><b>{fmtDate(selected.period_end)}</b></p><p><span className="text-muted-foreground">Last payment</span><br/><b>{selected.last_payment_status??"None"}</b></p></div><DialogFooter><Button variant="outline" onClick={()=>{setForm({id:selected.id,name:selected.name,subdomain:selected.subdomain,tier:selected.tier,status:selected.status,contact_email:selected.contact_email??"",contact_phone:selected.contact_phone??""});setSelected(null)}}><Pencil className="size-4"/> Edit</Button><Button variant={selected.status==="active"?"destructive":"default"} onClick={()=>{const next=selected.status==="active"?"suspended":"active";if(window.confirm(`${next==="suspended"?"Suspend":"Restore"} ${selected.name}?`))changeStatus.mutate({id:selected.id,next})}}>{selected.status==="active"?"Suspend":"Restore"}</Button></DialogFooter></>}</DialogContent></Dialog>
+    <Dialog open={!!selected} onOpenChange={open=>!open&&setSelected(null)}><DialogContent>{selected&&<><DialogHeader><DialogTitle>{selected.name}</DialogTitle><DialogDescription>Account and billing health. Member-level records are intentionally unavailable.</DialogDescription></DialogHeader><div className="grid gap-3 rounded-xl bg-muted/50 p-4 text-sm sm:grid-cols-2"><p><span className="text-muted-foreground">Package</span><br/><b className="capitalize">{selected.tier}</b></p><p><span className="text-muted-foreground">Status</span><br/><b className="capitalize">{selected.status}</b></p><p><span className="text-muted-foreground">Members</span><br/><b>{selected.members}</b></p><p><span className="text-muted-foreground">Staff</span><br/><b>{selected.staff}</b></p><p><span className="text-muted-foreground">Trial ends</span><br/><b>{fmtDate(selected.trial_ends_at)}</b></p><p><span className="text-muted-foreground">Last payment</span><br/><b>{selected.last_payment_status??"None"}</b></p></div><DialogFooter><Button variant="outline" onClick={()=>grantSpace.mutate(selected.id)}>Set extra space</Button><Button variant="outline" onClick={()=>{setForm({id:selected.id,name:selected.name,subdomain:selected.subdomain,tier:selected.tier,status:selected.status,contact_email:selected.contact_email??"",contact_phone:selected.contact_phone??""});setSelected(null)}}><Pencil className="size-4"/> Edit</Button><Button variant={selected.status==="active"?"destructive":"default"} onClick={()=>{const next=selected.status==="active"?"suspended":"active";if(window.confirm(`${next==="suspended"?"Suspend":"Restore"} ${selected.name}?`))changeStatus.mutate({id:selected.id,next})}}>{selected.status==="active"?"Suspend":"Restore"}</Button></DialogFooter></>}</DialogContent></Dialog>
     <Dialog open={!!form} onOpenChange={open=>!open&&setForm(null)}><DialogContent><DialogHeader><DialogTitle>{form?.id?"Edit church account":"Create church shell"}</DialogTitle><DialogDescription>This creates the operational account only. It does not grant Prime Haven access to church records.</DialogDescription></DialogHeader>{form&&<form className="space-y-4" onSubmit={e=>{e.preventDefault();save.mutate(form)}}><div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2 sm:col-span-2"><Label>Church name</Label><Input required minLength={2} maxLength={120} value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></div><div className="space-y-2"><Label>Subdomain</Label><Input required pattern="[a-z0-9][a-z0-9-]{1,38}[a-z0-9]" value={form.subdomain} onChange={e=>setForm({...form,subdomain:e.target.value.toLowerCase()})}/></div><div className="space-y-2"><Label>Package</Label><Select value={form.tier} onValueChange={value=>setForm({...form,tier:value as Form["tier"]})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="basic">Basic</SelectItem><SelectItem value="standard">Standard</SelectItem><SelectItem value="premium">Premium</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>Contact email</Label><Input type="email" value={form.contact_email} onChange={e=>setForm({...form,contact_email:e.target.value})}/></div><div className="space-y-2"><Label>Contact phone</Label><Input value={form.contact_phone} onChange={e=>setForm({...form,contact_phone:e.target.value})}/></div>{form.id&&<div className="space-y-2"><Label>Status</Label><Select value={form.status} onValueChange={value=>setForm({...form,status:value as Form["status"]})}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="grace">Grace</SelectItem><SelectItem value="suspended">Suspended</SelectItem><SelectItem value="closed">Closed</SelectItem></SelectContent></Select></div>}</div><DialogFooter><Button type="button" variant="outline" onClick={()=>setForm(null)}>Cancel</Button><Button type="submit" disabled={save.isPending}>{save.isPending?"Saving…":"Save church"}</Button></DialogFooter></form>}</DialogContent></Dialog>
   </div>;
 }

@@ -17,6 +17,8 @@ export type Membership = {
     subdomain: string;
     tier: Tier;
     status: Database["public"]["Enums"]["tenant_status"];
+    approval_status: string;
+    trial_ends_at: string | null;
     extra_member_slots: number;
     logo_path: string | null;
     background_path: string | null;
@@ -41,7 +43,7 @@ export function useTenant() {
       const { data, error } = await supabase
         .from("tenant_users")
         .select(
-          "id, role, branch_id, position_id, tenant:tenants(id, name, subdomain, tier, status, extra_member_slots, logo_path, background_path, brand_primary, brand_accent, welcome_message, submit_button_text, group_vocabulary, reply_to_email, sms_sender_id, quiet_hour_start, quiet_hour_end, absence_threshold)",
+          "id, role, branch_id, position_id, tenant:tenants(id, name, subdomain, tier, status, approval_status, trial_ends_at, extra_member_slots, logo_path, background_path, brand_primary, brand_accent, welcome_message, submit_button_text, group_vocabulary, reply_to_email, sms_sender_id, quiet_hour_start, quiet_hour_end, absence_threshold)",
         )
         .eq("status", "active")
         .order("created_at", { ascending: true })

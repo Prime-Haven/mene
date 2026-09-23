@@ -222,3 +222,24 @@
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
 }
+
+@keyframes review-marquee {
+  to { transform: translateX(calc(-50% - 0.75rem)); }
+}
+
+.review-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 1.5rem;
+  animation: review-marquee 36s linear infinite;
+}
+
+.review-marquee:hover .review-marquee-track,
+.review-marquee:focus-within .review-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .review-marquee { overflow-x: auto; }
+  .review-marquee-track { animation: none; }
+}

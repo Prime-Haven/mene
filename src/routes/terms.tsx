@@ -32,7 +32,7 @@ const sections: Array<{ title: string; body: string[] }> = [
   {
     title: "2. Church Onboarding, Account Creation & Operator Verification",
     body: [
-      "Church registration on Mene proceeds through a guided multi-step onboarding process requiring accurate administrator credentials, church location, package selection, and initial subscription payment.",
+      "Church registration on Mene proceeds through a guided four-step onboarding process requiring accurate administrator credentials, church location, package selection, and a secure account password.",
       "To prevent unauthorized claiming of church identities, spam, or illicit tenant creation, all new registrations are submitted for platform operator review with an initial status of pending approval.",
       "The platform operator verifies application details within 24 business hours. Upon approval, full administrative privileges are unlocked, and church check-in portals become live.",
       "The registered account creator serves as the primary Account Owner, holding exclusive authority to manage billing, invite additional administrators, and assign staff permissions.",
@@ -41,7 +41,7 @@ const sections: Array<{ title: string; body: string[] }> = [
   {
     title: "3. Church Subdomains & Permanent Check-in Handles",
     body: [
-      "During onboarding, each Church claims a unique subdomain handle (e.g., mene.church/c/yourchurch). Once claimed, approved, and activated, this web handle serves as your permanent attendance portal.",
+      "During onboarding, each Church claims a unique check-in handle (e.g., menelog.site/c/yourchurch). Once claimed, approved, and activated, this web address serves as your permanent attendance portal.",
       "Churches may freely update their displayed name, visual branding, logos, welcome messages, and service schedules at any time without altering their permanent check-in handle.",
       "Subdomain handles must not infringe on registered trademarks, impersonate third-party ministries, or contain misleading terminology. Prime Haven reserves the right to reclaim or modify handles that violate trademark or acceptable usage standards.",
     ],
@@ -50,7 +50,7 @@ const sections: Array<{ title: string; body: string[] }> = [
     title: "4. Subscription Packages, 30-Day Cycles & Billing",
     body: [
       "Mene offers tiered monthly packages billed in United States Dollars (USD) or local currency equivalents: Basic ($15/month), Standard ($30/month), and Premium ($55/month).",
-      "Subscriptions operate on a strict 30-day billing cycle commencing on the day payment is confirmed through our authorized payment processors (including Paystack for cards and Mobile Money).",
+      "New churches receive a 14-day trial. Paid subscriptions renew monthly from the day payment is confirmed through our authorized payment processor, including card and Mobile Money payments through Paystack.",
       "Because mobile money transactions cannot be charged automatically without active user authorization, account owners receive electronic renewal prompts and invoices before the expiration of each 30-day period.",
       "If a renewal payment is not completed before cycle expiry, the account enters a 7-day grace period, followed by subscription suspension. During suspension, check-in and data modification are paused, but existing records, attendances, and complete exports remain permanently accessible.",
       "Churches on Standard or Premium tiers may purchase additional member capacity slots as add-ons, which remain valid for the duration of the active subscription.",
