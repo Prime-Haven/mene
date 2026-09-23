@@ -107,6 +107,13 @@ function Settings() {
         <h1 className="mt-2 text-2xl font-bold">Settings</h1>
       </div>
 
+      {tenant && (
+        <div className="grid gap-5 lg:grid-cols-2">
+          <TwoStepSettings tenantId={tenant.id} isOwner={ctx.isOwner} requireMfa={tenant.require_mfa} />
+          {ctx.isOwner && <ExportChurchData tenantId={tenant.id} subdomain={tenant.subdomain} />}
+        </div>
+      )}
+
       <form
         className="grid gap-5 lg:grid-cols-[1fr_.9fr]"
         onSubmit={(e) => {

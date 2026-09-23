@@ -30,7 +30,7 @@ export function MfaChallenge({ onDone }: { onDone: () => void }) {
   const [busy, setBusy] = useState(false);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!codeOk(code)) return toast.error("Enter the 6-digit code.");
+    if (!codeOk(code)) { toast.error("Enter the 6-digit code."); return; }
     setBusy(true);
     try {
       const { data } = await supabase.auth.mfa.listFactors();
@@ -66,18 +66,18 @@ export function MfaEnroll({ onDone }: { onDone: () => void }) {
       const { data: f } = await supabase.auth.mfa.listFactors();
       for (const u of f?.all ?? []) if (u.status !== "verified") await supabase.auth.mfa.unenroll({ factorId: u.id });
       const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: `Mene:Log ${Date.now()}` });
-      if (error || !data) return toast.error("Could not start setup.");
+      if (error || !data) { toast.error("Could not start setup."); return; }
       if (!cancelled) setEnroll({ id: data.id, qr: data.totp.qr_code, secret: data.totp.secret });
     })();
     return () => { cancelled = true; };
   }, []);
   async function verify(e: React.FormEvent) {
     e.preventDefault();
-    if (!enroll || !codeOk(code)) return toast.error("Enter the 6-digit code.");
+    if (!enroll || !codeOk(code)) { toast.error("Enter the 6-digit code."); return; }
     setBusy(true);
     const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: enroll.id, code });
     setBusy(false);
-    if (error) return toast.error("That code didn't work. Try the latest one.");
+    if (error) { toast.error("That code didn't work. Try the latest one."); return; }
     toast.success("Two-step sign-in is on");
     onDone();
   }
@@ -125,10 +125,10 @@ export function TwoStepSettings({ tenantId, isOwner, requireMfa }: { tenantId: s
   const [enrolling, setEnrolling] = useState(false);
   const on = (state.data?.factors.length ?? 0) > 0;
   async function turnOff() {
-    if (requireMfa) return toast.error("Your church requires two-step sign-in.");
+    if (requireMfa) { toast.error("Your church requires two-step sign-in."); return; }
     for (const f of state.data?.factors ?? []) {
       const { error } = await supabase.auth.mfa.unenroll({ factorId: f.id });
-      if (error) return toast.error("Could not turn it off. Sign in again and retry.");
+      if (error) { toast.error("Could not turn it off. Sign in again and retry."); return; }
     }
     await supabase.auth.refreshSession();
     toast.success("Two-step sign-in is off");
@@ -136,7 +136,7 @@ export function TwoStepSettings({ tenantId, isOwner, requireMfa }: { tenantId: s
   }
   async function setRequired(v: boolean) {
     const { error } = await supabase.rpc("set_require_mfa", { p_tenant: tenantId, p_required: v });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(v ? "All staff must now use two-step sign-in" : "Two-step sign-in is now optional");
     qc.invalidateQueries({ queryKey: ["membership"] });
   }
