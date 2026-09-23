@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { BellOff, BellRing, Download, QrCode, Search, Trash2, Upload, UserPlus } from "lucide-react";
-import QRCode from "qrcode";
+import { labelledQr } from "@/lib/qr";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/hooks/useTenant";
 import { Button } from "@/components/ui/button";
@@ -55,7 +55,7 @@ function Members() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
-  const [qr, setQr] = useState<{ name: string; dataUrl: string } | null>(null);
+  const [qr, setQr] = useState<{ id: string; name: string; dataUrl: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
@@ -119,14 +119,58 @@ function Members() {
 
   const issueQr = useMutation({
     mutationFn: async (member: MemberRow) => {
-      const { data, error } = await supabase.rpc("issue_qr_token", { p_member: member.id });
+      const { data, error } = await supabase.rpc("get_member_qr", { p_member: member.id });
       if (error) throw error;
-      const dataUrl = await QRCode.toDataURL(String(data), { width: 420, margin: 1 });
-      return { name: member.full_name, dataUrl };
+      const r = data as unknown as { token: string; kind: string };
+      const dataUrl = await labelledQr(r.token, tenant?.name ?? "", member.full_name, r.kind === "leader" ? "Leader" : "Member");
+      return { id: member.id, name: member.full_name, dataUrl };
     },
     onSuccess: (res) => setQr(res),
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not issue a code"),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not open this code"),
   });
+
+  const resetQr = useMutation({
+    mutationFn: async () => {
+      if (!qr) return null;
+      const { data, error } = await supabase.rpc("issue_qr_token", { p_member: qr.id });
+      if (error) throw error;
+      return { ...qr, dataUrl: await labelledQr(String(data), tenant?.name ?? "", qr.name) };
+    },
+    onSuccess: (res) => { if (res) { setQr(res); toast.success("New code issued — the old one no longer works"); } },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not reset"),
+  });
+
+  const [zipBusy, setZipBusy] = useState(false);
+  async function downloadAllQrs() {
+    if (!tenant) return;
+    setZipBusy(true);
+    try {
+      const { data, error } = await supabase.rpc("get_all_member_qrs", { p_tenant: tenant.id });
+      if (error) throw error;
+      const rows = data as unknown as Array<{ id: string; full_name: string; kind: string; token: string }>;
+      const { zipSync } = await import("fflate");
+      const files: Record<string, Uint8Array> = {};
+      const used = new Set<string>();
+      for (const r of rows) {
+        const url = await labelledQr(r.token, tenant.name, r.full_name, r.kind === "leader" ? "Leader" : "Member");
+        let name = r.full_name.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "member";
+        if (used.has(name)) name = `${name}-${r.id.slice(0, 6)}`;
+        used.add(name);
+        files[`${name}.png`] = Uint8Array.from(atob(url.split(",")[1] ?? ""), (c) => c.charCodeAt(0));
+      }
+      const blob = new Blob([zipSync(files, { level: 0 })], { type: "application/zip" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${tenant.subdomain}-qr-codes.zip`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast.success(`${rows.length} QR codes downloaded`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not download codes");
+    } finally {
+      setZipBusy(false);
+    }
+  }
 
   const toggleMessaging = useMutation({
     mutationFn: async (member: MemberRow) => {
@@ -250,6 +294,11 @@ function Members() {
           <Button variant="outline" onClick={() => void exportCsv()}>
             <Download className="size-4" /> Export CSV
           </Button>
+          {isAdmin && (
+            <Button variant="outline" disabled={zipBusy} onClick={() => void downloadAllQrs()}>
+              <QrCode className="size-4" /> {zipBusy ? "Preparing…" : "All QR codes (ZIP)"}
+            </Button>
+          )}
           {canManageMembers && (
             <>
               <input
@@ -461,7 +510,7 @@ function Members() {
           <DialogHeader>
             <DialogTitle>{qr?.name}</DialogTitle>
             <DialogDescription>
-              Screenshot or print this code. Any previous code for this member stops working.
+              This is the member's current code. Download it and send it to them.
             </DialogDescription>
           </DialogHeader>
           {qr && <img src={qr.dataUrl} alt="Member QR code" className="mx-auto rounded-md" />}
@@ -470,6 +519,9 @@ function Members() {
               <a href={qr?.dataUrl} download={`${qr?.name}-qr.png`}>
                 Download
               </a>
+            </Button>
+            <Button variant="ghost" disabled={resetQr.isPending} onClick={() => resetQr.mutate()}>
+              Issue new code
             </Button>
           </DialogFooter>
         </DialogContent>
