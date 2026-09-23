@@ -44,9 +44,9 @@
 - [x] Two-step sign-in (optional, church-required, always for Prime Haven operator)
 
 ## Standard tier upgrade — 2026-09-23
-- [ ] Check-in page hero redesign (bold church name + logo)
-- [ ] "Who invited you?" dropdown (Self / walk-in + leaders)
-- [ ] Auto-download QR after check-in
-- [ ] Re-openable member QR codes on Members page (+ ZIP)
-- [ ] Leader QR codes + leader attendance designation
-- [ ] Strict leader scoping + leader dashboard (demographics, absentees, contact logs, birthdays)
+- [x] Check-in page hero redesign (bold church name + logo)
+- [x] "Who invited you?" dropdown (Self / walk-in + leaders)
+- [x] Auto-download QR after check-in
+- [x] Re-openable member QR codes on Members page (+ ZIP)
+- [x] Leader QR codes + leader attendance designation
+- [x] Strict leader scoping + leader dashboard (demographics, absentees, contact logs, birthdays)

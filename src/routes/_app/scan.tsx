@@ -78,6 +78,7 @@ function Scan() {
         ok: boolean;
         member_name?: string;
         duplicate?: boolean;
+        designation?: string;
         reason?: string;
       };
       if (!res.ok) {
@@ -89,7 +90,7 @@ function Scan() {
         setResult({
           ok: true,
           name: res.member_name,
-          message: res.duplicate ? "Already recorded" : "Attendance recorded",
+          message: res.duplicate ? "Already recorded" : res.designation === "leader" ? "Leader attendance recorded" : "Attendance recorded",
         });
       }
     } catch (e) {
