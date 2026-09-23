@@ -19,7 +19,10 @@ import {
   UserCheck,
   HeartHandshake,
   ChevronRight,
+  ListChecks,
+  PhoneCall,
 } from "lucide-react";
+import { MfaGate } from "@/components/TwoStep";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -47,9 +50,11 @@ type NavItem = {
 const nav: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, group: "Workspace", show: (c) => c.canSeeReports },
   { to: "/scan", label: "Scan & check in", icon: QrCode, group: "Workspace", show: () => true },
+  { to: "/attendance", label: "Attendance register", icon: ListChecks, group: "Workspace", show: (c) => c.canManageMembers },
   { to: "/services", label: "Services", icon: CalendarDays, group: "Workspace", show: (c) => c.canManageMembers },
   { to: "/members", label: "Members", icon: Users, group: "People", show: (c) => c.role !== "usher" && c.role !== "leader" },
   { to: "/my-members", label: "My members", icon: HeartHandshake, group: "People", show: (c) => c.role === "leader" },
+  { to: "/followups", label: "Follow-ups", icon: PhoneCall, group: "People", show: (c) => c.canManageMembers && c.can("followups") },
   {
     to: "/leaders",
     label: "Leaders",
@@ -192,7 +197,7 @@ function AppLayout() {
         )}
 
         <main className="mx-auto min-w-0 w-full max-w-[1440px] flex-1 px-4 py-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:px-6 sm:py-6 lg:px-8">
-          <motion.div key={pathname} initial={reduceMotion ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduceMotion ? 0 : 0.14, ease: "easeOut" }}><Outlet /></motion.div>
+          <motion.div key={pathname} initial={reduceMotion ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduceMotion ? 0 : 0.14, ease: "easeOut" }}><MfaGate required={tenant.require_mfa}><Outlet /></MfaGate></motion.div>
         </main>
       </div>
     </div>
