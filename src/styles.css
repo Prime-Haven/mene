@@ -172,16 +172,37 @@
 }
 
 @utility surface {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background-color: color-mix(in oklch, var(--color-card) 85%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in oklch, var(--color-border) 70%, transparent);
   border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-panel);
+  box-shadow: 0 10px 30px -10px oklch(0.21 0.03 265 / 0.08), var(--shadow-panel);
 }
 
 @utility panel {
-  background-color: var(--color-card);
-  border: 1px solid var(--color-border);
+  background-color: color-mix(in oklch, var(--color-card) 90%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in oklch, var(--color-border) 70%, transparent);
   border-radius: var(--radius-2xl);
+}
+
+@utility glass-card {
+  background-color: color-mix(in oklch, var(--color-card) 75%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in oklch, var(--color-border) 60%, transparent);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 12px 36px -12px oklch(0.21 0.03 265 / 0.12);
+}
+
+@utility glass-navbar {
+  background-color: color-mix(in oklch, var(--color-deep) 75%, transparent);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid color-mix(in oklch, var(--color-deep-foreground) 15%, transparent);
+  box-shadow: 0 12px 32px -8px oklch(0.08 0.005 265 / 0.4);
 }
 
 @utility font-display {

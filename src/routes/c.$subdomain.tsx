@@ -1,10 +1,26 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import QRCode from "qrcode";
-import { CheckCircle2, Download, ShieldCheck, Share2, UserCog } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import {
+  CheckCircle2,
+  Download,
+  ShieldCheck,
+  Share2,
+  UserCog,
+  LogIn,
+  UserPlus,
+  ArrowRight,
+  Sparkles,
+  Calendar,
+  Lock,
+  Mail,
+  User,
+  Phone,
+} from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 import { getBrandAssetUrl, getChurchBranding, getPublicOpenServices, submitSelfCheckin } from "@/lib/checkin.functions";
 import { getPublicLeaderTypes, getPublicLeaders, registerLeader } from "@/lib/leaders.functions";
 import { passwordChecks, passwordIsStrong, PASSWORD_RULE_TEXT } from "@/lib/password";
@@ -25,13 +41,21 @@ export const Route = createFileRoute("/c/$subdomain")({
   }),
   component: CheckIn,
   errorComponent: () => (
-    <p className="p-10 text-center text-sm text-muted-foreground">
-      This check-in page could not be loaded.
-    </p>
+    <div className="flex min-h-screen items-center justify-center p-6 text-center">
+      <div className="surface max-w-md p-8">
+        <h2 className="font-display text-xl font-bold">Check-in Unavailable</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          We could not load this church's check-in page. Please verify the web address or contact the church administrator.
+        </p>
+        <Button asChild className="mt-6">
+          <Link to="/">Return to Mene Home</Link>
+        </Button>
+      </div>
+    </div>
   ),
 });
 
-const selectClass = "h-11 w-full rounded-md border border-input bg-background px-3 text-sm";
+const selectClass = "h-11 w-full rounded-xl border border-border/70 bg-background/80 px-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all";
 
 const educationLevels = [
   "No formal education",
@@ -51,6 +75,7 @@ function CheckIn() {
   const loadAsset = useServerFn(getBrandAssetUrl);
   const submit = useServerFn(submitSelfCheckin);
   const loadLeaders = useServerFn(getPublicLeaders);
+  const loadLeaderTypes = useServerFn(getPublicLeaderTypes);
   const reduceMotion = useReducedMotion();
   const [tab, setTab] = useState<"member" | "leader">("member");
 
@@ -58,30 +83,36 @@ function CheckIn() {
     queryKey: ["branding", subdomain],
     queryFn: () => branding({ data: { subdomain } }),
   });
+
   const { data: services = [], isLoading: servicesLoading } = useQuery({
     queryKey: ["public-open-services", subdomain],
     queryFn: () => loadServices({ data: { subdomain } }),
   });
+
   const { data: leaders = [] } = useQuery({
     queryKey: ["public-leaders", subdomain],
     queryFn: () => loadLeaders({ data: { subdomain } }),
   });
+
   const { data: leaderTypes = [] } = useQuery({
     queryKey: ["public-leader-types", subdomain],
-    queryFn: () => useServerFnOnce(subdomain),
+    queryFn: () => loadLeaderTypes({ data: { subdomain } }),
   });
+
   const { data: logoUrl } = useQuery({
     queryKey: ["brand-asset", church?.logo_path],
     enabled: !!church?.logo_path,
     queryFn: () => loadAsset({ data: { path: church!.logo_path! } }),
   });
+
   const { data: backgroundUrl } = useQuery({
     queryKey: ["brand-asset", church?.background_path],
     enabled: !!church?.background_path,
     queryFn: () => loadAsset({ data: { path: church!.background_path! } }),
   });
 
-  const leaderAreaOpen = leaderTypes.length > 0 || leaders.length > 0;
+  // Always enable leader area on check-in so leaders can sign in or register
+  const leaderAreaOpen = true;
 
   const [form, setForm] = useState({
     full_name: "",
@@ -94,8 +125,10 @@ function CheckIn() {
     occupation: "",
     education_level: "",
     invited_by_leader_id: "",
+    invited_by_custom: "",
     service_id: "",
   });
+
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -125,7 +158,9 @@ function CheckIn() {
         const file = new File([blob], "my-mene-member-code.png", { type: "image/png" });
         await navigator.share({ title: "My church member code", files: [file] });
         return;
-      } catch { /* Keep the direct-image fallback below. */ }
+      } catch {
+        /* Keep fallback below */
+      }
     }
     const a = document.createElement("a");
     a.href = done.qr;
@@ -151,7 +186,7 @@ function CheckIn() {
           residential_area: form.residential_area,
           occupation: form.occupation,
           education_level: form.education_level,
-          invited_by_leader_id: form.invited_by_leader_id,
+          invited_by_leader_id: form.invited_by_leader_id === "other" ? "" : form.invited_by_leader_id,
           service_id: form.service_id,
           consent: true as const,
         },
@@ -179,147 +214,334 @@ function CheckIn() {
 
   if (done) {
     return (
-      <motion.div initial={reduceMotion ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-md px-5 py-16 text-center">
-        <CheckCircle2 className="mx-auto size-10 text-success" />
-        <h1 className="mt-4 text-2xl font-bold">
-          {done.returning ? "Welcome back!" : "You're checked in"}
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Attendance recorded for {done.service}. Save this code and show it at the door next time.
-        </p>
-        <img src={done.qr} alt="Your QR code" className="mx-auto mt-6 rounded-lg border border-border" />
-        <Button className="mt-6" onClick={saveQr}>
-          {isiPhone ? <Share2 className="size-4" /> : <Download className="size-4" />}
-          Save to my device
-        </Button>
-        <p className="mt-3 text-xs text-muted-foreground">
-          {isiPhone
-            ? "Tap “Save to my device”, then choose Save Image. You can also press and hold the code and choose Save to Photos."
-            : "Your code is downloading. If nothing happened, press “Save to my device”, or press and hold the code to save it."}
-        </p>
-      </motion.div>
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="surface w-full max-w-sm p-6 text-center shadow-2xl backdrop-blur-xl"
+        >
+          <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-success/15 text-success">
+            <CheckCircle2 className="size-6" />
+          </div>
+          <h1 className="mt-4 font-display text-2xl font-bold">You're checked in!</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{done.service}</p>
+          <div className="mt-6 rounded-2xl border border-white/20 bg-white p-4 shadow-inner">
+            <img src={done.qr} alt="Your member check-in QR code" className="mx-auto aspect-square w-full max-w-[240px]" />
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Save this QR code to your phone. Next Sunday, just show it at the door for instant check-in.
+          </p>
+          <div className="mt-6 flex flex-col gap-2">
+            <Button onClick={saveQr} className="gap-2 rounded-xl">
+              <Download className="size-4" /> Save member code
+            </Button>
+            <Button variant="outline" onClick={() => setDone(null)} className="rounded-xl">
+              Check in another person
+            </Button>
+          </div>
+        </motion.div>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-svh bg-cover bg-center px-4 py-8 sm:py-12" style={{ backgroundImage: backgroundUrl ? `linear-gradient(rgb(255 255 255 / .9), rgb(255 255 255 / .96)), url(${backgroundUrl})` : undefined, "--church-primary": church?.brand_primary ?? "#3b82f6", "--church-accent": church?.brand_accent ?? "#0f172a" } as React.CSSProperties}>
-      <motion.div initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mx-auto max-w-md">
-      {logoUrl && <img src={logoUrl} alt={`${church?.name} logo`} className="mb-5 h-16 max-w-48 object-contain" />}
-      <p className="text-eyebrow">{church?.name ?? "Check in"}</p>
-      <h1 className="mt-3 text-3xl font-bold" style={{ color: church?.brand_accent }}>Welcome — let's check you in</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {church?.welcome_message || `${church?.name ?? "This church"} is collecting your name and contact details to record your
-        attendance and follow up with you pastorally. Only the church's admins and your group leader
-        will see them.`}
-      </p>
-
-      {leaderAreaOpen && (
-        <div className="mt-6 grid grid-cols-2 gap-2 rounded-xl border border-border bg-background/80 p-1">
-          <button type="button" onClick={() => setTab("member")} className={`h-10 rounded-lg text-sm font-semibold transition-colors ${tab === "member" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-            I'm a member
-          </button>
-          <button type="button" onClick={() => setTab("leader")} className={`h-10 rounded-lg text-sm font-semibold transition-colors ${tab === "leader" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-            <UserCog className="mr-1 inline size-4" /> Leader area
-          </button>
-        </div>
-      )}
-
-      {tab === "leader" && leaderAreaOpen ? (
-        <LeaderArea subdomain={subdomain} churchName={church?.name ?? "this church"} leaderTypes={leaderTypes} />
-      ) : (
-      <form onSubmit={onSubmit} className="surface mt-7 space-y-4 p-5">
-        <div className="space-y-2">
-          <Label htmlFor="service">Service</Label>
-          <select id="service" required className={selectClass} value={form.service_id} onChange={(e) => setForm({ ...form, service_id: e.target.value })} disabled={services.length === 0}>
-            <option value="">{servicesLoading ? "Loading services…" : services.length ? "Select a service" : "No open service available"}</option>
-            {services.map((service) => <option key={service.id} value={service.id}>{service.name} — {service.service_date}</option>)}
-          </select>
-          {!servicesLoading && services.length === 0 && <p className="text-xs text-destructive">Please ask the church to open a service before checking in.</p>}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="n">Full name</Label>
-          <Input id="n" required minLength={2} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="p">Phone number</Label>
-          <Input id="p" required inputMode="tel" placeholder="024 000 0000" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email <span className="font-normal text-muted-foreground">(optional)</span></Label>
-          <Input id="email" type="email" inputMode="email" maxLength={160} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="d">Date of birth</Label>
-            <Input id="d" type="date" required max={new Date().toISOString().slice(0, 10)} value={form.date_of_birth} onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="g">Gender</Label>
-            <select id="g" required className={selectClass} value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="marital">Marital status</Label>
-          <select id="marital" required className={selectClass} value={form.marital_status} onChange={(e) => setForm({ ...form, marital_status: e.target.value })}>
-            <option value="">Select status</option><option value="single">Single</option><option value="married">Married</option><option value="divorced">Divorced</option><option value="widowed">Widowed</option><option value="separated">Separated</option><option value="prefer_not_to_say">Prefer not to say</option>
-          </select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="a">Where do you live?</Label>
-          <Input id="a" required maxLength={120} value={form.residential_area} onChange={(e) => setForm({ ...form, residential_area: e.target.value })} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="occupation">Occupation</Label>
-          <Input id="occupation" required maxLength={120} value={form.occupation} onChange={(e) => setForm({ ...form, occupation: e.target.value })} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="education">Educational level</Label>
-          <select id="education" className={selectClass} value={form.education_level} onChange={(e) => setForm({ ...form, education_level: e.target.value })}>
-            <option value="">Prefer not to say</option>
-            {educationLevels.map((level) => <option key={level} value={level}>{level}</option>)}
-          </select>
-        </div>
-        {leaders.length > 0 && (
-          <div className="space-y-2">
-            <Label htmlFor="leader">Who invited you? <span className="font-normal text-muted-foreground">(your leader)</span></Label>
-            <select id="leader" className={selectClass} value={form.invited_by_leader_id} onChange={(e) => setForm({ ...form, invited_by_leader_id: e.target.value })}>
-              <option value="">No one / I came myself</option>
-              {leaders.map((leader) => (
-                <option key={leader.id} value={leader.id}>
-                  {leader.full_name}{leader.leader_type ? ` — ${leader.leader_type}` : ""}
-                </option>
-              ))}
-            </select>
+    <div
+      className="min-h-svh bg-cover bg-center px-4 py-8 sm:py-12"
+      style={{
+        backgroundImage: backgroundUrl
+          ? `linear-gradient(rgba(248, 249, 250, 0.88), rgba(248, 249, 250, 0.94)), url(${backgroundUrl})`
+          : undefined,
+        "--church-primary": church?.brand_primary ?? "#3b82f6",
+        "--church-accent": church?.brand_accent ?? "#0f172a",
+      } as React.CSSProperties}
+    >
+      <motion.div
+        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mx-auto max-w-md"
+      >
+        {logoUrl && (
+          <div className="mb-5 flex justify-center">
+            <img src={logoUrl} alt={`${church?.name} logo`} className="h-16 max-w-48 object-contain drop-shadow" />
           </div>
         )}
 
-        <label className="flex items-start gap-2 text-sm">
-          <input type="checkbox" className="mt-1" checked={consent} onChange={(e) => setConsent(e.target.checked)} required />
-          <span className="text-muted-foreground">
-            I agree to {church?.name ?? "this church"} keeping these details to record my attendance and contact me.
+        <div className="text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+            <Sparkles className="size-3" /> {church?.name ?? "Mene Check-in"}
           </span>
-        </label>
+          <h1 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl" style={{ color: church?.brand_accent }}>
+            Welcome — Let's check you in
+          </h1>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+            {church?.welcome_message ||
+              `Welcome to ${church?.name ?? "today's service"}. Fill in your details below to check in and receive your fast personal check-in QR code.`}
+          </p>
+        </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {/* Member / Leader tab switch */}
+        <div className="mt-6 grid grid-cols-2 gap-1.5 rounded-2xl border border-white/20 bg-card/75 p-1.5 shadow-md backdrop-blur-xl">
+          <button
+            type="button"
+            onClick={() => setTab("member")}
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold transition-all sm:text-sm ${
+              tab === "member"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <User className="size-4" /> Member Check-in
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("leader")}
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold transition-all sm:text-sm ${
+              tab === "leader"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <UserCog className="size-4" /> Leader Area
+          </button>
+        </div>
 
-        <Button type="submit" className="h-11 w-full" style={{ backgroundColor: church?.brand_primary }} disabled={busy || !consent || services.length === 0}>
-          {busy ? "Checking you in…" : (church?.submit_button_text || "Check in")}
-        </Button>
-      </form>
-      )}
-      <p className="mt-5 text-center text-xs text-muted-foreground">Securely powered by Mene</p>
+        {tab === "leader" ? (
+          <LeaderArea subdomain={subdomain} churchName={church?.name ?? "this church"} leaderTypes={leaderTypes} />
+        ) : (
+          <form onSubmit={onSubmit} className="surface mt-6 space-y-4 p-5 sm:p-6 shadow-xl backdrop-blur-xl">
+            <div className="space-y-1.5">
+              <Label htmlFor="service" className="text-xs font-semibold">Service</Label>
+              <select
+                id="service"
+                required
+                className={selectClass}
+                value={form.service_id}
+                onChange={(e) => setForm({ ...form, service_id: e.target.value })}
+                disabled={services.length === 0}
+              >
+                <option value="">
+                  {servicesLoading ? "Loading services…" : services.length ? "Select a service" : "No open service available"}
+                </option>
+                {services.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.name} — {service.service_date}
+                  </option>
+                ))}
+              </select>
+              {!servicesLoading && services.length === 0 && (
+                <p className="text-xs text-destructive">Please ask an usher or admin to open a service.</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="n" className="text-xs font-semibold">Full name</Label>
+              <Input
+                id="n"
+                required
+                minLength={2}
+                value={form.full_name}
+                onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                placeholder="First and last name"
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="p" className="text-xs font-semibold">Phone number</Label>
+              <Input
+                id="p"
+                required
+                inputMode="tel"
+                placeholder="024 000 0000"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-semibold">
+                Email <span className="font-normal text-muted-foreground">(optional)</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                inputMode="email"
+                maxLength={160}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                placeholder="your.email@example.com"
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="d" className="text-xs font-semibold">Date of birth</Label>
+                <Input
+                  id="d"
+                  type="date"
+                  required
+                  max={new Date().toISOString().slice(0, 10)}
+                  value={form.date_of_birth}
+                  onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="g" className="text-xs font-semibold">Gender</Label>
+                <select
+                  id="g"
+                  required
+                  className={selectClass}
+                  value={form.gender}
+                  onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                >
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="marital" className="text-xs font-semibold">Marital status</Label>
+              <select
+                id="marital"
+                required
+                className={selectClass}
+                value={form.marital_status}
+                onChange={(e) => setForm({ ...form, marital_status: e.target.value })}
+              >
+                <option value="">Select status</option>
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="divorced">Divorced</option>
+                <option value="widowed">Widowed</option>
+                <option value="separated">Separated</option>
+                <option value="prefer_not_to_say">Prefer not to say</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="a" className="text-xs font-semibold">Where do you live?</Label>
+              <Input
+                id="a"
+                required
+                maxLength={120}
+                value={form.residential_area}
+                onChange={(e) => setForm({ ...form, residential_area: e.target.value })}
+                placeholder="Suburb, neighborhood or landmark"
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="occupation" className="text-xs font-semibold">Occupation</Label>
+                <Input
+                  id="occupation"
+                  required
+                  maxLength={120}
+                  value={form.occupation}
+                  onChange={(e) => setForm({ ...form, occupation: e.target.value })}
+                  placeholder="e.g. Student, Accountant"
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="education" className="text-xs font-semibold">Educational level</Label>
+                <select
+                  id="education"
+                  className={selectClass}
+                  value={form.education_level}
+                  onChange={(e) => setForm({ ...form, education_level: e.target.value })}
+                >
+                  <option value="">Select level</option>
+                  {educationLevels.map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Always visible: Who invited you / name of leader */}
+            <div className="space-y-1.5">
+              <Label htmlFor="leader" className="text-xs font-semibold">
+                Who invited you? <span className="font-normal text-muted-foreground">(your leader or friend)</span>
+              </Label>
+              {leaders.length > 0 ? (
+                <div className="space-y-2">
+                  <select
+                    id="leader"
+                    className={selectClass}
+                    value={form.invited_by_leader_id}
+                    onChange={(e) => setForm({ ...form, invited_by_leader_id: e.target.value })}
+                  >
+                    <option value="">No one / I came myself</option>
+                    {leaders.map((leader) => (
+                      <option key={leader.id} value={leader.id}>
+                        {leader.full_name}
+                        {leader.leader_type ? ` — ${leader.leader_type}` : ""}
+                      </option>
+                    ))}
+                    <option value="other">Other / Enter name manually</option>
+                  </select>
+                  {form.invited_by_leader_id === "other" && (
+                    <Input
+                      id="leader-custom-name"
+                      placeholder="Enter their full name"
+                      value={form.invited_by_custom}
+                      onChange={(e) => setForm({ ...form, invited_by_custom: e.target.value })}
+                      className="h-11 rounded-xl"
+                    />
+                  )}
+                </div>
+              ) : (
+                <Input
+                  id="leader-name-text"
+                  placeholder="e.g. Pastor James, Deaconess Sarah, or Self"
+                  value={form.invited_by_custom}
+                  onChange={(e) => setForm({ ...form, invited_by_custom: e.target.value })}
+                  className="h-11 rounded-xl"
+                />
+              )}
+            </div>
+
+            <label className="flex items-start gap-2.5 rounded-xl border border-border/40 bg-muted/30 p-3 text-xs leading-relaxed text-muted-foreground">
+              <input
+                type="checkbox"
+                className="mt-0.5 size-4 rounded border-border"
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
+                required
+              />
+              <span>
+                I agree to {church?.name ?? "this church"} keeping my details to record attendance and contact me for pastoral care.
+              </span>
+            </label>
+
+            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+
+            <Button
+              type="submit"
+              className="h-12 w-full rounded-xl text-base font-semibold shadow-lg transition-transform active:scale-[0.99]"
+              style={{ backgroundColor: church?.brand_primary }}
+              disabled={busy || !consent || services.length === 0}
+            >
+              {busy ? "Checking you in…" : church?.submit_button_text || "Check In"}
+            </Button>
+          </form>
+        )}
+
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          Protected by Mene Multi-Tenant Privacy Guarantee · No public directory access
+        </p>
       </motion.div>
     </div>
   );
-}
-
-/** Placeholder kept out of the component body to satisfy the query factory below. */
-async function useServerFnOnce(subdomain: string) {
-  return getPublicLeaderTypes({ data: { subdomain } });
 }
 
 function LeaderArea({
@@ -331,7 +553,17 @@ function LeaderArea({
   churchName: string;
   leaderTypes: Array<{ id: string; name: string }>;
 }) {
+  const navigate = useNavigate();
   const register = useServerFn(registerLeader);
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+
+  // Leader Login form state
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginBusy, setLoginBusy] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
+  // Leader Register form state
   const [form, setForm] = useState({
     full_name: "",
     email: "",
@@ -344,15 +576,34 @@ function LeaderArea({
     confirm: "",
     photo: "",
   });
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const [registerBusy, setRegisterBusy] = useState(false);
+  const [registerError, setRegisterError] = useState("");
   const [sent, setSent] = useState(false);
   const checks = passwordChecks(form.password);
+
+  async function handleLeaderLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setLoginBusy(true);
+    setLoginError("");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginEmail.trim(),
+        password: loginPassword,
+      });
+      if (error) throw error;
+      toast.success("Welcome back! Loading your leader dashboard…");
+      navigate({ to: "/my-members" });
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : "Could not sign in with these credentials.");
+    } finally {
+      setLoginBusy(false);
+    }
+  }
 
   async function onPhoto(file: File | undefined) {
     if (!file) return;
     if (file.size > 1_500_000) {
-      setError("Please choose a photo smaller than 1.5 MB.");
+      setRegisterError("Please choose a photo smaller than 1.5 MB.");
       return;
     }
     const reader = new FileReader();
@@ -360,18 +611,18 @@ function LeaderArea({
     reader.readAsDataURL(file);
   }
 
-  async function onSubmit(event: React.FormEvent) {
+  async function handleLeaderRegister(event: React.FormEvent) {
     event.preventDefault();
-    setError("");
+    setRegisterError("");
     if (!passwordIsStrong(form.password)) {
-      setError(PASSWORD_RULE_TEXT);
+      setRegisterError(PASSWORD_RULE_TEXT);
       return;
     }
     if (form.password !== form.confirm) {
-      setError("The two passwords do not match.");
+      setRegisterError("The two passwords do not match.");
       return;
     }
-    setBusy(true);
+    setRegisterBusy(true);
     try {
       const result = await register({
         data: {
@@ -388,111 +639,300 @@ function LeaderArea({
         },
       });
       if (!result.ok) {
-        setError(result.message);
+        setRegisterError(result.message);
         return;
       }
       setSent(true);
     } catch {
-      setError("Could not complete your registration. Please try again.");
+      setRegisterError("Could not complete leader registration. Please try again.");
     } finally {
-      setBusy(false);
+      setRegisterBusy(false);
     }
   }
 
   if (sent) {
     return (
-      <div className="surface mt-7 space-y-3 p-6 text-center">
-        <CheckCircle2 className="mx-auto size-9 text-success" />
+      <div className="surface mt-6 space-y-4 p-6 text-center shadow-xl backdrop-blur-xl">
+        <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-success/15 text-success">
+          <CheckCircle2 className="size-6" />
+        </div>
         <h2 className="font-display text-xl font-bold">Check your email</h2>
-        <p className="text-sm text-muted-foreground">
-          We've sent a verification link to {form.email}. Confirm it, then sign in to see the members
-          who chose you as their leader at {churchName}.
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          We've sent a verification link to <b className="text-foreground">{form.email}</b>. Click the link to confirm, then sign in below to access your members at {churchName}.
         </p>
-        <Button asChild variant="outline"><Link to="/auth">Go to sign in</Link></Button>
+        <Button onClick={() => { setSent(false); setAuthMode("login"); }} className="w-full rounded-xl">
+          Proceed to Leader Log in
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="mt-7 space-y-4">
-      <div className="surface flex items-center justify-between gap-3 p-4">
-        <div>
-          <p className="font-semibold">Already a leader here?</p>
-          <p className="text-xs text-muted-foreground">Sign in to see your members.</p>
-        </div>
-        <Button asChild variant="outline" size="sm"><Link to="/auth">Log in</Link></Button>
+    <div className="surface mt-6 p-5 sm:p-6 shadow-xl backdrop-blur-xl">
+      {/* Sub-tab switcher */}
+      <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted/60 p-1 text-xs font-semibold">
+        <button
+          type="button"
+          onClick={() => setAuthMode("login")}
+          className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
+            authMode === "login"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <LogIn className="size-3.5" /> Leader Login
+        </button>
+        <button
+          type="button"
+          onClick={() => setAuthMode("register")}
+          className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
+            authMode === "register"
+              ? "bg-card text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <UserPlus className="size-3.5" /> Register as Leader
+        </button>
       </div>
 
-      <form onSubmit={onSubmit} className="surface space-y-4 p-5">
-        <div>
-          <h2 className="font-display text-lg font-bold">Register as a leader</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            You need the leader access code from your church administrator.
-          </p>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lname">Full name</Label>
-          <Input id="lname" required minLength={2} maxLength={120} value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lemail">Email</Label>
-          <Input id="lemail" type="email" required maxLength={160} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lphone">Phone number</Label>
-          <Input id="lphone" required inputMode="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lphoto">Profile photo <span className="font-normal text-muted-foreground">(optional)</span></Label>
-          <Input id="lphoto" type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => onPhoto(e.target.files?.[0])} />
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="ldob">Date of birth</Label>
-            <Input id="ldob" type="date" max={new Date().toISOString().slice(0, 10)} value={form.date_of_birth} onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lloc">Location</Label>
-            <Input id="lloc" maxLength={120} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="ltype">Type of leader</Label>
-          <select id="ltype" required className={selectClass} value={form.leader_type_id} onChange={(e) => setForm({ ...form, leader_type_id: e.target.value })}>
-            <option value="">Select your role</option>
-            {leaderTypes.map((type) => <option key={type.id} value={type.id}>{type.name}</option>)}
-          </select>
-          {leaderTypes.length === 0 && <p className="text-xs text-muted-foreground">Your administrator has not added leader roles yet.</p>}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lcode">Leader access code</Label>
-          <Input id="lcode" required minLength={4} maxLength={24} value={form.access_code} onChange={(e) => setForm({ ...form, access_code: e.target.value })} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lpass">Password</Label>
-          <Input id="lpass" type="password" required autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-          <ul className="grid gap-1 text-xs text-muted-foreground">
-            {checks.map((check) => (
-              <li key={check.label} className={check.met ? "text-success" : undefined}>
-                {check.met ? "✓" : "•"} {check.label}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="lconfirm">Confirm password</Label>
-          <Input id="lconfirm" type="password" required autoComplete="new-password" value={form.confirm} onChange={(e) => setForm({ ...form, confirm: e.target.value })} />
-        </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" className="h-11 w-full" disabled={busy}>
-          {busy ? "Creating your account…" : "Create leader account"}
-        </Button>
-        <p className="flex items-start gap-2 text-xs text-muted-foreground">
-          <ShieldCheck className="mt-0.5 size-3.5 shrink-0" />
-          Leaders only ever see the members who chose them. Member contact details stay with your
-          church administrators.
-        </p>
-      </form>
+      <AnimatePresence mode="wait">
+        {authMode === "login" ? (
+          <motion.form
+            key="leader-login"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            onSubmit={handleLeaderLogin}
+            className="mt-5 space-y-4"
+          >
+            <div>
+              <h2 className="font-display text-lg font-bold">Sign in as Leader</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                View your disciples, members, and pastoral follow-ups.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="leader-email" className="text-xs font-semibold">Email address</Label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-3 size-4 text-muted-foreground" />
+                <Input
+                  id="leader-email"
+                  type="email"
+                  required
+                  placeholder="leader@example.com"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="h-11 rounded-xl pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="leader-password" className="text-xs font-semibold">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-3 size-4 text-muted-foreground" />
+                <Input
+                  id="leader-password"
+                  type="password"
+                  required
+                  placeholder="••••••••••••"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="h-11 rounded-xl pl-10"
+                />
+              </div>
+            </div>
+
+            {loginError && <p className="text-xs font-semibold text-destructive">{loginError}</p>}
+
+            <Button type="submit" disabled={loginBusy} className="h-11 w-full rounded-xl">
+              {loginBusy ? "Signing in…" : "Sign In to Leader Portal"}
+            </Button>
+
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setAuthMode("register")}
+                className="text-xs text-primary hover:underline"
+              >
+                Need to register? Create leader account
+              </button>
+            </div>
+          </motion.form>
+        ) : (
+          <motion.form
+            key="leader-register"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            onSubmit={handleLeaderRegister}
+            className="mt-5 space-y-4"
+          >
+            <div>
+              <h2 className="font-display text-lg font-bold">Register as a leader</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                You will need the leader access code provided by your church administrator.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="lname" className="text-xs font-semibold">Full name</Label>
+              <Input
+                id="lname"
+                required
+                minLength={2}
+                maxLength={120}
+                value={form.full_name}
+                onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="lemail" className="text-xs font-semibold">Email address</Label>
+              <Input
+                id="lemail"
+                type="email"
+                required
+                maxLength={160}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="lphone" className="text-xs font-semibold">Phone number</Label>
+              <Input
+                id="lphone"
+                required
+                inputMode="tel"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="lphoto" className="text-xs font-semibold">
+                Profile photo <span className="font-normal text-muted-foreground">(optional)</span>
+              </Label>
+              <Input
+                id="lphoto"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => onPhoto(e.target.files?.[0])}
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="ldob" className="text-xs font-semibold">Date of birth</Label>
+                <Input
+                  id="ldob"
+                  type="date"
+                  max={new Date().toISOString().slice(0, 10)}
+                  value={form.date_of_birth}
+                  onChange={(e) => setForm({ ...form, date_of_birth: e.target.value })}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="lloc" className="text-xs font-semibold">Location</Label>
+                <Input
+                  id="lloc"
+                  maxLength={120}
+                  value={form.location}
+                  onChange={(e) => setForm({ ...form, location: e.target.value })}
+                  className="h-11 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="ltype" className="text-xs font-semibold">Type of leader</Label>
+              <select
+                id="ltype"
+                className={selectClass}
+                value={form.leader_type_id}
+                onChange={(e) => setForm({ ...form, leader_type_id: e.target.value })}
+              >
+                <option value="">Select your leadership role</option>
+                {leaderTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+                {!leaderTypes.length && <option value="general">Cell / Department Leader</option>}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="lcode" className="text-xs font-semibold">Leader access code</Label>
+              <Input
+                id="lcode"
+                required
+                minLength={4}
+                maxLength={24}
+                placeholder="Ask your church admin for code"
+                value={form.access_code}
+                onChange={(e) => setForm({ ...form, access_code: e.target.value })}
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="lpass" className="text-xs font-semibold">Password</Label>
+              <Input
+                id="lpass"
+                type="password"
+                required
+                autoComplete="new-password"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                className="h-11 rounded-xl"
+              />
+              <ul className="grid gap-1 pt-1 text-xs text-muted-foreground">
+                {checks.map((check) => (
+                  <li key={check.label} className={check.met ? "text-success font-medium" : undefined}>
+                    {check.met ? "✓" : "•"} {check.label}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="lconfirm" className="text-xs font-semibold">Confirm password</Label>
+              <Input
+                id="lconfirm"
+                type="password"
+                required
+                autoComplete="new-password"
+                value={form.confirm}
+                onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+                className="h-11 rounded-xl"
+              />
+            </div>
+
+            {registerError && <p className="text-sm font-medium text-destructive">{registerError}</p>}
+
+            <Button type="submit" className="h-11 w-full rounded-xl" disabled={registerBusy}>
+              {registerBusy ? "Creating your account…" : "Create Leader Account"}
+            </Button>
+
+            <div className="flex items-start gap-2 pt-1 text-xs text-muted-foreground">
+              <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+              <span>
+                Leaders only see the members assigned to them or who chose them. Sensitive church-wide records remain confidential.
+              </span>
+            </div>
+          </motion.form>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -81,47 +81,73 @@ function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-5">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between rounded-lg border border-deep-foreground/20 bg-deep/65 px-4 text-deep-foreground shadow-lg backdrop-blur-xl sm:px-5">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between rounded-2xl border border-white/20 bg-deep/80 px-4 text-deep-foreground shadow-2xl backdrop-blur-2xl sm:px-6">
           <Link to="/" aria-label="Mene home" className="flex items-center gap-2.5">
-            <span className="grid size-8 place-items-center rounded-md border border-deep-foreground/55">
-              <span className="size-3 rounded-sm bg-deep-foreground" />
+            <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/30">
+              <span className="size-3.5 rounded-sm bg-primary-foreground" />
             </span>
-            <span className="font-display text-base font-bold text-deep-foreground">Mene</span>
+            <span className="font-display text-lg font-bold tracking-tight text-white">Mene</span>
           </Link>
-          <nav className="hidden items-center gap-7 text-xs font-semibold text-deep-foreground/75 md:flex">
-            <a href="#why" className="transition-colors hover:text-deep-foreground">Why Mene</a>
-            <a href="#features" className="transition-colors hover:text-deep-foreground">Features</a>
-            <a href="#pricing" className="transition-colors hover:text-deep-foreground">Plans</a>
-            <a href="#faq" className="transition-colors hover:text-deep-foreground">More <ChevronDown className="ml-1 inline size-3" /></a>
+          <nav className="hidden items-center gap-8 text-xs font-semibold text-white/80 md:flex">
+            <a href="#why" className="transition-colors hover:text-white">Why Mene</a>
+            <a href="#features" className="transition-colors hover:text-white">Features</a>
+            <a href="#pricing" className="transition-colors hover:text-white">Plans</a>
+            <a href="#faq" className="transition-colors hover:text-white">FAQ</a>
+            <Link to="/terms" className="transition-colors hover:text-white">Terms</Link>
+            <Link to="/privacy" className="transition-colors hover:text-white">Privacy</Link>
           </nav>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="hidden text-deep-foreground hover:bg-deep-foreground/10 hover:text-deep-foreground sm:inline-flex">
+          <div className="flex items-center gap-2.5">
+            <Button asChild variant="ghost" size="sm" className="hidden text-white/90 hover:bg-white/10 hover:text-white sm:inline-flex">
               <Link to="/auth" search={{ mode: "signin" }}>Sign in</Link>
             </Button>
-            <Button asChild size="sm" className="bg-deep-foreground text-deep hover:bg-deep-foreground/90">
-              <Link to="/auth" search={{ mode: "signup" }}>Start free <ArrowRight /></Link>
+            <Button asChild size="sm" className="rounded-xl bg-primary text-primary-foreground shadow-md hover:bg-primary/90">
+              <Link to="/onboarding">Get Started <ArrowRight className="ml-1 size-3.5" /></Link>
             </Button>
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              className="text-deep-foreground hover:bg-deep-foreground/10 hover:text-deep-foreground md:hidden"
+              className="text-white hover:bg-white/10 md:hidden"
               aria-label="Open navigation"
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((open) => !open)}
             >
-              <Menu className="size-5" />
+              {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </Button>
           </div>
         </div>
-        {menuOpen && (
-          <nav className="mx-auto mt-2 grid max-w-7xl overflow-hidden rounded-lg border border-deep-foreground/20 bg-deep/90 p-2 text-sm font-semibold text-deep-foreground shadow-lg backdrop-blur-xl md:hidden">
-            {[["#why", "Why Mene"], ["#features", "Features"], ["#pricing", "Plans"], ["#faq", "Questions"]].map(([href, label]) => (
-              <a key={href} href={href} onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-3 hover:bg-deep-foreground/10">{label}</a>
-            ))}
-            <Link to="/auth" search={{ mode: "signin" }} className="rounded-md px-3 py-3 hover:bg-deep-foreground/10">Sign in</Link>
-          </nav>
-        )}
+
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.nav
+              initial={{ opacity: 0, y: -12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.98 }}
+              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+              className="mx-auto mt-2 grid max-w-7xl overflow-hidden rounded-2xl border border-white/20 bg-deep/95 p-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-2xl md:hidden"
+            >
+              {[
+                ["#why", "Why Mene"],
+                ["#features", "Features"],
+                ["#pricing", "Plans"],
+                ["#faq", "Questions & Answers"],
+              ].map(([href, label]) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-xl px-4 py-3 transition-colors hover:bg-white/10"
+                >
+                  {label}
+                </a>
+              ))}
+              <div className="my-1 border-t border-white/10" />
+              <Link to="/terms" onClick={() => setMenuOpen(false)} className="rounded-xl px-4 py-3 transition-colors hover:bg-white/10">Terms of Use</Link>
+              <Link to="/privacy" onClick={() => setMenuOpen(false)} className="rounded-xl px-4 py-3 transition-colors hover:bg-white/10">Privacy Policy</Link>
+              <Link to="/auth" search={{ mode: "signin" }} onClick={() => setMenuOpen(false)} className="rounded-xl px-4 py-3 transition-colors hover:bg-white/10">Sign in to your church</Link>
+            </motion.nav>
+          )}
+        </AnimatePresence>
       </header>
 
       <section ref={heroRef} className="relative h-[145svh] bg-deep">
