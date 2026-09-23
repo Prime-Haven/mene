@@ -134,6 +134,20 @@
       "when": 1790193720904,
       "tag": "0018_fix_manual_attendance_conflict",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790203529381,
+      "tag": "0019_standard_leader_qr_dashboard",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1790203545210,
+      "tag": "0020_leader_dashboard_volatile",
+      "breakpoints": true
     }
   ]
 }
