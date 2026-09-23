@@ -60,7 +60,7 @@ function AskMene() {
     id: tenant?.id ? `ask-mene-${tenant.id}` : "ask-mene",
     messages: history.data ?? [],
     transport,
-    onError: (error) => toast.error(error.message || "Ask Mene is unavailable."),
+    onError: (error) => toast.error(error.message || "Ask Mene:Log is unavailable."),
     onFinish: () => queryClient.invalidateQueries({ queryKey: ["ask-mene-history", tenant?.id] }),
   });
 
@@ -72,7 +72,7 @@ function AskMene() {
   }
 
   async function clearHistory() {
-    if (!tenant || !window.confirm("Clear this church's shared Ask Mene conversation?")) return;
+    if (!tenant || !window.confirm("Clear this church's shared Ask Mene:Log conversation?")) return;
     const { data: conversation } = await supabase.from("ask_mene_conversations").select("id").eq("tenant_id", tenant.id).maybeSingle();
     if (conversation) {
       const { error } = await supabase.from("ask_mene_messages").delete().eq("conversation_id", conversation.id);

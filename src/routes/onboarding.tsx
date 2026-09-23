@@ -16,13 +16,13 @@ import { passwordIsStrong } from "@/lib/password";
 export const Route = createFileRoute("/onboarding")({
   head: () => ({
     meta: [
-      { title: "Set up your church — Mene" },
+      { title: "Set up your church — Mene:Log" },
       {
         name: "description",
         content: "Tell us about you and your church, choose a package and secure your account.",
       },
-      { property: "og:title", content: "Set up your church — Mene" },
-      { property: "og:description", content: "Create your church account on Mene in a guided onboarding flow." },
+      { property: "og:title", content: "Set up your church — Mene:Log" },
+      { property: "og:description", content: "Create your church account on Mene:Log in a guided onboarding flow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
