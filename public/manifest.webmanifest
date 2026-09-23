@@ -1,6 +1,6 @@
 {
-  "name": "Mene Church Management",
-  "short_name": "Mene",
+  "name": "Mene:Log Church Management",
+  "short_name": "Mene:Log",
   "description": "Church attendance, member care and reporting.",
   "start_url": "/dashboard",
   "scope": "/",

@@ -31,7 +31,7 @@ export function ReviewCarousel() {
   if (!data?.length) {
     return (
       <div className="mt-12 border-y border-primary-foreground/20 py-9 text-sm text-primary-foreground/70">
-        Stories from churches using Mene will appear here after they are reviewed.
+        Stories from churches using Mene:Log will appear here after they are reviewed.
       </div>
     );
   }
