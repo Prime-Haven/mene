@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Cake, CalendarDays, Filter, QrCode, TrendingUp, UserPlus, Users, VenusAndMars, X } from "lucide-react";
+import { Cake, CalendarDays, ChartNoAxesColumn, Filter, QrCode, TrendingUp, UserPlus, Users, VenusAndMars, X } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useMemo, useState } from "react";
 import {
@@ -100,7 +100,7 @@ function Dashboard() {
     { label: "Last attendance", value: data?.last_service_attendance ?? 0, icon: TrendingUp, tint: "bg-success/10 text-success" },
     { label: "First-timers · 30 days", value: data?.first_timers_30d ?? 0, icon: UserPlus, tint: "bg-chart-2/10 text-chart-2" },
     { label: "Services recorded", value: data?.services ?? 0, icon: CalendarDays, tint: "bg-chart-4/10 text-chart-4" },
-    { label: "Average attendance", value: averageAttendance, icon: BarChart, tint: "bg-chart-3/10 text-chart-3" },
+    { label: "Average attendance", value: averageAttendance, icon: ChartNoAxesColumn, tint: "bg-chart-3/10 text-chart-3" },
     { label: "Birthdays this month", value: birthdays?.length ?? 0, icon: Cake, tint: "bg-chart-5/10 text-chart-5" },
     { label: "Profile coverage", value: `${data?.members ? Math.round((genderTotal / data.members) * 100) : 0}%`, icon: VenusAndMars, tint: "bg-secondary text-secondary-foreground" },
     { label: "Member capacity", value: `${data?.members ?? 0} / ${ctx.limitWithExtras("member_limit").toLocaleString()}`, icon: Users, tint: "bg-primary/10 text-primary" },
