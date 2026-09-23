@@ -38,7 +38,9 @@ export function ReviewPrompt() {
     if (!isAdmin || !state.data || state.data.submitted) return;
     const today = new Date();
     const monthKey = `mene-review-${today.getFullYear()}-${today.getMonth()}`;
-    if (today.getDate() < 30) return;
+    // The 30th, or the last day of shorter months such as February.
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    if (today.getDate() < Math.min(30, lastDay)) return;
     if (window.localStorage.getItem(monthKey)) return;
     window.localStorage.setItem(monthKey, "shown");
     setOpen(true);

@@ -26,3 +26,12 @@
 - [x] Redesign the dashboard with compact controls, KPI tiles, charts, and useful empty states
 - [x] Preserve Basic, Standard, and Premium feature visibility and limits
 - [x] Verify desktop and mobile layouts, motion, navigation, and browser stability
+
+## System audit — 2026-09-23
+- [x] Remove legacy master-password login from the database
+- [x] Confirm payment/space webhooks are replay-safe; retire unguarded old space function
+- [x] Constant-time cron secret, Mene:Log cron names, error status on failure
+- [x] Trust only edge IP for public help rate limit; revoke visitor access to internal functions
+- [x] February review prompt; keep personal details on signed-in onboarding path
+- [ ] Paystack webhook setup + real renewal — needs owner to configure webhook in Paystack
+- [ ] New features (giving, events, first-timer follow-up, exports, absence alerts, 2-step sign-in) — awaiting owner's pick

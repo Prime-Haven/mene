@@ -1616,10 +1616,6 @@ export type Database = {
         Args: { p_member: string; p_opt_out: boolean }
         Returns: undefined
       }
-      set_super_admin_password: {
-        Args: { p_new_password: string; p_username: string }
-        Returns: boolean
-      }
       subdomain_available: { Args: { p_subdomain: string }; Returns: boolean }
       submit_church_review: {
         Args: {
@@ -1676,10 +1672,6 @@ export type Database = {
       }
       user_branch: { Args: { _tenant: string }; Returns: string }
       user_position_path: { Args: { _tenant: string }; Returns: unknown }
-      verify_super_admin_credentials: {
-        Args: { p_password: string; p_username: string }
-        Returns: Json
-      }
     }
     Enums: {
       account_status: "active" | "suspended"
