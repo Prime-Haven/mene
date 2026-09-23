@@ -57,6 +57,7 @@ export function MfaChallenge({ onDone }: { onDone: () => void }) {
 /** Enrolls a new authenticator: shows a QR code, then confirms with a code. */
 export function MfaEnroll({ onDone }: { onDone: () => void }) {
   const [enroll, setEnroll] = useState<{ id: string; qr: string; secret: string } | null>(null);
+  const [failed, setFailed] = useState(false);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -66,7 +67,7 @@ export function MfaEnroll({ onDone }: { onDone: () => void }) {
       const { data: f } = await supabase.auth.mfa.listFactors();
       for (const u of f?.all ?? []) if (u.status !== "verified") await supabase.auth.mfa.unenroll({ factorId: u.id });
       const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: `Mene:Log ${Date.now()}` });
-      if (error || !data) { toast.error("Could not start setup."); return; }
+      if (error || !data) { if (!cancelled) setFailed(true); toast.error("Could not start setup. Sign out and sign in again."); return; }
       if (!cancelled) setEnroll({ id: data.id, qr: data.totp.qr_code, secret: data.totp.secret });
     })();
     return () => { cancelled = true; };
@@ -81,7 +82,7 @@ export function MfaEnroll({ onDone }: { onDone: () => void }) {
     toast.success("Two-step sign-in is on");
     onDone();
   }
-  if (!enroll) return <p className="text-sm text-muted-foreground">Preparing…</p>;
+  if (!enroll) return <p className="text-sm text-muted-foreground">{failed ? "Setup could not start. Please sign out, sign in again and retry." : "Preparing…"}</p>;
   return (
     <form onSubmit={verify} className="space-y-3">
       <p className="text-sm">Scan this with Google Authenticator, Microsoft Authenticator or similar.</p>
