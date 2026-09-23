@@ -1,14 +1,19 @@
-# Welcome to your Lovable project
+# Secure Shield
+
+Build this fully.
+Ensure supreme data protection, rate limiting and add all security features to avoid any leaks or breaches. For the payment gateway, just building, i will add the paystack key later. Remve .env files from repo
 
 This project was built with [Lovable](https://lovable.dev).
 
+**Live app**: https://mene.lovable.app
+
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/78d6d228-037e-4fe9-8a78-ee4494e72e2b).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +25,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
