@@ -12,7 +12,8 @@
     "format": "prettier --write ."
   },
   "overrides": {
-    "rolldown": "1.2.1"
+    "rolldown": "1.2.1",
+    "js-yaml": "4.3.2"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.71",
@@ -68,6 +69,7 @@
     "lucide-react": "^0.575.0",
     "motion": "^13.4.0",
     "nanoid": "^6.0.1",
+    "papaparse": "^5.7.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
@@ -83,13 +85,13 @@
     "use-stick-to-bottom": "^1.1.6",
     "vaul": "^1.1.2",
     "vite-tsconfig-paths": "^6.0.2",
-    "xlsx": "^0.18.5",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "^2.23.1",
     "@types/node": "^22.16.5",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",

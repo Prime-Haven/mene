@@ -158,11 +158,13 @@ function Members() {
 
   const importRows = useMutation({
     mutationFn: async (file: File) => {
-      const XLSX = await import("xlsx");
-      const buffer = await file.arrayBuffer();
-      const wb = XLSX.read(buffer, { type: "array" });
-      const sheet = wb.Sheets[wb.SheetNames[0]!]!;
-      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
+      const { default: Papa } = await import("papaparse");
+      const parsed = Papa.parse<Record<string, unknown>>(await file.text(), {
+        header: true,
+        skipEmptyLines: true,
+      });
+      if (parsed.errors.length) throw new Error(`Could not read CSV row ${parsed.errors[0]?.row ?? 1}.`);
+      const rows = parsed.data;
 
       const pick = (row: Record<string, unknown>, keys: string[]) => {
         for (const key of Object.keys(row)) {
@@ -253,7 +255,7 @@ function Members() {
               <input
                 ref={fileRef}
                 type="file"
-                accept=".xlsx,.xls,.csv"
+                accept=".csv,text/csv"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -262,7 +264,7 @@ function Members() {
                 }}
               />
               <Button variant="outline" onClick={() => fileRef.current?.click()} disabled={importRows.isPending}>
-                <Upload className="size-4" /> Import Excel
+                <Upload className="size-4" /> Import CSV
               </Button>
               <Button onClick={() => setAddOpen(true)}>
                 <UserPlus className="size-4" /> Add member
