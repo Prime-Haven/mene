@@ -138,7 +138,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AnimatePresence mode="wait" initial={false}>
-        <motion.div key={pathname} initial={reduceMotion ? false : { opacity: 0, filter: "blur(7px)" }} animate={{ opacity: 1, filter: "blur(0px)" }} exit={reduceMotion ? { opacity: 1 } : { opacity: 0, filter: "blur(5px)" }} transition={{ duration: reduceMotion ? 0 : 0.28 }}>
+        <motion.div
+          key={pathname}
+          initial={reduceMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={reduceMotion ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.28 }}
+        >
           <Outlet />
         </motion.div>
       </AnimatePresence>
