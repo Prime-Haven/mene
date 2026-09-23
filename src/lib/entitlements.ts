@@ -19,6 +19,7 @@ export type Feature =
   | "branches"
   | "leaders"
   | "space_addon"
+  | "followups"
   | "email"
   | "sms"
   | "broadcasts"
@@ -44,6 +45,7 @@ export const ENTITLEMENTS: Record<Tier, Entitlement> = {
     branches: false,
     leaders: false,
     space_addon: false,
+    followups: false,
     email: true,
     sms: false,
     broadcasts: false,
@@ -67,6 +69,7 @@ export const ENTITLEMENTS: Record<Tier, Entitlement> = {
     branches: false,
     leaders: true,
     space_addon: true,
+    followups: true,
     email: true,
     sms: false,
     broadcasts: true,
@@ -90,6 +93,7 @@ export const ENTITLEMENTS: Record<Tier, Entitlement> = {
     branches: true,
     leaders: true,
     space_addon: true,
+    followups: true,
     email: true,
     sms: true,
     broadcasts: true,
@@ -126,6 +130,7 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   branches: "Multiple branches",
   leaders: "Leader accounts",
   space_addon: "Extra member space",
+  followups: "First-timer follow-ups",
   email: "Email",
   sms: "Text messages",
   broadcasts: "Broadcasts",
