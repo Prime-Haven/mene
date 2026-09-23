@@ -55,7 +55,7 @@ const nav: NavItem[] = [
     show: (c) => c.isAdmin && c.can("leaders"),
   },
   { to: "/reports", label: "Reports", icon: BarChart3, show: (c) => c.canSeeReports },
-  { to: "/ask-mene", label: "Ask Mene", icon: Sparkles, show: (c) => c.isAdmin && c.can("ask_mene") },
+  { to: "/ask-mene", label: "Ask Mene:Log", icon: Sparkles, show: (c) => c.isAdmin && c.can("ask_mene") },
   {
     to: "/messaging",
     label: "Messaging",
