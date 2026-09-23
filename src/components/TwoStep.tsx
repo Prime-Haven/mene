@@ -57,6 +57,7 @@ export function MfaChallenge({ onDone }: { onDone: () => void }) {
 /** Enrolls a new authenticator: shows a QR code, then confirms with a code. */
 export function MfaEnroll({ onDone }: { onDone: () => void }) {
   const [enroll, setEnroll] = useState<{ id: string; qr: string; secret: string } | null>(null);
+  const [failed, setFailed] = useState(false);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -66,7 +67,7 @@ export function MfaEnroll({ onDone }: { onDone: () => void }) {
       const { data: f } = await supabase.auth.mfa.listFactors();
       for (const u of f?.all ?? []) if (u.status !== "verified") await supabase.auth.mfa.unenroll({ factorId: u.id });
       const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: `Mene:Log ${Date.now()}` });
-      if (error || !data) { toast.error("Could not start setup."); return; }
+      if (error || !data) { if (!cancelled) setFailed(true); toast.error("Could not start setup. Sign out and sign in again."); return; }
       if (!cancelled) setEnroll({ id: data.id, qr: data.totp.qr_code, secret: data.totp.secret });
     })();
     return () => { cancelled = true; };
@@ -81,7 +82,7 @@ export function MfaEnroll({ onDone }: { onDone: () => void }) {
     toast.success("Two-step sign-in is on");
     onDone();
   }
-  if (!enroll) return <p className="text-sm text-muted-foreground">Preparing…</p>;
+  if (!enroll) return <p className="text-sm text-muted-foreground">{failed ? "Setup could not start. Please sign out, sign in again and retry." : "Preparing…"}</p>;
   return (
     <form onSubmit={verify} className="space-y-3">
       <p className="text-sm">Scan this with Google Authenticator, Microsoft Authenticator or similar.</p>
@@ -94,14 +95,15 @@ export function MfaEnroll({ onDone }: { onDone: () => void }) {
 }
 
 /** Blocks the signed-in app until the second step is satisfied (or set up, when required). */
-export function MfaGate({ required, children }: { required: boolean; children: ReactNode }) {
+export function MfaGate({ children }: { required?: boolean; children: ReactNode }) {
+  const required = true;
   const state = useMfaState();
   const qc = useQueryClient();
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["mfa-state"] });
     qc.invalidateQueries();
   };
-  if (state.isLoading || !state.data) return <>{children}</>;
+  if (state.isLoading || !state.data) return <div className="grid min-h-[60vh] place-items-center text-sm text-muted-foreground">Checking your sign-in…</div>;
   const { current, next, factors } = state.data;
   const needsChallenge = next === "aal2" && current !== "aal2";
   const needsSetup = required && factors.length === 0;
@@ -111,7 +113,7 @@ export function MfaGate({ required, children }: { required: boolean; children: R
       <div className="w-full max-w-sm rounded-lg border bg-card p-6 shadow-[var(--shadow-panel)]">
         <ShieldCheck className="size-6 text-primary" />
         <h1 className="mt-3 text-lg font-bold">{needsSetup ? "Set up two-step sign-in" : "Two-step sign-in"}</h1>
-        <p className="mb-4 mt-1 text-sm text-muted-foreground">{needsSetup ? "Your church requires it for every staff account." : "Enter the code to continue."}</p>
+        <p className="mb-4 mt-1 text-sm text-muted-foreground">{needsSetup ? "Every Mene:Log account needs Google Authenticator (or a similar app). You will enter a code at each sign-in." : "Enter the code to continue."}</p>
         {needsSetup ? <MfaEnroll onDone={refresh} /> : <MfaChallenge onDone={refresh} />}
       </div>
     </div>
@@ -144,20 +146,10 @@ export function TwoStepSettings({ tenantId, isOwner, requireMfa }: { tenantId: s
     <section className="rounded-lg border bg-card p-5">
       <h2 className="flex items-center gap-2 text-base font-semibold"><ShieldCheck className="size-4 text-primary" /> Two-step sign-in</h2>
       <p className="mt-1 text-sm text-muted-foreground">Ask for a code from an authenticator app after your password.</p>
-      {enrolling ? (
-        <div className="mt-4 max-w-sm"><MfaEnroll onDone={() => { setEnrolling(false); qc.invalidateQueries({ queryKey: ["mfa-state"] }); }} /></div>
-      ) : (
-        <div className="mt-4 flex flex-wrap gap-2">
-          <span className={`rounded px-2 py-1 text-xs font-semibold ${on ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{on ? "On" : "Off"}</span>
-          {on ? <Button size="sm" variant="outline" onClick={turnOff}>Turn off</Button> : <Button size="sm" onClick={() => setEnrolling(true)}>Turn on</Button>}
-        </div>
-      )}
-      {isOwner && (
-        <label className="mt-4 flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={requireMfa} onChange={(e) => setRequired(e.target.checked)} />
-          Require two-step sign-in for all staff in this church
-        </label>
-      )}
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <span className={`rounded px-2 py-1 text-xs font-semibold ${on ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>{on ? "On" : "Setting up"}</span>
+        <span className="text-xs text-muted-foreground">Required for every account. A code is asked at each sign-in.</span>
+      </div>
     </section>
   );
 }

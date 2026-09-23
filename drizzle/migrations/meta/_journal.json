@@ -127,6 +127,13 @@
       "when": 1790193124718,
       "tag": "0017_operator_requires_two_step",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790193720904,
+      "tag": "0018_fix_manual_attendance_conflict",
+      "breakpoints": true
     }
   ]
 }
