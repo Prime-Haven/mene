@@ -54,7 +54,7 @@ export function renderEmail(options: {
 <h1 style="margin:10px 0 18px;font-size:20px">${escapeHtml(options.subject)}</h1></td></tr>
 <tr><td style="padding:0 28px 26px;font-size:15px;color:#334155">${paragraphs}</td></tr>
 <tr><td style="padding:16px 28px 24px;border-top:1px solid #e8ecf1;font-size:12px;color:#94a3b8;text-align:center">
-Sent by ${escapeHtml(options.churchName)} · powered by Mene</td></tr>
+Sent by ${escapeHtml(options.churchName)} · powered by Mene:Log</td></tr>
 </table></td></tr></table></body></html>`;
 }
 
@@ -69,8 +69,8 @@ export async function sendEmail(options: {
   if (!key) return { ok: false, error: "Email is not configured yet" };
   const lovableKey = process.env["LOVABLE_API_KEY"];
   if (!lovableKey) return { ok: false, error: "Email is not configured yet" };
-  const from = process.env["MENE_EMAIL_FROM"] ?? "Mene <onboarding@resend.dev>";
-  const safeName = options.fromName.replace(/[<>"\n\r]/g, "").slice(0, 60) || "Mene";
+  const from = process.env["MENE_EMAIL_FROM"] ?? "Mene:Log <onboarding@resend.dev>";
+  const safeName = options.fromName.replace(/[<>"\n\r]/g, "").slice(0, 60) || "Mene:Log";
   const sender = from.includes("<") ? from : `${safeName} <${from}>`;
 
   try {
@@ -114,7 +114,7 @@ export async function sendSms(options: {
 }): Promise<SendResult> {
   const key = process.env["ARKESEL_API_KEY"];
   if (!key) return { ok: false, error: "Text messaging is not configured yet" };
-  const sender = (options.sender ?? process.env["ARKESEL_SENDER_ID"] ?? "Mene")
+  const sender = (options.sender ?? process.env["ARKESEL_SENDER_ID"] ?? "MeneLog")
     .replace(/[^A-Za-z0-9 ]/g, "")
     .slice(0, 11);
 

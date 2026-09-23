@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 /**
- * On the 30th of each month we invite each church administrator to review Mene.
- * Each administrator can share one review, and it appears on the Mene homepage
+ * On the 30th of each month we invite each church administrator to review Mene:Log.
+ * Each administrator can share one review, and it appears on the Mene:Log homepage
  * once Prime Haven approves it.
  */
 export function ReviewPrompt() {
@@ -70,9 +70,9 @@ export function ReviewPrompt() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>How is Mene working for {tenant?.name}?</DialogTitle>
+          <DialogTitle>How is Mene:Log working for {tenant?.name}?</DialogTitle>
           <DialogDescription>
-            Share one short review. Once our team approves it, it appears on the Mene homepage so
+            Share one short review. Once our team approves it, it appears on the Mene:Log homepage so
             other churches can hear from you.
           </DialogDescription>
         </DialogHeader>
@@ -98,7 +98,7 @@ export function ReviewPrompt() {
               value={quote}
               onChange={(e) => setQuote(e.target.value)}
               className="w-full rounded-md border border-input bg-background p-3 text-sm"
-              placeholder="What changed for your church since you started using Mene?"
+              placeholder="What changed for your church since you started using Mene:Log?"
             />
             <p className="text-xs text-muted-foreground">{quote.length}/600</p>
           </div>

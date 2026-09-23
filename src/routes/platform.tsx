@@ -16,10 +16,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { staggerContainer, fadeUp } from "@/lib/animations";
 
 export const Route = createFileRoute("/platform")({ ssr: false, head: () => ({ meta: [
-  { title: "Prime Haven console — Mene" },
-  { name: "description", content: "Restricted account, package, billing health, and review operations for Mene." },
-  { property: "og:title", content: "Prime Haven console — Mene" },
-  { property: "og:description", content: "Restricted account, package, billing health, and review operations for Mene." },
+  { title: "Prime Haven console — Mene:Log" },
+  { name: "description", content: "Restricted account, package, billing health, and review operations for Mene:Log." },
+  { property: "og:title", content: "Prime Haven console — Mene:Log" },
+  { property: "og:description", content: "Restricted account, package, billing health, and review operations for Mene:Log." },
   { property: "og:type", content: "website" },
   { name: "twitter:card", content: "summary" },
   { name: "robots", content: "noindex, nofollow" },
@@ -73,7 +73,7 @@ function Platform() {
   const pendingReviews=useMemo(()=>reviews.data?.filter(r=>r.status==="pending")??[],[reviews.data]);
   const decidedReviews=useMemo(()=>reviews.data?.filter(r=>r.status!=="pending")??[],[reviews.data]);
   const churches=useMemo(()=>overview.data?.churches.filter(c=>(tier==="all"||c.tier===tier)&&(status==="all"||c.status===status)&&`${c.name} ${c.subdomain} ${c.contact_email??""}`.toLowerCase().includes(search.toLowerCase()))??[],[overview.data,search,tier,status]);
-  const pendingChurches = useMemo(() => overview.data?.churches.filter((c) => c.approval_status === "pending") ?? [], [overview.data]);
+  const pendingChurches = useMemo(() => overview.data?.churches.filter((c) => c.approval_status === "pending_approval") ?? [], [overview.data]);
 
   if(loading||operator.isLoading||(isOperator&&overview.isLoading))return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading Prime Haven console…</div>;
   if(!isOperator)return <div className="grid min-h-screen place-items-center px-5 text-center"><div><ShieldCheck className="mx-auto size-8 text-muted-foreground"/><h1 className="mt-4 text-xl font-bold">Prime Haven access only</h1><p className="mt-2 text-sm text-muted-foreground">This console never grants access to church member records.</p><Button asChild className="mt-5"><Link to="/super-admin">Sign in as Super Admin</Link></Button></div></div>;
@@ -86,7 +86,7 @@ function Platform() {
   };
 
   return <div className="min-h-screen bg-muted/25">
-    <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur-xl"><div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6"><span className="grid size-9 place-items-center rounded-xl bg-black text-white"><ShieldCheck className="size-4"/></span><div><p className="font-display text-sm font-bold">Prime Haven</p><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Mene operations</p></div><Button variant="ghost" size="sm" className="ml-auto" onClick={handleSignOut}><LogOut className="size-4"/> Sign out</Button></div></header>
+    <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur-xl"><div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6"><span className="grid size-9 place-items-center rounded-xl bg-deep text-deep-foreground"><ShieldCheck className="size-4"/></span><div><p className="font-display text-sm font-bold">Prime Haven</p><p className="text-[10px] uppercase tracking-widest text-muted-foreground">Mene:Log operations</p></div><Button variant="ghost" size="sm" className="ml-auto" onClick={handleSignOut}><LogOut className="size-4"/> Sign out</Button></div></header>
     <main className="mx-auto max-w-7xl space-y-7 px-4 py-7 sm:px-6 lg:px-8"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-eyebrow">Platform overview</p><h1 className="mt-2 font-display text-3xl font-bold">Operations console</h1><p className="mt-1 text-sm text-muted-foreground">Account operations and aggregate health only. No church database access.</p></div><Button onClick={()=>setForm({...emptyForm})}><Plus className="size-4"/> Create church shell</Button></div>
     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">{stats.map(({label,value,icon:Icon})=><motion.div variants={fadeUp} key={label} className="surface p-4"><Icon className="size-4 text-primary"/><p className="mt-4 text-2xl font-bold">{value}</p><p className="mt-1 text-xs text-muted-foreground">{label}</p></motion.div>)}</motion.div>
     <Tabs defaultValue="churches"><TabsList className="w-full justify-start overflow-x-auto sm:w-auto"><TabsTrigger value="churches">Churches</TabsTrigger><TabsTrigger value="pending">Pending Approvals{pendingChurches.length > 0 && <Badge variant="destructive" className="ml-1.5 px-1.5">{pendingChurches.length}</Badge>}</TabsTrigger><TabsTrigger value="payments">Payments</TabsTrigger><TabsTrigger value="reviews">Reviews{pendingReviews.length>0&&<Badge variant="destructive" className="ml-1.5 px-1.5">{pendingReviews.length}</Badge>}</TabsTrigger><TabsTrigger value="audit">Audit</TabsTrigger></TabsList>
