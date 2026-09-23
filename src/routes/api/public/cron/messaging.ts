@@ -34,11 +34,15 @@ export const Route = createFileRoute("/api/public/cron/messaging")({
         }
         const drained = await processQueue(200);
 
-        return Response.json({
-          queued: automations ?? null,
-          sent: drained.sent,
-          failed: drained.failed,
-        });
+        return Response.json(
+          {
+            queued: automations ?? null,
+            sent: drained.sent,
+            failed: drained.failed,
+            automationsError: error ? true : undefined,
+          },
+          { status: error ? 500 : 200 },
+        );
       },
     },
   },
