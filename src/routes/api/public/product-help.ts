@@ -31,7 +31,8 @@ export const Route = createFileRoute("/api/public/product-help")({
           const input = Input.safeParse(await request.json());
           if (!input.success) return Response.json({ error: "Ask one question of up to 500 characters." }, { status: 400 });
 
-          const forwarded = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+          // Only trust the edge-set header; client-supplied x-forwarded-for is spoofable.
+          const forwarded = request.headers.get("cf-connecting-ip") ?? "unknown";
           const identifier = createHash("sha256").update(forwarded.trim()).digest("hex");
           const client = publishableClient();
           const { data: allowed, error: limitError } = await client.rpc("public_help_allow_request", { p_identifier: identifier });
